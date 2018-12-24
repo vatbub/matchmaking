@@ -21,7 +21,7 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 
-object ServerContext {
-    var currentConnectionIdProvider = MemoryIdProvider()
-    var currentMessageDispatcher = MessageDispatcher()
-}
+class ServerContext(
+    var connectionIdProvider: ConnectionIdProvider = MemoryIdProvider(),
+    var messageDispatcher: MessageDispatcher = MessageDispatcher()
+)

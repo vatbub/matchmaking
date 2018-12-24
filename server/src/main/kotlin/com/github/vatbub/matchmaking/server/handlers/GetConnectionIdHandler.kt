@@ -23,16 +23,16 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
+import com.github.vatbub.matchmaking.server.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.RequestHandler
-import com.github.vatbub.matchmaking.server.ServerContext
 
-class GetConnectionIdHandler : RequestHandler {
+class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) : RequestHandler {
     override fun canHandle(request: Request): Boolean {
         return request is GetConnectionIdRequest
     }
 
     override fun handle(request: Request): Response {
-        return GetConnectionIdResponse(ServerContext.currentConnectionIdProvider.getNewId())
+        return GetConnectionIdResponse(connectionIdProvider.getNewId())
     }
 
 }

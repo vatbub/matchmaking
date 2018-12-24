@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class ServerServlet : HttpServlet() {
+class ServerServlet(private val serverContext: ServerContext = ServerContext()) : HttpServlet() {
     private val gson = Gson()
     private val encoding = "UTF-8"
 
@@ -38,9 +38,9 @@ class ServerServlet : HttpServlet() {
         resetHandlers()
     }
 
-    fun resetHandlers(){
-        ServerContext.currentMessageDispatcher.removeAllHandlers()
-        ServerContext.currentMessageDispatcher.registerHandler(GetConnectionIdHandler())
+    fun resetHandlers() {
+        serverContext.messageDispatcher.removeAllHandlers()
+        serverContext.messageDispatcher.registerHandler(GetConnectionIdHandler(serverContext.connectionIdProvider))
     }
 
     override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
@@ -62,7 +62,7 @@ class ServerServlet : HttpServlet() {
 
         @Suppress("LiftReturnOrAssignment")
         try {
-            responseInteraction = ServerContext.currentMessageDispatcher.dispatch(concreteRequest)
+            responseInteraction = serverContext.messageDispatcher.dispatch(concreteRequest)
         } catch (e: IllegalArgumentException) {
             responseInteraction = BadRequestException(e.javaClass.name + ", " + e.message)
         } catch (e: Exception) {
