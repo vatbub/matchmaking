@@ -21,11 +21,8 @@ package com.github.vatbub.matchmaking.common.responses
 
 import com.github.vatbub.matchmaking.common.Response
 
-class ServerInteractionException(
+open class ServerInteractionException(
     message: String?,
     override var httpStatusCode: Int,
-    override val connectionId: String?
-) : RuntimeException(message), Response {
-    override val className: String
-        get() = ServerInteractionException::class.qualifiedName!!
-}
+    override val connectionId: String?, override val className: String
+) : RuntimeException(message), Response

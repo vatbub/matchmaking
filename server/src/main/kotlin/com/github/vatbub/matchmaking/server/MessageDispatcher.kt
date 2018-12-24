@@ -46,4 +46,8 @@ class MessageDispatcher {
     fun removeHandler(handler: RequestHandler): Boolean {
         return handlers.remove(handler)
     }
+
+    fun removeAllHandlers(){
+        handlers.clear()
+    }
 }
