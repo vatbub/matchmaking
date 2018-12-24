@@ -32,7 +32,7 @@ java -jar server/target/dependency/webapp-runner.jar server/target/matchmaking.s
 ### ... in general
 - Clients connect themselves to the server and tell the server that they wish to connect to a room.
 - If the client is the first to connect, a new room will be created and the client will have to wait for the room to become full.
-- Clients who connect afterwards will be asigned to the same room until the room is full and a game can begin.
+- Clients who connect afterwards will be assigned to the same room until the room is full and a game can begin.
 - Once the game has started, the server acts as a relay station. Clients send updates to the server and the server distributes the current state of the game to all clients. This technique circumvents the need for peer-to-peer connections between the players.
 - If a client looses its connection to the server but manages to reconnect eventually, the server will recognize the client and the game can resume
 

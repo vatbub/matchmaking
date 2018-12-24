@@ -22,5 +22,4 @@ package com.github.vatbub.matchmaking.server
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-open class KotlinTestSuperclass {
-}
+open class KotlinTestSuperclass

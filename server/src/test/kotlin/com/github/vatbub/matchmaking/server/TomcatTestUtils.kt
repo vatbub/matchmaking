@@ -31,7 +31,7 @@ open class TomcatTestUtils(
     servletName: String,
     servlet: Servlet,
     servletPattern: String
-)  {
+) {
     @Suppress("MemberVisibilityCanBePrivate")
     val tomcat = Tomcat()
     private var destinationPath: Path
@@ -43,11 +43,12 @@ open class TomcatTestUtils(
     init {
         val relativeFolders = listOf("src", "main", "webapp")
 
-        tomcat.setBaseDir(".")
+        tomcat.setBaseDir("target")
         tomcat.setPort(tomcatPort)
 
         baseDir = tomcat.server.catalinaHome.toPath()
-        var sourcePath = baseDir.parent.resolve("server")
+        println("Tomcat-baseDir: $baseDir")
+        var sourcePath = baseDir.parent.parent.resolve("server")
         webappsPath = baseDir.resolve("webapps")
         destinationPath = webappsPath
 
@@ -65,10 +66,10 @@ open class TomcatTestUtils(
         tomcat.init()
         tomcat.start()
     }
+
     fun shutTomcatDown() {
         tomcat.stop()
         FileUtils.deleteDirectory(destinationPath.toFile())
         FileUtils.deleteDirectory(webappsPath.toFile())
-        FileUtils.deleteDirectory(baseDir.toFile())
     }
 }

@@ -24,7 +24,7 @@ import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.server.RequestHandler
 
 
-class DummyRequestHandler() : RequestHandler {
+class DummyRequestHandler : RequestHandler {
     override fun canHandle(request: Request): Boolean {
         return true
     }

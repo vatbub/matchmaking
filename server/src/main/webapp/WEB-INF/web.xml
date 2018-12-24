@@ -37,11 +37,6 @@
         <servlet-class>com.github.vatbub.matchmaking.server.ServerServlet</servlet-class>
     </servlet>
 
-    <!-- <servlet>
-        <servlet-name>ErrorHandlingServlet</servlet-name>
-        <servlet-class>com.github.vatbub.awsec2wakelauncher.server.ErrorHandlingServlet</servlet-class>
-    </servlet> -->
-
     <servlet-mapping>
         <servlet-name>MainServlet</servlet-name>
         <url-pattern>/</url-pattern>
@@ -58,29 +53,4 @@
         <url-pattern>/resources/*</url-pattern>
         <!-- <url-pattern>*.png</url-pattern> -->
     </servlet-mapping>
-
-    <!-- <servlet-mapping>
-        <servlet-name>ErrorHandlingServlet</servlet-name>
-        <url-pattern>/ErrorHandling</url-pattern>
-    </servlet-mapping> -->
-
-    <!-- <error-page>
-        <error-code>404</error-code>
-        <location>/ErrorHandling</location>
-    </error-page>
-
-    <error-page>
-        <error-code>405</error-code>
-        <location>/ErrorHandling</location>
-    </error-page>
-
-    <error-page>
-        <error-code>400</error-code>
-        <location>/ErrorHandling</location>
-    </error-page>
-
-    <error-page>
-        <error-code>500</error-code>
-        <location>/ErrorHandling</location>
-    </error-page> -->
 </web-app>

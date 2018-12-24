@@ -6,11 +6,13 @@ import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyResponse
 import com.github.vatbub.matchmaking.server.dummies.DynamicRequestHandler
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jsunsoft.http.HttpRequestBuilder
 import com.jsunsoft.http.NoSuchContentException
 import org.apache.commons.io.IOUtils
 import org.junit.Assert
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.net.URL
@@ -41,18 +43,23 @@ class ServerServletTest : KotlinTestSuperclass() {
     private val apiSuffix: String = "matchmaking"
     private val serverContext = ServerContext()
     private val api: ServerServlet = ServerServlet(serverContext)
-
+    private val tomcatTestUtils: TomcatTestUtils
 
     init {
-        TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$apiSuffix")
+        tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$apiSuffix")
     }
 
-    val gson = GsonBuilder().setPrettyPrinting().create()
-    val connectionId = (4567876543).toString(16)
+    private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+    private val connectionId = (4567876543).toString(16)
 
     @BeforeEach
     fun resetServer() {
         api.resetHandlers()
+    }
+
+    @AfterAll
+    fun shutServerDown(){
+        tomcatTestUtils.shutTomcatDown()
     }
 
     private fun doRequest(json: String): String {

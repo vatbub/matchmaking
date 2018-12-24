@@ -25,7 +25,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.jupiter.api.Test
 
-abstract class ConnectionIdProviderTest(val connectionIdProvider: ConnectionIdProvider) : KotlinTestSuperclass() {
+abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate") val connectionIdProvider: ConnectionIdProvider) : KotlinTestSuperclass() {
 
     @Before
     fun setUp() {
