@@ -22,7 +22,25 @@ package com.github.vatbub.matchmaking.server
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 
+/**
+ * Interface for a class which can handle requests sent to the server
+ */
 interface RequestHandler {
-    fun handle(request: Request): Response
+    /**
+     * Specifies whether this candler is able to handle the specified request.
+     *
+     * **IMPORTANT:** The [MessageDispatcher] iterates through all registered handlers and calls this method on them.
+     * The first handler which returns `true` will actually get to handle the request. This means in turn that, if
+     * multiple handlers can handle the same type of request, only one of them will get to handle it.
+     *
+     * @return `true` if the handler is able to handle this request, `false` otherwise.
+     */
     fun canHandle(request: Request):Boolean
+
+    /**
+     * Handles the specified request, acts upon it and generates a response for it.
+     * @param request The request to be handled
+     * @return The response to that request
+     */
+    fun handle(request: Request): Response
 }

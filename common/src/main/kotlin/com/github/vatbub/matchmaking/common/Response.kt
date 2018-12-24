@@ -19,6 +19,10 @@
  */
 package com.github.vatbub.matchmaking.common
 
+/**
+ * Interface for all responses which can be returned by the server.
+ * @see ResponseImpl
+ */
 interface Response : ServerInteraction {
     var httpStatusCode: Int
 }

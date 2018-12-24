@@ -21,6 +21,9 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 
+/**
+ * Contains configuration information for the server
+ */
 class ServerContext(
     var connectionIdProvider: ConnectionIdProvider = MemoryIdProvider(),
     var messageDispatcher: MessageDispatcher = MessageDispatcher()

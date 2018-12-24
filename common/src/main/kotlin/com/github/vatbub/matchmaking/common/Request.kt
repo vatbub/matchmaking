@@ -19,4 +19,7 @@
  */
 package com.github.vatbub.matchmaking.common
 
+/**
+ * Superclass for all requests that can be sent over the network
+ */
 open class Request(override val connectionId: String?, override val className: String) :ServerInteraction

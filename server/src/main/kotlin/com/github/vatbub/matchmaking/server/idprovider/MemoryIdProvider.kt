@@ -22,6 +22,11 @@ package com.github.vatbub.matchmaking.server.idprovider
 import com.github.vatbub.matchmaking.server.ConnectionIdProvider
 import kotlin.random.Random
 
+/**
+ * Implementation of [ConnectionIdProvider] which keeps a list of used connection ids in memory.
+ * Therefore, connection ids are erased once the server is shut down and are not synced over multiple nodes
+ * To be used when the server is only running on a single node.
+ */
 class MemoryIdProvider : ConnectionIdProvider {
     private val connectionIdsInUse: MutableList<String> = mutableListOf()
 

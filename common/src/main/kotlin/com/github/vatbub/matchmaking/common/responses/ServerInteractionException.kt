@@ -21,7 +21,10 @@ package com.github.vatbub.matchmaking.common.responses
 
 import com.github.vatbub.matchmaking.common.Response
 
-open class ServerInteractionException(
+/**
+ * Superclass for exceptions that can be sent over the network
+ */
+abstract class ServerInteractionException(
     message: String?,
     override var httpStatusCode: Int,
     override val connectionId: String?, override val className: String

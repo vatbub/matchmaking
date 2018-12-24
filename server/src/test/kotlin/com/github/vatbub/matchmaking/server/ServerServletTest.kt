@@ -39,7 +39,8 @@ class ServerServletTest : KotlinTestSuperclass() {
 
     private val tomcatPort: Int = 9999
     private val apiSuffix: String = "matchmaking"
-    private val api: ServerServlet = ServerServlet()
+    private val serverContext = ServerContext()
+    private val api: ServerServlet = ServerServlet(serverContext)
 
 
     init {
@@ -108,7 +109,7 @@ class ServerServletTest : KotlinTestSuperclass() {
             Assert.assertTrue(requestToHandle is DummyRequest)
             DummyResponse(requestToHandle.connectionId)
         })
-        ServerContext.currentMessageDispatcher.registerHandler(handler)
+        serverContext.messageDispatcher.registerHandler(handler)
         val response = doRequest<DummyResponse>(request)
 
         Assert.assertEquals(connectionId, response.connectionId)

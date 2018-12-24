@@ -19,9 +19,29 @@
  */
 package com.github.vatbub.matchmaking.server
 
+import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
+
+/**
+ * Provides and stores connection ids.
+ * Implementations are expected to produce connection ids and store them for later use, e. g. in memory or in a database.
+ * See [MemoryIdProvider] for a reference implementation
+ */
 interface ConnectionIdProvider {
+    /**
+     * Called when a new connection id is requested. The implementation is expected to store the generated connection id
+     * automatically
+     */
     fun getNewId(): String
-    fun deleteId(id: String):Boolean
+
+    /**
+     * Deletes the specified id if it exists
+     * @return `true` if the specified id existed and thus was deleted, `false` if it didn't exist and thus no changes were made.
+     */
+    fun deleteId(id: String): Boolean
+
     fun containsId(id: String): Boolean
+    /**
+     * Deletes all known ids
+     */
     fun reset()
 }

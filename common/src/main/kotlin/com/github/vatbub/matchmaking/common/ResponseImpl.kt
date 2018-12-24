@@ -19,6 +19,11 @@
  */
 package com.github.vatbub.matchmaking.common
 
+import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
+
+/**
+ * A possible superclass for all normal server responses. For non-normal reponses, use [ServerInteractionException]
+ */
 open class ResponseImpl(override val connectionId: String?, override val className: String) : Response {
     override var httpStatusCode: Int = 200
 }

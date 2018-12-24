@@ -19,12 +19,19 @@
  */
 package com.github.vatbub.matchmaking.common
 
+/**
+ * An interface which must be implemented by all objects to be sent over the network.
+ * Please use either [Request] or [Response] to clearly identify which type of communication is meant.
+ */
 interface ServerInteraction {
-    fun getProtocolVersion(): String {
-        return "2.0"
-    }
+    val protocolVersion: String
+        get() = "2.0"
 
     val connectionId: String?
 
+    /**
+     * All objects should supply their class name as a string. This information is used by the server and client to
+     * deserialize the object correctly.
+     */
     val className: String
 }

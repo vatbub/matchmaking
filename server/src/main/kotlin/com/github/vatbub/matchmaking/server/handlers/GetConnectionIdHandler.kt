@@ -26,6 +26,9 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.server.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.RequestHandler
 
+/**
+ * Handles [GetConnectionIdRequest]s
+ */
 class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) : RequestHandler {
     override fun canHandle(request: Request): Boolean {
         return request is GetConnectionIdRequest

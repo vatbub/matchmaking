@@ -22,9 +22,17 @@ package com.github.vatbub.matchmaking.server
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 
+/**
+ * Dispatches received requests among the registered [RequestHandler]s.
+ */
 class MessageDispatcher {
     internal val handlers: MutableList<RequestHandler> = mutableListOf()
 
+    /**
+     * Iterates through all registered [RequestHandler]s and dispatches the request to the first handler which
+     * specifies that it can handle the request.
+     * @return The response returned by the handler or `null` if no suitable handler was found.
+     */
     fun dispatch(request: Request): Response? {
         for (handler in handlers) {
             if (handler.canHandle(request))

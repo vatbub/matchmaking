@@ -20,5 +20,12 @@
 package com.github.vatbub.matchmaking.common.requests
 
 import com.github.vatbub.matchmaking.common.Request
+import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 
-class GetConnectionIdRequest() : Request(null, GetConnectionIdRequest::class.qualifiedName!!)
+/**
+ * Requests a connection id from the server. This id serves for the purpose to recognize the client in further
+ * communication and thus must be used in all further requests.
+ *
+ * @see GetConnectionIdResponse
+ */
+class GetConnectionIdRequest : Request(null, GetConnectionIdRequest::class.qualifiedName!!)

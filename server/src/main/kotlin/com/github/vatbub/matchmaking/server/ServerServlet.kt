@@ -38,6 +38,9 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
         resetHandlers()
     }
 
+    /**
+     * Removes all handlers from the server's [MessageDispatcher] and reinstantiates the default handlers
+     */
     fun resetHandlers() {
         serverContext.messageDispatcher.removeAllHandlers()
         serverContext.messageDispatcher.registerHandler(GetConnectionIdHandler(serverContext.connectionIdProvider))
