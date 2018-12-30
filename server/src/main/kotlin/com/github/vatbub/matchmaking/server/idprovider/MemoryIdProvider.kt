@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.server.idprovider
 
 import com.github.vatbub.matchmaking.server.ConnectionIdProvider
+import java.util.*
 import kotlin.random.Random
 
 /**
@@ -27,8 +28,13 @@ import kotlin.random.Random
  * Therefore, connection ids are erased once the server is shut down and are not synced over multiple nodes
  * To be used when the server is only running on a single node.
  */
-class MemoryIdProvider : ConnectionIdProvider {
-    private val connectionIdsInUse: MutableList<String> = mutableListOf()
+open class MemoryIdProvider : ConnectionIdProvider {
+    private val _connectionIdsInUse: MutableList<String> = mutableListOf()
+
+    val connectionIdsInUse: List<String>
+        get() {
+            return Collections.unmodifiableList(_connectionIdsInUse)
+        }
 
     override fun getNewId(): String {
         var connectionIdAsString: String
@@ -40,19 +46,19 @@ class MemoryIdProvider : ConnectionIdProvider {
             connectionIdAsString = connectionId.toString(16)
         } while (containsId(connectionIdAsString))
 
-        connectionIdsInUse.add(connectionIdAsString)
+        _connectionIdsInUse.add(connectionIdAsString)
         return connectionIdAsString
     }
 
     override fun deleteId(id: String): Boolean {
-        return connectionIdsInUse.remove(id)
+        return _connectionIdsInUse.remove(id)
     }
 
     override fun containsId(id: String): Boolean {
-        return connectionIdsInUse.contains(id)
+        return _connectionIdsInUse.contains(id)
     }
 
     override fun reset() {
-        connectionIdsInUse.clear()
+        _connectionIdsInUse.clear()
     }
 }
