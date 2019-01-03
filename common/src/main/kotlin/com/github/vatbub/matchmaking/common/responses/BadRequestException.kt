@@ -22,5 +22,5 @@ package com.github.vatbub.matchmaking.common.responses
 /**
  * Returned by the server in case a bad request was sent which the server cannot handle for any reason.
  */
-class BadRequestException(message: String?, connectionId: String? = null) :
+class BadRequestException(message: String? = null, connectionId: String? = null) :
     ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!)

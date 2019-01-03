@@ -22,5 +22,5 @@ package com.github.vatbub.matchmaking.common.responses
 /**
  * Returned by the server when an internal error occurs.
  */
-class InternalServerErrorException(message: String?, connectionId: String? = null) :
+class InternalServerErrorException(message: String? = null, connectionId: String? = null) :
     ServerInteractionException(message, 500, connectionId, InternalServerErrorException::class.qualifiedName!!)
