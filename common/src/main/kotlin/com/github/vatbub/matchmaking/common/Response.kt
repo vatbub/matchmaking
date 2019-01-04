@@ -24,5 +24,8 @@ package com.github.vatbub.matchmaking.common
  * @see ResponseImpl
  */
 interface Response : ServerInteraction {
+    /**
+     * The http status code to be returned
+     */
     var httpStatusCode: Int
 }

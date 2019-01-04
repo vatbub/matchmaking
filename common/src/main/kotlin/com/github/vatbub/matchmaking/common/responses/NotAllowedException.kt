@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,14 +19,10 @@
  */
 package com.github.vatbub.matchmaking.common.responses
 
-import com.github.vatbub.matchmaking.common.Response
-
 /**
- * Superclass for exceptions that can be sent over the network
+ * Returned by the server in case a client sent a request he was not allowed to send.
+ * @param connectionId The connection id of the requesting client
  * @param message The error/exception message
  */
-abstract class ServerInteractionException(
-    message: String?,
-    override var httpStatusCode: Int,
-    override val connectionId: String?, override val className: String
-) : RuntimeException(message), Response
+class NotAllowedException(message: String? = null, connectionId: String? = null) :
+    ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!)

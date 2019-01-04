@@ -24,9 +24,6 @@ package com.github.vatbub.matchmaking.common
  * Please use either [Request] or [Response] to clearly identify which type of communication is meant.
  */
 interface ServerInteraction {
-    val protocolVersion: String
-        get() = "2.0"
-
     val connectionId: String?
 
     /**
@@ -34,4 +31,8 @@ interface ServerInteraction {
      * deserialize the object correctly.
      */
     val className: String
+
+    companion object {
+        val protocolVersion = "2.0"
+    }
 }

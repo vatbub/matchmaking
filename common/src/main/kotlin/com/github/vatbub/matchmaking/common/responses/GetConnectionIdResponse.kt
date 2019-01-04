@@ -24,7 +24,7 @@ import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
 
 /**
  * Response to [GetConnectionIdRequest] which contains the connection id assigned by the server.
- * This id shall be used in all further requests.
+ * @param connectionId The assigned id. This id shall be used in all further requests.
  */
 class GetConnectionIdResponse(connectionId: String) :
     ResponseImpl(connectionId, GetConnectionIdResponse::class.qualifiedName!!)
