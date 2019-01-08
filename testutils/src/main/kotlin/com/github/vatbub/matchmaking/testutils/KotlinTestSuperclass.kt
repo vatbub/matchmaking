@@ -17,18 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.handlers
+package com.github.vatbub.matchmaking.testutils
 
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
-abstract class RequestHandlerTestSuperclass: KotlinTestSuperclass() {
-    @Test
-    abstract fun handleTest()
-
-    @Test
-    abstract fun positiveCanHandleTest()
-
-    @Test
-    abstract fun negativeCanHandleTest()
-}
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+open class KotlinTestSuperclass

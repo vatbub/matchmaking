@@ -20,7 +20,7 @@
 package com.github.vatbub.matchmaking.server.idprovider
 
 import com.github.vatbub.matchmaking.server.ConnectionIdProvider
-import com.github.vatbub.matchmaking.server.KotlinTestSuperclass
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.Assert
 import org.junit.Before
 import org.junit.jupiter.api.Test

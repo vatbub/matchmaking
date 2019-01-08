@@ -35,4 +35,24 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @see GetRoomDataResponse
  */
 class UpdateGameStateRequest(connectionId: String?, val roomId: String, val gameData: GameData) :
-    Request(connectionId, UpdateGameStateRequest::class.qualifiedName!!)
+    Request(connectionId, UpdateGameStateRequest::class.qualifiedName!!) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as UpdateGameStateRequest
+
+        if (roomId != other.roomId) return false
+        if (gameData != other.gameData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + roomId.hashCode()
+        result = 31 * result + gameData.hashCode()
+        return result
+    }
+}

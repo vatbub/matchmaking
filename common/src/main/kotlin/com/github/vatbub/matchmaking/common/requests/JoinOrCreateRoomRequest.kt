@@ -39,11 +39,39 @@ class JoinOrCreateRoomRequest(
     connectionId: String?,
     val operation: Operation,
     val userName: String,
-    val userList: List<String>,
-    val userListMode: UserListMode,
-    val minRoomSize: Int,
-    val maxRoomSize: Int
-) : Request(connectionId, JoinOrCreateRoomRequest::class.qualifiedName!!)
+    val userList: List<String>? = null,
+    val userListMode: UserListMode = UserListMode.Ignore,
+    val minRoomSize: Int = 1,
+    val maxRoomSize: Int = 1
+) : Request(connectionId, JoinOrCreateRoomRequest::class.qualifiedName!!) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as JoinOrCreateRoomRequest
+
+        if (operation != other.operation) return false
+        if (userName != other.userName) return false
+        if (userList != other.userList) return false
+        if (userListMode != other.userListMode) return false
+        if (minRoomSize != other.minRoomSize) return false
+        if (maxRoomSize != other.maxRoomSize) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + operation.hashCode()
+        result = 31 * result + userName.hashCode()
+        result = 31 * result + (userList?.hashCode() ?: 0)
+        result = 31 * result + userListMode.hashCode()
+        result = 31 * result + minRoomSize
+        result = 31 * result + maxRoomSize
+        return result
+    }
+}
 
 enum class Operation {
     JoinRoom, CreateRoom, JoinOrCreateRoom

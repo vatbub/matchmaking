@@ -30,4 +30,22 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * @see GetRoomDataResponse
  */
 class GetRoomDataRequest(connectionId: String?, val roomId: String) :
-    Request(connectionId, GetRoomDataRequest::class.qualifiedName!!)
+    Request(connectionId, GetRoomDataRequest::class.qualifiedName!!) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as GetRoomDataRequest
+
+        if (roomId != other.roomId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + roomId.hashCode()
+        return result
+    }
+}

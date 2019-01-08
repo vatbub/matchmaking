@@ -29,4 +29,24 @@ abstract class ServerInteractionException(
     message: String?,
     override var httpStatusCode: Int,
     override val connectionId: String?, override val className: String
-) : RuntimeException(message), Response
+) : RuntimeException(message), Response {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ServerInteractionException
+
+        if (httpStatusCode != other.httpStatusCode) return false
+        if (connectionId != other.connectionId) return false
+        if (className != other.className) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = httpStatusCode
+        result = 31 * result + (connectionId?.hashCode() ?: 0)
+        result = 31 * result + className.hashCode()
+        return result
+    }
+}

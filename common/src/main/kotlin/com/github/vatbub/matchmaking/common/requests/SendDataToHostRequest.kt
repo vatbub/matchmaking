@@ -36,5 +36,26 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * @param dataToHost The data to be sent to the host
  * @see GetRoomDataResponse
  */
-class SendDataToHostRequest(connectionId: String?, val roomId: String, val dataToHost: Sequence<GameData>) :
-    Request(connectionId, SendDataToHostRequest::class.qualifiedName!!)
+class SendDataToHostRequest(connectionId: String?, val roomId: String, val dataToHost: List<GameData>) :
+    Request(connectionId, SendDataToHostRequest::class.qualifiedName!!) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as SendDataToHostRequest
+
+        if (roomId != other.roomId) return false
+        if (dataToHost != other.dataToHost) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + roomId.hashCode()
+        result = 31 * result + dataToHost.hashCode()
+        return result
+    }
+}

@@ -17,16 +17,15 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.common.data
+package com.github.vatbub.matchmaking.common.serializationtests.requests
 
-class GameData {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
+import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
+import com.github.vatbub.matchmaking.common.requests.Operation
+import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
 
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
+class JoinOrCreateRoomRequestSerializationTest :
+    SerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {
+    override fun newObjectUnderTest(): JoinOrCreateRoomRequest {
+        return JoinOrCreateRoomRequest(defaultConnectionId, Operation.JoinOrCreateRoom, getRandomHexString())
     }
 }

@@ -33,4 +33,22 @@ import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
  * @param room The room that was specified in the request. Please note that the data in the room does not update automatically. You need to poll the api to get updated data.
  */
 class GetRoomDataResponse(connectionId: String?, val room: Room) :
-    ResponseImpl(connectionId, GetRoomDataResponse::class.qualifiedName!!)
+    ResponseImpl(connectionId, GetRoomDataResponse::class.qualifiedName!!) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as GetRoomDataResponse
+
+        if (room != other.room) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + room.hashCode()
+        return result
+    }
+}

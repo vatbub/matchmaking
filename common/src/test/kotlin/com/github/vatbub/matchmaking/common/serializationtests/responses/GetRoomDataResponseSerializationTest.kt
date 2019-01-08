@@ -17,16 +17,15 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.common.data
+package com.github.vatbub.matchmaking.common.serializationtests.responses
 
-class GameData {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return true
-    }
+import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
+import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
 
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
+class GetRoomDataResponseSerializationTest :
+    SerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
+    override fun newObjectUnderTest(): GetRoomDataResponse {
+        return GetRoomDataResponse(defaultConnectionId, Room(getRandomHexString(), defaultConnectionId))
     }
 }

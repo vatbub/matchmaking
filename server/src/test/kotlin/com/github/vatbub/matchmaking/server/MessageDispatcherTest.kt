@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyRequestHandler
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 

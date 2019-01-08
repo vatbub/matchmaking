@@ -32,4 +32,22 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @see DestroyRoomResponse
  */
 class DestroyRoomRequest(connectionId: String?, val roomId: String) :
-    Request(connectionId, DestroyRoomRequest::class.qualifiedName!!)
+    Request(connectionId, DestroyRoomRequest::class.qualifiedName!!) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as DestroyRoomRequest
+
+        if (roomId != other.roomId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + roomId.hashCode()
+        return result
+    }
+}

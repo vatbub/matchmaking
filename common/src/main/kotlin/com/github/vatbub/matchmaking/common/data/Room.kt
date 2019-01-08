@@ -36,8 +36,8 @@ data class Room(
     val hostUserConnectionId: String,
     val configuredUserNameList: List<String>? = null,
     val configuredUserNameListMode: UserListMode = UserListMode.Ignore,
-    val minRoomSize: Int,
-    val maxRoomSize: Int
+    val minRoomSize: Int = 1,
+    val maxRoomSize: Int = 1
 ) {
     /**
      * The list of currently connected users
@@ -56,5 +56,5 @@ data class Room(
      * Important: The matchmaking server assumes that once the host has received the data he stores and processes it on its end.
      * The matchmaking server therefore clears the queue on his end once the queue has been sent to the user.
      */
-    val dataToBeSentToTheHost = emptySequence<GameData>()
+    val dataToBeSentToTheHost = listOf<GameData>()
 }

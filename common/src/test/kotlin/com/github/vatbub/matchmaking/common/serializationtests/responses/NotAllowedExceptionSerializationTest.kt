@@ -1,8 +1,8 @@
 /*-
  * #%L
- * matchmaking.server
+ * matchmaking.common
  * %%
- * Copyright (C) 2016 - 2018 Frederik Kammel
+ * Copyright (C) 2016 - 2019 Frederik Kammel
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,14 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.handlers
+package com.github.vatbub.matchmaking.common.serializationtests.responses
 
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.junit.jupiter.api.Test
+import com.github.vatbub.matchmaking.common.responses.NotAllowedException
+import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
 
-abstract class RequestHandlerTestSuperclass: KotlinTestSuperclass() {
-    @Test
-    abstract fun handleTest()
-
-    @Test
-    abstract fun positiveCanHandleTest()
-
-    @Test
-    abstract fun negativeCanHandleTest()
+class NotAllowedExceptionSerializationTest :
+    SerializationTestSuperclass<NotAllowedException>(NotAllowedException::class.java) {
+    override fun newObjectUnderTest(): NotAllowedException {
+        return NotAllowedException()
+    }
 }

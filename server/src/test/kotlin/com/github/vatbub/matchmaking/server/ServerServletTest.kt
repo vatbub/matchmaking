@@ -9,6 +9,7 @@ import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
 import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyResponse
 import com.github.vatbub.matchmaking.server.dummies.DynamicRequestHandler
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jsunsoft.http.HttpRequestBuilder
