@@ -19,14 +19,13 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests
 
-import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
-abstract class SerializationTestSuperclass<T : ServerInteraction>(private val clazz: Class<T>) :
+abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
     KotlinTestSuperclass() {
     abstract fun newObjectUnderTest(): T
 
@@ -38,10 +37,12 @@ abstract class SerializationTestSuperclass<T : ServerInteraction>(private val cl
 
     @Test
     fun serializationTest() {
-        val gson = Gson()
+        val gson = GsonBuilder().setPrettyPrinting().create()
         val originalObject = newObjectUnderTest()
         val json = gson.toJson(originalObject)
+        println("Generated json:\n$json")
         val deserializedObject: T = gson.fromJson<T>(json, clazz)
         Assert.assertEquals(originalObject, deserializedObject)
+        Assert.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
     }
 }
