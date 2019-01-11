@@ -21,14 +21,16 @@ package com.github.vatbub.matchmaking.server.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.server.RequestHandler
+import com.github.vatbub.matchmaking.server.handlers.RequestHandler
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 class DynamicRequestHandler(
     val canHandleFun: (request: Request) -> Boolean,
-    val handleFun: (request: Request) -> Response
+    val handleFun: (request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) -> Response
 ) : RequestHandler {
-    override fun handle(request: Request): Response {
-        return handleFun(request)
+    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+        return handleFun(request, sourceIp, sourceIpv6)
     }
 
     override fun canHandle(request: Request): Boolean {

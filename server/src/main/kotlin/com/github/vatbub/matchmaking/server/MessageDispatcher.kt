@@ -21,6 +21,9 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.server.handlers.RequestHandler
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 /**
  * Dispatches received requests among the registered [RequestHandler]s.
@@ -33,10 +36,10 @@ class MessageDispatcher {
      * specifies that it can handle the request.
      * @return The response returned by the handler or `null` if no suitable handler was found.
      */
-    fun dispatch(request: Request): Response? {
+    fun dispatch(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response? {
         for (handler in handlers) {
             if (handler.canHandle(request))
-                return handler.handle(request)
+                return handler.handle(request, sourceIp, sourceIpv6)
         }
 
         return null

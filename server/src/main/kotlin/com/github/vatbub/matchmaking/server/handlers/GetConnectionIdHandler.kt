@@ -23,18 +23,20 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
-import com.github.vatbub.matchmaking.server.ConnectionIdProvider
-import com.github.vatbub.matchmaking.server.RequestHandler
+import com.github.vatbub.matchmaking.server.idprovider.ConnectionIdProvider
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 /**
  * Handles [GetConnectionIdRequest]s
  */
-class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) : RequestHandler {
+class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) :
+    RequestHandler {
     override fun canHandle(request: Request): Boolean {
         return request is GetConnectionIdRequest
     }
 
-    override fun handle(request: Request): Response {
+    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         return GetConnectionIdResponse(connectionIdProvider.getNewId())
     }
 

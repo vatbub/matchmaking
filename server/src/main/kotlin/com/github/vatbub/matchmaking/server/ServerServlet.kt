@@ -24,8 +24,12 @@ import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.server.handlers.GetConnectionIdHandler
+import com.github.vatbub.matchmaking.server.handlers.JoinOrCreateRoomRequestHandler
 import com.google.gson.Gson
 import java.lang.Class.forName
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetAddress
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -44,6 +48,7 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
     fun resetHandlers() {
         serverContext.messageDispatcher.removeAllHandlers()
         serverContext.messageDispatcher.registerHandler(GetConnectionIdHandler(serverContext.connectionIdProvider))
+        serverContext.messageDispatcher.registerHandler(JoinOrCreateRoomRequestHandler(serverContext.roomProvider))
     }
 
     override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
@@ -65,7 +70,11 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
 
         @Suppress("LiftReturnOrAssignment")
         try {
-            responseInteraction = serverContext.messageDispatcher.dispatch(concreteRequest)
+            responseInteraction = serverContext.messageDispatcher.dispatch(
+                concreteRequest,
+                convertToIpv4(request.remoteAddr),
+                convertToIpv6(request.remoteAddr)
+            )
         } catch (e: IllegalArgumentException) {
             responseInteraction = BadRequestException(e.javaClass.name + ", " + e.message)
         } catch (e: Exception) {
@@ -90,5 +99,23 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
 
         response.outputStream.flush()
         response.outputStream.close()
+    }
+
+    private fun convertToIpv4(ipAddress: String): Inet4Address? {
+
+        val inetAddress = InetAddress.getByName(ipAddress)
+        return if (inetAddress is Inet4Address)
+            inetAddress
+        else
+            null
+    }
+
+    private fun convertToIpv6(ipAddress: String): Inet6Address? {
+
+        val inetAddress = InetAddress.getByName(ipAddress)
+        return if (inetAddress is Inet6Address)
+            inetAddress
+        else
+            null
     }
 }

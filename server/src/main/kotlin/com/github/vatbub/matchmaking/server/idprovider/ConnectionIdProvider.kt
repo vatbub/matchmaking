@@ -17,9 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server
-
-import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
+package com.github.vatbub.matchmaking.server.idprovider
 
 /**
  * Provides and stores connection ids.

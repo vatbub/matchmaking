@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
-import com.github.vatbub.matchmaking.server.ConnectionIdProvider
 import java.util.*
 import kotlin.random.Random
 

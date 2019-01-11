@@ -17,10 +17,13 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server
+package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.server.MessageDispatcher
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 /**
  * Interface for a class which can handle requests sent to the server
@@ -35,12 +38,12 @@ interface RequestHandler {
      *
      * @return `true` if the handler is able to handle this request, `false` otherwise.
      */
-    fun canHandle(request: Request):Boolean
+    fun canHandle(request: Request): Boolean
 
     /**
      * Handles the specified request, acts upon it and generates a response for it.
      * @param request The request to be handled
      * @return The response to that request
      */
-    fun handle(request: Request): Response
+    fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response
 }

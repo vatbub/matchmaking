@@ -19,12 +19,16 @@
  */
 package com.github.vatbub.matchmaking.server
 
+import com.github.vatbub.matchmaking.server.idprovider.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
+import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
 
 /**
  * Contains configuration information for the server
  */
 class ServerContext(
     var connectionIdProvider: ConnectionIdProvider = MemoryIdProvider(),
-    var messageDispatcher: MessageDispatcher = MessageDispatcher()
+    var messageDispatcher: MessageDispatcher = MessageDispatcher(),
+    var roomProvider: RoomProvider = MemoryRoomProvider()
 )

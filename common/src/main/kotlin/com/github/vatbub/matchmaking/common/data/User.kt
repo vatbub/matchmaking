@@ -32,6 +32,6 @@ import java.net.Inet6Address
 data class User(
     val connectionId: String,
     val userName: String,
-    val ipv4Address: Inet4Address,
+    val ipv4Address: Inet4Address? = null,
     val ipv6Address: Inet6Address? = null
 )

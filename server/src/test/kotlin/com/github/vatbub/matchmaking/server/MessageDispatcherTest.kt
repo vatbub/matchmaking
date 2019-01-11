@@ -72,7 +72,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
         val connectionId = (4567876543).toString(16)
         val request = DummyRequest(connectionId)
-        val response = messageDispatcher.dispatch(request)
+        val response = messageDispatcher.dispatch(request, null, null)
 
         Assert.assertNotNull(response)
         Assert.assertTrue(handler.handledRequests.isNotEmpty())
@@ -86,7 +86,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
         val connectionId = (4567876543).toString(16)
         val request = DummyRequest(connectionId)
-        val response = messageDispatcher.dispatch(request)
+        val response = messageDispatcher.dispatch(request, null, null)
 
         Assert.assertNull(response)
         Assert.assertTrue(handler.handledRequests.isEmpty())

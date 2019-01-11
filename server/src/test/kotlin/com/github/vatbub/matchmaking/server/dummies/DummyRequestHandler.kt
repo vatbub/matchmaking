@@ -21,7 +21,9 @@ package com.github.vatbub.matchmaking.server.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.server.RequestHandler
+import com.github.vatbub.matchmaking.server.handlers.RequestHandler
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 
 class DummyRequestHandler : RequestHandler {
@@ -31,7 +33,7 @@ class DummyRequestHandler : RequestHandler {
 
     val handledRequests = mutableMapOf<Request, DummyResponse>()
 
-    override fun handle(request: Request): Response {
+    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val response = DummyResponse(request.connectionId)
         handledRequests[request] = response
         return response

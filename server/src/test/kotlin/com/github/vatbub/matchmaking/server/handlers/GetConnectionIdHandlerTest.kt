@@ -46,9 +46,12 @@ class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass() {
         val idProvider = MemoryIdProvider()
         val handler = GetConnectionIdHandler(idProvider)
         val request = GetConnectionIdRequest()
-        val response = handler.handle(request)
+        val response = handler.handle(request, null, null)
 
         Assert.assertTrue(response is GetConnectionIdResponse)
-        Assert.assertEquals(idProvider.connectionIdsInUse[idProvider.connectionIdsInUse.size - 1], response.connectionId)
+        Assert.assertEquals(
+            idProvider.connectionIdsInUse[idProvider.connectionIdsInUse.size - 1],
+            response.connectionId
+        )
     }
 }
