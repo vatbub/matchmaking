@@ -24,6 +24,8 @@ import com.github.vatbub.matchmaking.common.requests.UserListMode
 import kotlin.random.Random
 
 class MemoryRoomProvider : RoomProvider() {
+    private val rooms = mutableMapOf<String, Room>()
+
     override fun getAllRooms(): Collection<Room> {
         return rooms.values
     }
@@ -82,6 +84,4 @@ class MemoryRoomProvider : RoomProvider() {
     override fun clearRooms() {
         rooms.clear()
     }
-
-    private val rooms = mutableMapOf<String, Room>()
 }

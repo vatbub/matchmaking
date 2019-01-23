@@ -47,6 +47,19 @@ abstract class RoomProvider {
      */
     abstract operator fun get(id: String): Room?
 
+    open fun getRoomsById(ids: Collection<String>): List<Room> {
+        return getRoomsById(*ids.toTypedArray())
+    }
+
+    open fun getRoomsById(vararg ids: String): List<Room> {
+        val result = mutableListOf<Room>()
+        for (room in getAllRooms()) {
+            if (ids.contains(room.id))
+                result.add(room)
+        }
+        return result
+    }
+
     /**
      * Checks whether a room exists where the user can join into.
      * @param userName The name of the user to join. This user name should not be on a room's blacklist

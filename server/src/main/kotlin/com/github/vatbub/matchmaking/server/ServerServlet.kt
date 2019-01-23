@@ -23,8 +23,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
-import com.github.vatbub.matchmaking.server.handlers.GetConnectionIdHandler
-import com.github.vatbub.matchmaking.server.handlers.JoinOrCreateRoomRequestHandler
+import com.github.vatbub.matchmaking.server.handlers.*
 import com.google.gson.Gson
 import java.lang.Class.forName
 import java.net.Inet4Address
@@ -49,6 +48,9 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
         serverContext.messageDispatcher.removeAllHandlers()
         serverContext.messageDispatcher.registerHandler(GetConnectionIdHandler(serverContext.connectionIdProvider))
         serverContext.messageDispatcher.registerHandler(JoinOrCreateRoomRequestHandler(serverContext.roomProvider))
+        serverContext.messageDispatcher.registerHandler(DestroyRoomRequestHandler(serverContext.roomProvider))
+        serverContext.messageDispatcher.registerHandler(DisconnectRequestHandler(serverContext.roomProvider))
+        serverContext.messageDispatcher.registerHandler(GetRoomDataRequestHandler(serverContext.roomProvider))
     }
 
     override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
