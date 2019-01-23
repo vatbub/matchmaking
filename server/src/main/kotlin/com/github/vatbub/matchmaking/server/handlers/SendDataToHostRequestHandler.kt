@@ -21,28 +21,23 @@ package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.data.Room
-import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
+import com.github.vatbub.matchmaking.common.requests.SendDataToHostRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class GetRoomDataRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
+class SendDataToHostRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
     override fun canHandle(request: Request): Boolean {
-        return request is GetRoomDataRequest
+        return request is SendDataToHostRequest
     }
 
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as GetRoomDataRequest
-        val room = roomProvider[request.roomId]
-        var responseRoom: Room? = room
-
-        if (room != null && room.hostUserConnectionId == request.connectionId) {
-            responseRoom = room.copy()
-            room.dataToBeSentToTheHost.clear()
-            roomProvider.commitChangesToRoom(room)
-        }
-        return GetRoomDataResponse(request.connectionId, responseRoom)
+        request as SendDataToHostRequest
+        val room = roomProvider[request.roomId] ?: return GetRoomDataResponse(request.connectionId, null)
+        room.dataToBeSentToTheHost.addAll(request.dataToHost)
+        roomProvider.commitChangesToRoom(room)
+        // get the room again to make sure that the returned info is up to date
+        return GetRoomDataResponse(request.connectionId, roomProvider[request.roomId])
     }
 }

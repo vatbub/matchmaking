@@ -51,6 +51,7 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
             )
             if (applicableRoom != null) {
                 applicableRoom.connectedUsers.add(user)
+                roomProvider.commitChangesToRoom(applicableRoom)
                 return JoinOrCreateRoomResponse(request.connectionId, Result.RoomJoined, applicableRoom.id)
             }
         }

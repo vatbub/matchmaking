@@ -56,5 +56,5 @@ data class Room(
      * Important: The matchmaking server assumes that once the host has received the data he stores and processes it on its end.
      * The matchmaking server therefore clears the queue on his end once the queue has been sent to the user.
      */
-    val dataToBeSentToTheHost = listOf<GameData>()
+    val dataToBeSentToTheHost = mutableListOf<GameData>()
 }

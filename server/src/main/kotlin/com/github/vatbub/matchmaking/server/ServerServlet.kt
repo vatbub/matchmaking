@@ -51,6 +51,7 @@ class ServerServlet(private val serverContext: ServerContext = ServerContext()) 
         serverContext.messageDispatcher.registerHandler(DestroyRoomRequestHandler(serverContext.roomProvider))
         serverContext.messageDispatcher.registerHandler(DisconnectRequestHandler(serverContext.roomProvider))
         serverContext.messageDispatcher.registerHandler(GetRoomDataRequestHandler(serverContext.roomProvider))
+        serverContext.messageDispatcher.registerHandler(SendDataToHostRequestHandler(serverContext.roomProvider))
     }
 
     override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {

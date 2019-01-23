@@ -24,6 +24,12 @@ import com.github.vatbub.matchmaking.common.requests.UserListMode
 import kotlin.random.Random
 
 class MemoryRoomProvider : RoomProvider() {
+    override fun commitChangesToRoom(vararg roomsToCommit: Room) {
+        for (room in roomsToCommit) {
+            rooms[room.id] = room
+        }
+    }
+
     private val rooms = mutableMapOf<String, Room>()
 
     override fun getAllRooms(): Collection<Room> {

@@ -51,6 +51,7 @@ class DisconnectRequestHandler(private val roomProvider: RoomProvider) : Request
             }
 
             room.connectedUsers.removeAll(usersToDisconnect)
+            roomProvider.commitChangesToRoom(room)
         }
 
         val deletedRooms = roomProvider.deleteRooms(*roomIdsToDelete.toTypedArray())

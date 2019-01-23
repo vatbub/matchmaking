@@ -41,11 +41,19 @@ abstract class RoomProvider {
     ): Room
 
     /**
-     * Returns the [Room] with the specified id or `null` if no room with the given id was found
+     * Returns the [Room] with the specified id or `null` if no room with the given id was found.
+     * **IMPORTANT:** Depending on the implementation, changes to the [Room] object might not be saved automatically.
+     * To make sure that changes are saved, call [commitChangesToRoom]
      * @param id The id of the room to get
      * @return The [Room] with the specified id or `null` if no room with the given id was found
+     * @see commitChangesToRoom
      */
     abstract operator fun get(id: String): Room?
+
+    /**
+     * Makes sure that changes to the supplied rooms are saved in the room provider
+     */
+    abstract fun commitChangesToRoom(vararg roomsToCommit: Room)
 
     open fun getRoomsById(ids: Collection<String>): List<Room> {
         return getRoomsById(*ids.toTypedArray())
