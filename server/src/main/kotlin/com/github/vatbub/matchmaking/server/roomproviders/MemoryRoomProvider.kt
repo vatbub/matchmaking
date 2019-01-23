@@ -26,6 +26,7 @@ import kotlin.random.Random
 class MemoryRoomProvider : RoomProvider() {
     override fun commitChangesToRoom(vararg roomsToCommit: Room) {
         for (room in roomsToCommit) {
+            if (!containsRoom(room.id)) continue
             rooms[room.id] = room
         }
     }
