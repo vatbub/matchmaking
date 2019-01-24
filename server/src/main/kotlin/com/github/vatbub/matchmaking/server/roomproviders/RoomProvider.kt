@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.UserListMode
+import com.github.vatbub.matchmaking.common.requests.UserListMode.*
 
 abstract class RoomProvider {
     /**
@@ -35,7 +36,7 @@ abstract class RoomProvider {
     abstract fun createNewRoom(
         hostUserConnectionId: String,
         configuredUserNameList: List<String>? = null,
-        configuredUserNameListMode: UserListMode = UserListMode.Ignore,
+        configuredUserNameListMode: UserListMode = Ignore,
         minRoomSize: Int = 1,
         maxRoomSize: Int = 1
     ): Room
@@ -83,7 +84,7 @@ abstract class RoomProvider {
     open fun hasApplicableRoom(
         userName: String,
         userList: List<String>? = null,
-        userListMode: UserListMode = UserListMode.Ignore,
+        userListMode: UserListMode = Ignore,
         minRoomSize: Int = 1,
         maxRoomSize: Int = 1
     ): Room? {
@@ -92,25 +93,46 @@ abstract class RoomProvider {
             if ((room.connectedUsers.size + 1) > room.maxRoomSize) continue
             if (room.minRoomSize < minRoomSize) continue
             if (room.maxRoomSize > maxRoomSize) continue
+
+            // check the supplied user list
             when (userListMode) {
-                UserListMode.Blacklist -> {
+                Blacklist -> {
                     if (userList == null)
                         throw IllegalArgumentException("UserList must not be null when using UserListMode.Blacklist")
                     for (user in room.connectedUsers)
                         if (userList.contains(user.userName))
                             continue
                 }
-                UserListMode.Whitelist -> {
+                Whitelist -> {
                     if (userList == null)
                         throw IllegalArgumentException("UserList must not be null when using UserListMode.Whitelist")
                     for (user in room.connectedUsers)
                         if (!userList.contains(user.userName))
                             continue
                 }
-                UserListMode.Ignore ->
+                Ignore ->
                     if (userList != null)
                         throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")
             }
+
+            // check the room's user list
+            val configuredUserNameList = room.configuredUserNameList
+            val configuredUserNameListMode = room.configuredUserNameListMode
+
+            if (configuredUserNameList != null && configuredUserNameListMode != Ignore) {
+                @Suppress("NON_EXHAUSTIVE_WHEN")
+                when (configuredUserNameListMode) {
+                    Blacklist ->
+                        for (user in configuredUserNameList)
+                            if (configuredUserNameList.contains(userName))
+                                continue
+                    Whitelist ->
+                        for (user in configuredUserNameList)
+                            if (!configuredUserNameList.contains(userName))
+                                continue
+                }
+            }
+
             return room
         }
 
@@ -130,7 +152,15 @@ abstract class RoomProvider {
      * @param ids The ids of the rooms to delete
      * @return A list of deleted rooms
      */
-    abstract fun deleteRooms(vararg ids: String): List<Room>
+    open fun deleteRooms(vararg ids: String): List<Room> {
+        val deletedRooms = mutableListOf<Room>()
+        for (id in ids) {
+            val deletedRoom = deleteRoom(id)
+            if (deletedRoom != null)
+                deletedRooms.add(deletedRoom)
+        }
+        return deletedRooms
+    }
 
     /**
      * Deletes all rooms
