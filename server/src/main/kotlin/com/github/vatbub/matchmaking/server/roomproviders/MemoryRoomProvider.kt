@@ -78,16 +78,6 @@ class MemoryRoomProvider : RoomProvider() {
         return rooms.remove(id)
     }
 
-    override fun deleteRooms(vararg ids: String): List<Room> {
-        val deletedRooms = mutableListOf<Room>()
-        for (id in ids) {
-            val deletedRoom = rooms.remove(id)
-            if (deletedRoom != null)
-                deletedRooms.add(deletedRoom)
-        }
-        return deletedRooms
-    }
-
     override fun clearRooms() {
         rooms.clear()
     }

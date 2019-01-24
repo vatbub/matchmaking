@@ -21,12 +21,12 @@ package com.github.vatbub.matchmaking.server.idprovider
 
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.Assert
-import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate") val connectionIdProvider: ConnectionIdProvider) : KotlinTestSuperclass() {
 
-    @Before
+    @BeforeEach
     fun setUp() {
         connectionIdProvider.reset()
     }
