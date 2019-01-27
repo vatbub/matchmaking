@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.common.responses
 
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.ServerInteraction
 
 /**
  * Superclass for exceptions that can be sent over the network
@@ -30,6 +31,9 @@ abstract class ServerInteractionException(
     override var httpStatusCode: Int,
     override val connectionId: String?, override val className: String
 ) : RuntimeException(message), Response {
+    override val protocolVersion: String
+        get() = ServerInteraction.defaultProtocolVersion
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

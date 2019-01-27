@@ -20,9 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.StartGameRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
-class StartGameRequestSerializationTest : SerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
+class StartGameRequestSerializationTest :
+    ServerInteractionSerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
     override fun newObjectUnderTest(): StartGameRequest {
         return StartGameRequest(defaultConnectionId, defaultPassword, getRandomHexString())
     }

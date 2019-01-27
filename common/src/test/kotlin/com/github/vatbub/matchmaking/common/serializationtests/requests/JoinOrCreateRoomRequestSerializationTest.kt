@@ -21,10 +21,10 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 import com.github.vatbub.matchmaking.common.requests.Operation
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class JoinOrCreateRoomRequestSerializationTest :
-    SerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {
+    ServerInteractionSerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {
     override fun newObjectUnderTest(): JoinOrCreateRoomRequest {
         return JoinOrCreateRoomRequest(
             defaultConnectionId,

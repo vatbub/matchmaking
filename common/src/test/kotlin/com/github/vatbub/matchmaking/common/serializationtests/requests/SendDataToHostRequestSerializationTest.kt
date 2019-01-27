@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.SendDataToHostRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class SendDataToHostRequestSerializationTest :
-    SerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
+    ServerInteractionSerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
     override fun newObjectUnderTest(): SendDataToHostRequest {
         return SendDataToHostRequest(defaultConnectionId, defaultPassword, getRandomHexString(), listOf())
     }

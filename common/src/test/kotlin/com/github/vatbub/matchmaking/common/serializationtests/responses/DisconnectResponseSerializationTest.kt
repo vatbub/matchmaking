@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class DisconnectResponseSerializationTest :
-    SerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {
+    ServerInteractionSerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {
     override fun newObjectUnderTest(): DisconnectResponse {
         return DisconnectResponse(defaultConnectionId, listOf(), listOf())
     }

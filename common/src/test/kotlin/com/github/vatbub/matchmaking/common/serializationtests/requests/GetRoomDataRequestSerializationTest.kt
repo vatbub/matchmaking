@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class GetRoomDataRequestSerializationTest :
-    SerializationTestSuperclass<GetRoomDataRequest>(GetRoomDataRequest::class.java) {
+    ServerInteractionSerializationTestSuperclass<GetRoomDataRequest>(GetRoomDataRequest::class.java) {
     override fun newObjectUnderTest(): GetRoomDataRequest {
         return GetRoomDataRequest(defaultConnectionId, getRandomHexString(), defaultPassword)
     }

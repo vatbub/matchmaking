@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class NotAllowedExceptionSerializationTest :
-    SerializationTestSuperclass<NotAllowedException>(NotAllowedException::class.java) {
+    ServerInteractionSerializationTestSuperclass<NotAllowedException>(NotAllowedException::class.java) {
     override fun newObjectUnderTest(): NotAllowedException {
         return NotAllowedException()
     }

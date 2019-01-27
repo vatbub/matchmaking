@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class GetConnectionIdResponseSerializationTest :
-    SerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {
+    ServerInteractionSerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {
     override fun newObjectUnderTest(): GetConnectionIdResponse {
         return GetConnectionIdResponse(defaultConnectionId, defaultPassword)
     }

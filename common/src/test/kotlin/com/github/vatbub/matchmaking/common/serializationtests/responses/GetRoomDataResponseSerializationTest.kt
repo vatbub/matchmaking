@@ -21,10 +21,10 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class GetRoomDataResponseSerializationTest :
-    SerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
+    ServerInteractionSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
     override fun newObjectUnderTest(): GetRoomDataResponse {
         return GetRoomDataResponse(defaultConnectionId, Room(getRandomHexString(), defaultConnectionId))
     }

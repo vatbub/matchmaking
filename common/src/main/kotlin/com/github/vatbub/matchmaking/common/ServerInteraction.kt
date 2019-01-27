@@ -32,7 +32,9 @@ interface ServerInteraction {
      */
     val className: String
 
+    val protocolVersion: String
+
     companion object {
-        val protocolVersion = "2.0"
+        const val defaultProtocolVersion = "2.0"
     }
 }

@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class BadRequestExceptionSerializationTest :
-    SerializationTestSuperclass<BadRequestException>(BadRequestException::class.java) {
+    ServerInteractionSerializationTestSuperclass<BadRequestException>(BadRequestException::class.java) {
     override fun newObjectUnderTest(): BadRequestException {
         return BadRequestException()
     }

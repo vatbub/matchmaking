@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class DisconnectRequestSerializationTest :
-    SerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
+    ServerInteractionSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
     override fun newObjectUnderTest(): DisconnectRequest {
         return DisconnectRequest(defaultConnectionId, defaultPassword)
     }

@@ -21,10 +21,10 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class UpdateGameStateRequestSerializationTest :
-    SerializationTestSuperclass<UpdateGameStateRequest>(UpdateGameStateRequest::class.java) {
+    ServerInteractionSerializationTestSuperclass<UpdateGameStateRequest>(UpdateGameStateRequest::class.java) {
     override fun newObjectUnderTest(): UpdateGameStateRequest {
         return UpdateGameStateRequest(defaultConnectionId, defaultPassword, getRandomHexString(), GameData())
     }

@@ -24,6 +24,9 @@ package com.github.vatbub.matchmaking.common
  */
 open class Request(override val connectionId: String?, val password: String?, override val className: String) :
     ServerInteraction {
+    override val protocolVersion: String
+        get() = ServerInteraction.defaultProtocolVersion
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

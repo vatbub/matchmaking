@@ -25,6 +25,8 @@ import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
  * A possible superclass for all normal server responses. For non-normal responses, use [ServerInteractionException]
  */
 open class ResponseImpl(override val connectionId: String?, override val className: String) : Response {
+    override val protocolVersion: String
+        get() = ServerInteraction.defaultProtocolVersion
     override var httpStatusCode: Int = 200
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

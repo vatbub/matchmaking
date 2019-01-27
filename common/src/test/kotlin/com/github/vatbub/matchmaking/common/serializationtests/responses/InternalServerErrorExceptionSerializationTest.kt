@@ -20,10 +20,10 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 
 class InternalServerErrorExceptionSerializationTest :
-    SerializationTestSuperclass<InternalServerErrorException>(InternalServerErrorException::class.java) {
+    ServerInteractionSerializationTestSuperclass<InternalServerErrorException>(InternalServerErrorException::class.java) {
     override fun newObjectUnderTest(): InternalServerErrorException {
         return InternalServerErrorException()
     }
