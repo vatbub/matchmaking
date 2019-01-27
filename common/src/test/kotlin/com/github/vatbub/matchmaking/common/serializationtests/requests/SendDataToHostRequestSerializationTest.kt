@@ -25,6 +25,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class SendDataToHostRequestSerializationTest :
     SerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
     override fun newObjectUnderTest(): SendDataToHostRequest {
-        return SendDataToHostRequest(defaultConnectionId, getRandomHexString(), listOf())
+        return SendDataToHostRequest(defaultConnectionId, defaultPassword, getRandomHexString(), listOf())
     }
 }

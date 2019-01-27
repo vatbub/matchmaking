@@ -28,14 +28,18 @@ import kotlin.random.Random
  * To be used when the server is only running on a single node.
  */
 open class MemoryIdProvider : ConnectionIdProvider {
-    private val _connectionIdsInUse: MutableList<String> = mutableListOf()
+    override fun get(id: String): Id? {
+        return _connectionIdsInUse[id]
+    }
 
-    val connectionIdsInUse: List<String>
+    private val _connectionIdsInUse = mutableMapOf<String, Id>()
+
+    val connectionIdsInUse: Map<String, Id>
         get() {
-            return Collections.unmodifiableList(_connectionIdsInUse)
+            return Collections.unmodifiableMap(_connectionIdsInUse)
         }
 
-    override fun getNewId(): String {
+    override fun getNewId(): Id {
         var connectionIdAsString: String
         do {
             var connectionId = Random.nextInt()
@@ -45,15 +49,20 @@ open class MemoryIdProvider : ConnectionIdProvider {
             connectionIdAsString = connectionId.toString(16)
         } while (containsId(connectionIdAsString))
 
-        _connectionIdsInUse.add(connectionIdAsString)
-        return connectionIdAsString
+        var passwordAsInt = Random.nextInt()
+        if (passwordAsInt < 0)
+            passwordAsInt = -passwordAsInt
+
+        val result = Id(connectionIdAsString, passwordAsInt.toString(16))
+        _connectionIdsInUse.put(connectionIdAsString, result)
+        return result
     }
 
-    override fun deleteId(id: String): Boolean {
+    override fun deleteId(id: String): Id? {
         return _connectionIdsInUse.remove(id)
     }
 
-    override fun containsId(id: String): Boolean {
+    override fun containsId(id: String?): Boolean {
         return _connectionIdsInUse.contains(id)
     }
 

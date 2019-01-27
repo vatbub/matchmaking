@@ -21,6 +21,8 @@ package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.responses.AuthorizationException
+import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
 import com.github.vatbub.matchmaking.server.MessageDispatcher
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -30,15 +32,30 @@ import java.net.Inet6Address
  */
 interface RequestHandler {
     /**
-     * Specifies whether this candler is able to handle the specified request.
+     * Specifies whether this handler is able to handle the specified request.
      *
      * **IMPORTANT:** The [MessageDispatcher] iterates through all registered handlers and calls this method on them.
-     * The first handler which returns `true` will actually get to handle the request. This means in turn that, if
+     * The first handler which returns `true` will then get to handle the request. This means in turn that, if
      * multiple handlers can handle the same type of request, only one of them will get to handle it.
      *
      * @return `true` if the handler is able to handle this request, `false` otherwise.
      */
     fun canHandle(request: Request): Boolean
+
+    /**
+     * Specifies whether the handler expects this particular request to be authenticated.
+     * If [needsAuthentication] returns `true` and the request fails to authenticate, an [UnknownConnectionIdException] or
+     * [AuthorizationException] will be returned to the client accordingly.
+     *
+     * **IMPORTANT:** This method shall only determine whether the request must be authenticated, it does **NOT**
+     * need to determine whether the request is actually authenticated, this is done by the [MessageDispatcher]
+     *
+     * This method is only called if [canHandle] returned `true` for this particular request.
+     *
+     * @param request The request to decide on whether it needs authentication or not
+     * @return `true` if the request shall be authenticated, `false` if no authentication is required
+     */
+    fun needsAuthentication(request: Request): Boolean
 
     /**
      * Handles the specified request, acts upon it and generates a response for it.

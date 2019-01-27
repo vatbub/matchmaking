@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyRequestHandler
+import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.Assert
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test
 class MessageDispatcherTest : KotlinTestSuperclass() {
     @Test
     fun registerSameHandlerTwiceTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
 
         messageDispatcher.registerHandler(handler)
@@ -39,7 +40,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
     @Test
     fun registerHandlerTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
 
         Assert.assertFalse(messageDispatcher.isHandlerRegistered(handler))
@@ -49,7 +50,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
     @Test
     fun positiveRemoveHandlerTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
         messageDispatcher.registerHandler(handler)
         Assert.assertTrue(messageDispatcher.removeHandler(handler))
@@ -58,7 +59,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
     @Test
     fun negativeRemoveHandlerTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
         Assert.assertFalse(messageDispatcher.removeHandler(handler))
         Assert.assertFalse(messageDispatcher.isHandlerRegistered(handler))
@@ -66,12 +67,13 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
     @Test
     fun positiveDispatchTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
         messageDispatcher.registerHandler(handler)
 
         val connectionId = (4567876543).toString(16)
-        val request = DummyRequest(connectionId)
+        val password = (5638290234).toString(16)
+        val request = DummyRequest(connectionId, password)
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assert.assertNotNull(response)
@@ -81,11 +83,12 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
     @Test
     fun negativeDispatchTest() {
-        val messageDispatcher = MessageDispatcher()
+        val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
 
         val connectionId = (4567876543).toString(16)
-        val request = DummyRequest(connectionId)
+        val password = (5638290234).toString(16)
+        val request = DummyRequest(connectionId, password)
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assert.assertNull(response)

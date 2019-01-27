@@ -30,6 +30,7 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
     abstract fun newObjectUnderTest(): T
 
     val defaultConnectionId = getRandomHexString()
+    val defaultPassword = getRandomHexString()
 
     fun getRandomHexString(): String {
         return Random.nextInt().toString(16)

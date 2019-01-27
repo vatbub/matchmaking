@@ -27,6 +27,10 @@ import java.net.Inet6Address
 
 
 class DummyRequestHandler : RequestHandler {
+    override fun needsAuthentication(request: Request): Boolean {
+        return false
+    }
+
     override fun canHandle(request: Request): Boolean {
         return true
     }

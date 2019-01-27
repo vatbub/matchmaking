@@ -24,6 +24,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 
 class StartGameRequestSerializationTest : SerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
     override fun newObjectUnderTest(): StartGameRequest {
-        return StartGameRequest(defaultConnectionId, getRandomHexString())
+        return StartGameRequest(defaultConnectionId, defaultPassword, getRandomHexString())
     }
 }

@@ -28,4 +28,4 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  *
  * @see GetConnectionIdResponse
  */
-class GetConnectionIdRequest : Request(null, GetConnectionIdRequest::class.qualifiedName!!)
+class GetConnectionIdRequest : Request(null, null, GetConnectionIdRequest::class.qualifiedName!!)

@@ -25,6 +25,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class DestroyRoomRequestSerializationTest :
     SerializationTestSuperclass<DestroyRoomRequest>(DestroyRoomRequest::class.java) {
     override fun newObjectUnderTest(): DestroyRoomRequest {
-        return DestroyRoomRequest(defaultConnectionId, getRandomHexString())
+        return DestroyRoomRequest(defaultConnectionId, defaultPassword, getRandomHexString())
     }
 }

@@ -26,11 +26,12 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 /**
  * This request requests the current data of the specified room
  * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to get the data of
  * @see GetRoomDataResponse
  */
-class GetRoomDataRequest(connectionId: String?, val roomId: String) :
-    Request(connectionId, GetRoomDataRequest::class.qualifiedName!!) {
+class GetRoomDataRequest(connectionId: String, password: String, val roomId: String) :
+    Request(connectionId, password, GetRoomDataRequest::class.qualifiedName!!) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

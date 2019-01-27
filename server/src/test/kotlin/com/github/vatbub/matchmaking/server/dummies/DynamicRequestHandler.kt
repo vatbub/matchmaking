@@ -27,8 +27,13 @@ import java.net.Inet6Address
 
 class DynamicRequestHandler(
     val canHandleFun: (request: Request) -> Boolean,
+    val needsAuthenticationFun: (request: Request) -> Boolean,
     val handleFun: (request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) -> Response
 ) : RequestHandler {
+    override fun needsAuthentication(request: Request): Boolean {
+        return needsAuthenticationFun(request)
+    }
+
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         return handleFun(request, sourceIp, sourceIpv6)
     }

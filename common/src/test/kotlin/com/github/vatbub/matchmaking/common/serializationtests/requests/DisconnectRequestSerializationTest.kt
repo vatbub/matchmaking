@@ -25,6 +25,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class DisconnectRequestSerializationTest :
     SerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
     override fun newObjectUnderTest(): DisconnectRequest {
-        return DisconnectRequest(defaultConnectionId)
+        return DisconnectRequest(defaultConnectionId, defaultPassword)
     }
 }

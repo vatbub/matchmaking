@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.server.handlers
 import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.server.idprovider.Id
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import org.junit.Assert
 import org.junit.jupiter.api.Test
@@ -49,9 +50,8 @@ class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass() {
         val response = handler.handle(request, null, null)
 
         Assert.assertTrue(response is GetConnectionIdResponse)
-        Assert.assertEquals(
-            idProvider.connectionIdsInUse[idProvider.connectionIdsInUse.size - 1],
-            response.connectionId
-        )
+        response as GetConnectionIdResponse
+        Assert.assertTrue(idProvider.connectionIdsInUse.containsKey(response.connectionId))
+        Assert.assertTrue(idProvider.connectionIdsInUse.containsValue(Id(response.connectionId, response.password)))
     }
 }

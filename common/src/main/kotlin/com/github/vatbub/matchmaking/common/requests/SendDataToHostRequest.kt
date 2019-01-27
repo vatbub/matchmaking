@@ -32,12 +32,18 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * The host will then process the data and update [Room.gameState] accordingly, but other clients
  * might use the data to extrapolate changes in [Room.gameState]
  * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to send the data to
  * @param dataToHost The data to be sent to the host
  * @see GetRoomDataResponse
  */
-class SendDataToHostRequest(connectionId: String?, val roomId: String, val dataToHost: List<GameData>) :
-    Request(connectionId, SendDataToHostRequest::class.qualifiedName!!) {
+class SendDataToHostRequest(
+    connectionId: String,
+    password: String,
+    val roomId: String,
+    val dataToHost: List<GameData>
+) :
+    Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

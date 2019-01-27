@@ -25,6 +25,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class GetConnectionIdResponseSerializationTest :
     SerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {
     override fun newObjectUnderTest(): GetConnectionIdResponse {
-        return GetConnectionIdResponse(defaultConnectionId)
+        return GetConnectionIdResponse(defaultConnectionId, defaultPassword)
     }
 }

@@ -24,7 +24,8 @@ import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate") val connectionIdProvider: ConnectionIdProvider) : KotlinTestSuperclass() {
+abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate") val connectionIdProvider: ConnectionIdProvider) :
+    KotlinTestSuperclass() {
 
     @BeforeEach
     fun setUp() {
@@ -34,7 +35,7 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
     @Test
     fun createIdTest() {
         val numberOfIdsToCreate = 10
-        val createdIds = mutableListOf<String>()
+        val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate) {
             val newId = connectionIdProvider.getNewId()
             Assert.assertFalse(createdIds.contains(newId))
@@ -51,40 +52,40 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
     @Test
     fun positiveContainsIdTest() {
         val id = connectionIdProvider.getNewId()
-        Assert.assertTrue(connectionIdProvider.containsId(id))
+        Assert.assertTrue(connectionIdProvider.containsId(id.connectionId))
     }
 
     @Test
     fun resetTest() {
         val numberOfIdsToCreate = 10
-        val createdIds = mutableListOf<String>()
+        val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
             createdIds.add(connectionIdProvider.getNewId())
 
         connectionIdProvider.reset()
 
         for (id in createdIds)
-            Assert.assertFalse(connectionIdProvider.containsId(id))
+            Assert.assertFalse(connectionIdProvider.containsId(id.connectionId))
     }
 
     @Test
     fun positiveDeleteIdTest() {
         val numberOfIdsToCreate = 10
-        val createdIds = mutableListOf<String>()
+        val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
             createdIds.add(connectionIdProvider.getNewId())
 
         val deletedId = createdIds.removeAt(0)
-        Assert.assertTrue(connectionIdProvider.deleteId(deletedId))
+        Assert.assertNotNull(connectionIdProvider.deleteId(deletedId))
 
         // The remaining ones should still be there
         for (id in createdIds)
-            Assert.assertTrue(connectionIdProvider.containsId(id))
+            Assert.assertTrue(connectionIdProvider.containsId(id.connectionId))
     }
 
     @Test
     fun negativeDeleteIdTest() {
         val testValue = (4567876543).toString(16)
-        Assert.assertFalse(connectionIdProvider.deleteId(testValue))
+        Assert.assertNull(connectionIdProvider.deleteId(testValue))
     }
 }

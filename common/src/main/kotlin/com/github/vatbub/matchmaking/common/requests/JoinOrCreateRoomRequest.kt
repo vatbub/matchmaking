@@ -27,6 +27,7 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 /**
  * Joins or creates a [Room] with the specified criteria
  * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param operation The [Operation] to perform
  * @param userName The user name that was chosen by the player who submitted this request
  * @param userList The list of user names that was specified when the room was created. Either a black- or a whitelist (if not ignored)
@@ -36,14 +37,15 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
  * @see JoinOrCreateRoomResponse
  */
 class JoinOrCreateRoomRequest(
-    connectionId: String?,
+    connectionId: String,
+    password: String,
     val operation: Operation,
     val userName: String,
     val userList: List<String>? = null,
     val userListMode: UserListMode = UserListMode.Ignore,
     val minRoomSize: Int = 1,
     val maxRoomSize: Int = 1
-) : Request(connectionId, JoinOrCreateRoomRequest::class.qualifiedName!!) {
+) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

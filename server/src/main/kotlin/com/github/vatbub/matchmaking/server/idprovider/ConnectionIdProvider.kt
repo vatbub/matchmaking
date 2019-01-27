@@ -19,6 +19,8 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
+import com.github.vatbub.matchmaking.server.idprovider.AuthorizationResult.*
+
 /**
  * Provides and stores connection ids.
  * Implementations are expected to produce connection ids and store them for later use, e. g. in memory or in a database.
@@ -29,17 +31,44 @@ interface ConnectionIdProvider {
      * Called when a new connection id is requested. The implementation is expected to store the generated connection id
      * automatically
      */
-    fun getNewId(): String
+    fun getNewId(): Id
 
     /**
      * Deletes the specified id if it exists
-     * @return `true` if the specified id existed and thus was deleted, `false` if it didn't exist and thus no changes were made.
+     * @return The deleted id or `null` if it didn't exist
      */
-    fun deleteId(id: String): Boolean
+    fun deleteId(id: String): Id?
 
-    fun containsId(id: String): Boolean
+    /**
+     * Deletes the specified id if it exists
+     * @return The deleted id or `null` if it didn't exist
+     */
+    fun deleteId(id: Id): Id? {
+        if (id.connectionId == null)
+            return null
+        return deleteId(id.connectionId)
+    }
+
+    operator fun get(id: String): Id?
+
+    fun containsId(id: String?): Boolean
     /**
      * Deletes all known ids
      */
     fun reset()
+
+    fun isAuthorized(id: Id): AuthorizationResult {
+        if (id.connectionId == null)
+            return NotAuthorized
+        val lookUpResult = this[id.connectionId] ?: return NotFound
+        if (lookUpResult.password != id.password)
+            return NotAuthorized
+        return Authorized
+    }
+}
+
+data class Id(val connectionId: String?, val password: String?)
+
+enum class AuthorizationResult {
+    NotFound, Authorized, NotAuthorized
 }

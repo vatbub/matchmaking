@@ -25,6 +25,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class GetRoomDataRequestSerializationTest :
     SerializationTestSuperclass<GetRoomDataRequest>(GetRoomDataRequest::class.java) {
     override fun newObjectUnderTest(): GetRoomDataRequest {
-        return GetRoomDataRequest(defaultConnectionId, getRandomHexString())
+        return GetRoomDataRequest(defaultConnectionId, getRandomHexString(), defaultPassword)
     }
 }

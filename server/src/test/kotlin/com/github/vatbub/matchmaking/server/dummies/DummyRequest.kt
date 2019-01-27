@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 
-class DummyRequest(connectionId: String?) : Request(connectionId, DummyRequest::class.qualifiedName!!) {
-    constructor() : this(null)
+class DummyRequest(connectionId: String?, password: String?) :
+    Request(connectionId, password, DummyRequest::class.qualifiedName!!) {
+    constructor() : this(null, null)
 }

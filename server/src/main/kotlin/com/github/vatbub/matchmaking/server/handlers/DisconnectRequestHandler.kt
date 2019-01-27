@@ -29,6 +29,10 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 
 class DisconnectRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
+    override fun needsAuthentication(request: Request): Boolean {
+        return true
+    }
+
     override fun canHandle(request: Request): Boolean {
         return request is DisconnectRequest
     }

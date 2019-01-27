@@ -29,6 +29,6 @@ import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
  */
 class ServerContext(
     var connectionIdProvider: ConnectionIdProvider = MemoryIdProvider(),
-    var messageDispatcher: MessageDispatcher = MessageDispatcher(),
+    var messageDispatcher: MessageDispatcher = MessageDispatcher(connectionIdProvider),
     var roomProvider: RoomProvider = MemoryRoomProvider()
 )

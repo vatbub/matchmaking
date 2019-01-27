@@ -26,6 +26,6 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class UpdateGameStateRequestSerializationTest :
     SerializationTestSuperclass<UpdateGameStateRequest>(UpdateGameStateRequest::class.java) {
     override fun newObjectUnderTest(): UpdateGameStateRequest {
-        return UpdateGameStateRequest(defaultConnectionId, getRandomHexString(), GameData())
+        return UpdateGameStateRequest(defaultConnectionId, defaultPassword, getRandomHexString(), GameData())
     }
 }

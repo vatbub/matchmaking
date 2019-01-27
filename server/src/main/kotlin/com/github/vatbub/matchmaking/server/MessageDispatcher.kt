@@ -21,14 +21,19 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.responses.AuthorizationException
+import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
 import com.github.vatbub.matchmaking.server.handlers.RequestHandler
+import com.github.vatbub.matchmaking.server.idprovider.AuthorizationResult.*
+import com.github.vatbub.matchmaking.server.idprovider.ConnectionIdProvider
+import com.github.vatbub.matchmaking.server.idprovider.Id
 import java.net.Inet4Address
 import java.net.Inet6Address
 
 /**
  * Dispatches received requests among the registered [RequestHandler]s.
  */
-class MessageDispatcher {
+class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
     internal val handlers: MutableList<RequestHandler> = mutableListOf()
 
     /**
@@ -38,8 +43,15 @@ class MessageDispatcher {
      */
     fun dispatch(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response? {
         for (handler in handlers) {
-            if (handler.canHandle(request))
+            if (!handler.canHandle(request)) continue
+            if (!handler.needsAuthentication(request))
                 return handler.handle(request, sourceIp, sourceIpv6)
+
+            return when (connectionIdProvider.isAuthorized(Id(request.connectionId, request.password))) {
+                NotFound -> UnknownConnectionIdException("The specified connection id is not known to the server")
+                NotAuthorized -> AuthorizationException("Incorrect password")
+                Authorized -> handler.handle(request, sourceIp, sourceIpv6)
+            }
         }
 
         return null
@@ -58,7 +70,7 @@ class MessageDispatcher {
         return handlers.remove(handler)
     }
 
-    fun removeAllHandlers(){
+    fun removeAllHandlers() {
         handlers.clear()
     }
 }

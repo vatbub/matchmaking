@@ -26,6 +26,11 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 class JoinOrCreateRoomRequestSerializationTest :
     SerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {
     override fun newObjectUnderTest(): JoinOrCreateRoomRequest {
-        return JoinOrCreateRoomRequest(defaultConnectionId, Operation.JoinOrCreateRoom, getRandomHexString())
+        return JoinOrCreateRoomRequest(
+            defaultConnectionId,
+            defaultPassword,
+            Operation.JoinOrCreateRoom,
+            getRandomHexString()
+        )
     }
 }
