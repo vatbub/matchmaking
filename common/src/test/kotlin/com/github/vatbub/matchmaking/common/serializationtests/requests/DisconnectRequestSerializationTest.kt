@@ -21,6 +21,8 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 
 class DisconnectRequestSerializationTest :
     ServerInteractionSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {

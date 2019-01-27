@@ -29,6 +29,13 @@ import org.junit.jupiter.api.Test
 
 class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass() {
     @Test
+    override fun needsAuthenticationTest() {
+        val request = GetConnectionIdRequest()
+        val handler = GetConnectionIdHandler(MemoryIdProvider())
+        Assertions.assertFalse(handler.needsAuthentication(request))
+    }
+
+    @Test
     override fun positiveCanHandleTest() {
         val request = GetConnectionIdRequest()
         val handler = GetConnectionIdHandler(MemoryIdProvider())

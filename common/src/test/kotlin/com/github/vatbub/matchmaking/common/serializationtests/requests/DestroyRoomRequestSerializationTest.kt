@@ -21,6 +21,9 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
+import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 
 class DestroyRoomRequestSerializationTest :
     ServerInteractionSerializationTestSuperclass<DestroyRoomRequest>(DestroyRoomRequest::class.java) {

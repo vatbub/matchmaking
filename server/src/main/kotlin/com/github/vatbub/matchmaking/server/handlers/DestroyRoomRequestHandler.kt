@@ -23,6 +23,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
 import com.github.vatbub.matchmaking.common.responses.DestroyRoomResponse
+import com.github.vatbub.matchmaking.common.responses.NotAllowedException
 import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -38,7 +39,11 @@ class DestroyRoomRequestHandler(private val roomProvider: RoomProvider) : Reques
 
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         request as DestroyRoomRequest
+        val roomToDelete = roomProvider[request.roomId] ?: return DestroyRoomResponse(request.connectionId, false)
+        if (roomToDelete.hostUserConnectionId != request.connectionId)
+            return NotAllowedException("The sender's connection id does not equal the room's host connection id. Only the host can destroy a room.")
+
         roomProvider.deleteRoom(request.roomId)
-        return DestroyRoomResponse(request.connectionId)
+        return DestroyRoomResponse(request.connectionId, true)
     }
 }

@@ -19,7 +19,9 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
+import com.github.vatbub.matchmaking.server.idprovider.AuthorizationResult.*
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,6 +40,8 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
         val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate) {
             val newId = connectionIdProvider.getNewId()
+            Assertions.assertNotNull(newId.connectionId)
+            Assertions.assertNotNull(newId.password)
             Assertions.assertFalse(createdIds.contains(newId))
             createdIds.add(newId)
         }
@@ -87,5 +91,45 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
     fun negativeDeleteIdTest() {
         val testValue = (4567876543).toString(16)
         Assertions.assertNull(connectionIdProvider.deleteId(testValue))
+    }
+
+    @Test
+    fun deleteIdConnectionIdNullTest() {
+        Assertions.assertNull(connectionIdProvider.deleteId(Id(null, null)))
+    }
+
+    @Test
+    fun isAuthorizedConnectionIdNullTest() {
+        Assertions.assertEquals(NotAuthorized, connectionIdProvider.isAuthorized(Id(null, null)))
+    }
+
+    @Test
+    fun isAuthorizedPasswordNullTest() {
+        val id = connectionIdProvider.getNewId()
+        Assertions.assertEquals(NotAuthorized, connectionIdProvider.isAuthorized(Id(id.connectionId, null)))
+    }
+
+    @Test
+    fun negativeIsAuthorizedTest() {
+        val id = connectionIdProvider.getNewId()
+        Assertions.assertEquals(
+            NotAuthorized,
+            connectionIdProvider.isAuthorized(Id(id.connectionId, TestUtils.getRandomHexString(id.password)))
+        )
+    }
+
+    @Test
+    fun isAuthorizedConnectionIdNotFoundTest() {
+        val id = connectionIdProvider.getNewId()
+        Assertions.assertEquals(
+            NotFound,
+            connectionIdProvider.isAuthorized(Id(TestUtils.getRandomHexString(id.connectionId), id.password))
+        )
+    }
+
+    @Test
+    fun positiveIsAuthorizedTest() {
+        val id = connectionIdProvider.getNewId()
+        Assertions.assertEquals(Authorized, connectionIdProvider.isAuthorized(id))
     }
 }

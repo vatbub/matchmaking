@@ -26,9 +26,9 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 
 
-class DummyRequestHandler : RequestHandler {
+class DummyRequestHandler(private val needsAuthentication: Boolean = false) : RequestHandler {
     override fun needsAuthentication(request: Request): Boolean {
-        return false
+        return needsAuthentication
     }
 
     override fun canHandle(request: Request): Boolean {

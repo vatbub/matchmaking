@@ -21,6 +21,8 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 
 class GetConnectionIdResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {

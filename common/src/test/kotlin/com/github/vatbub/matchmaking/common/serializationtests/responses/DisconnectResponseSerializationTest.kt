@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 
 class DisconnectResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {

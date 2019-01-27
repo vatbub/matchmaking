@@ -21,10 +21,11 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.DestroyRoomResponse
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 
 class DestroyRoomResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<DestroyRoomResponse>(DestroyRoomResponse::class.java) {
     override fun newObjectUnderTest(): DestroyRoomResponse {
-        return DestroyRoomResponse(defaultConnectionId)
+        return DestroyRoomResponse(defaultConnectionId, true)
     }
 }

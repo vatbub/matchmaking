@@ -31,4 +31,7 @@ abstract class RequestHandlerTestSuperclass: KotlinTestSuperclass() {
 
     @Test
     abstract fun negativeCanHandleTest()
+
+    @Test
+    abstract fun needsAuthenticationTest()
 }

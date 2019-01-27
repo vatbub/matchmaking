@@ -22,6 +22,9 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
+import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 
 class JoinOrCreateRoomRequestSerializationTest :
     ServerInteractionSerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {

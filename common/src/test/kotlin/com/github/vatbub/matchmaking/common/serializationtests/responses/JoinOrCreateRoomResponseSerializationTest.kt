@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 
 class JoinOrCreateRoomResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<JoinOrCreateRoomResponse>(JoinOrCreateRoomResponse::class.java) {

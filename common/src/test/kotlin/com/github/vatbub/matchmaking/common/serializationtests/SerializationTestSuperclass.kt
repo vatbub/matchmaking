@@ -23,18 +23,10 @@ import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import kotlin.random.Random
 
 abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
     KotlinTestSuperclass() {
     abstract fun newObjectUnderTest(): T
-
-    val defaultConnectionId = getRandomHexString()
-    val defaultPassword = getRandomHexString()
-
-    fun getRandomHexString(): String {
-        return Random.nextInt().toString(16)
-    }
 
     @Test
     fun serializationTest() {

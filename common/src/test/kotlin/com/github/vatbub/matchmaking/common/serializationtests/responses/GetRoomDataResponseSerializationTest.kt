@@ -22,6 +22,8 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
+import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 
 class GetRoomDataResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
