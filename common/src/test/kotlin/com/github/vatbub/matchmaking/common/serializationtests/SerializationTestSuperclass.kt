@@ -21,7 +21,7 @@ package com.github.vatbub.matchmaking.common.serializationtests
 
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -43,7 +43,7 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         val json = gson.toJson(originalObject)
         println("Generated json:\n$json")
         val deserializedObject: T = gson.fromJson<T>(json, clazz)
-        Assert.assertEquals(originalObject, deserializedObject)
-        Assert.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
+        Assertions.assertEquals(originalObject, deserializedObject)
+        Assertions.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
     }
 }

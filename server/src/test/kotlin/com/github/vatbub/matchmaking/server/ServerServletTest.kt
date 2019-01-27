@@ -14,8 +14,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jsunsoft.http.HttpRequestBuilder
 import org.apache.commons.io.IOUtils
-import org.junit.Assert
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.net.URL
@@ -129,13 +129,13 @@ class ServerServletTest : KotlinTestSuperclass() {
     fun requestCastTest() {
         val request = DummyRequest(connectionId, password)
         val handler = DynamicRequestHandler({ true }, { false }, { requestToHandle, _, _ ->
-            Assert.assertTrue(requestToHandle is DummyRequest)
+            Assertions.assertTrue(requestToHandle is DummyRequest)
             DummyResponse(requestToHandle.connectionId)
         })
         serverContext.messageDispatcher.registerHandler(handler)
         val response = doRequest<DummyResponse>(request)
 
-        Assert.assertEquals(connectionId, response.connectionId)
+        Assertions.assertEquals(connectionId, response.connectionId)
     }
 
     @Test
@@ -182,8 +182,8 @@ class ServerServletTest : KotlinTestSuperclass() {
         expectedExceptionMessage: String,
         actualResponse: Response
     ) {
-        Assert.assertEquals(expectedHttpStatusCode, actualResponse.httpStatusCode)
-        Assert.assertEquals(expectedOuterException.className, actualResponse.className)
-        Assert.assertEquals(expectedExceptionMessage, (actualResponse as ServerInteractionException).message)
+        Assertions.assertEquals(expectedHttpStatusCode, actualResponse.httpStatusCode)
+        Assertions.assertEquals(expectedOuterException.className, actualResponse.className)
+        Assertions.assertEquals(expectedExceptionMessage, (actualResponse as ServerInteractionException).message)
     }
 }

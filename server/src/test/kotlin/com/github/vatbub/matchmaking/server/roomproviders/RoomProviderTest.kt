@@ -4,7 +4,7 @@ import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -16,13 +16,13 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun negativeContainsTest() {
-        Assert.assertFalse(roomProvider.containsRoom("khczufgijkln"))
+        Assertions.assertFalse(roomProvider.containsRoom("khczufgijkln"))
     }
 
     @Test
     fun positiveContainsTest() {
         val room = roomProvider.createNewRoom("1d6aa98d")
-        Assert.assertTrue(roomProvider.containsRoom(room.id))
+        Assertions.assertTrue(roomProvider.containsRoom(room.id))
     }
 
     @Test
@@ -43,12 +43,12 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
                 expectedRoom.minRoomSize,
                 expectedRoom.maxRoomSize
             )
-            Assert.assertEquals(expectedRoom.hostUserConnectionId, room.hostUserConnectionId)
-            Assert.assertEquals(expectedRoom.configuredUserNameList, room.configuredUserNameList)
-            Assert.assertEquals(expectedRoom.configuredUserNameListMode, room.configuredUserNameListMode)
-            Assert.assertEquals(expectedRoom.minRoomSize, room.minRoomSize)
-            Assert.assertEquals(expectedRoom.maxRoomSize, room.maxRoomSize)
-            Assert.assertFalse(roomIds.contains(room.id))
+            Assertions.assertEquals(expectedRoom.hostUserConnectionId, room.hostUserConnectionId)
+            Assertions.assertEquals(expectedRoom.configuredUserNameList, room.configuredUserNameList)
+            Assertions.assertEquals(expectedRoom.configuredUserNameListMode, room.configuredUserNameListMode)
+            Assertions.assertEquals(expectedRoom.minRoomSize, room.minRoomSize)
+            Assertions.assertEquals(expectedRoom.maxRoomSize, room.maxRoomSize)
+            Assertions.assertFalse(roomIds.contains(room.id))
             roomIds.add(room.id)
         }
     }
@@ -59,17 +59,17 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         val createdRoom2 = roomProvider.createNewRoom("325f6f32")
         val retrievedRoom1 = roomProvider[createdRoom1.id]
         val retrievedRoom2 = roomProvider[createdRoom2.id]
-        Assert.assertEquals(createdRoom1, retrievedRoom1)
-        Assert.assertEquals(createdRoom2, retrievedRoom2)
-        Assert.assertNotEquals(createdRoom1, retrievedRoom2)
-        Assert.assertNotEquals(createdRoom2, retrievedRoom1)
+        Assertions.assertEquals(createdRoom1, retrievedRoom1)
+        Assertions.assertEquals(createdRoom2, retrievedRoom2)
+        Assertions.assertNotEquals(createdRoom1, retrievedRoom2)
+        Assertions.assertNotEquals(createdRoom2, retrievedRoom1)
     }
 
     @Test
     fun commitUnknownRoomTest() {
         val unknownRoom = Room("3aa02661", "22321b1b")
         roomProvider.commitChangesToRoom(unknownRoom)
-        Assert.assertFalse(roomProvider.containsRoom(unknownRoom.id))
+        Assertions.assertFalse(roomProvider.containsRoom(unknownRoom.id))
     }
 
     @Test
@@ -78,7 +78,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         val connectingUser = User("2d4e4630", "vatbub")
         room.connectedUsers.add(connectingUser)
         roomProvider.commitChangesToRoom(room)
-        Assert.assertEquals(room.connectedUsers, roomProvider[room.id]?.connectedUsers)
+        Assertions.assertEquals(room.connectedUsers, roomProvider[room.id]?.connectedUsers)
     }
 
     @Test
@@ -93,8 +93,8 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
         roomProvider.commitChangesToRoom(room1, room2)
 
-        Assert.assertEquals(room1.connectedUsers, roomProvider[room1.id]?.connectedUsers)
-        Assert.assertEquals(room2.connectedUsers, roomProvider[room2.id]?.connectedUsers)
+        Assertions.assertEquals(room1.connectedUsers, roomProvider[room1.id]?.connectedUsers)
+        Assertions.assertEquals(room2.connectedUsers, roomProvider[room2.id]?.connectedUsers)
     }
 
     @Test
@@ -124,23 +124,23 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         }
 
         val retrievedRooms = roomProvider.getRoomsById(roomsToGet)
-        Assert.assertEquals(hostConnectionIds.size, retrievedRooms.size)
+        Assertions.assertEquals(hostConnectionIds.size, retrievedRooms.size)
 
         for (room in retrievedRooms) {
-            Assert.assertTrue(hostConnectionIds.contains(room.hostUserConnectionId))
+            Assertions.assertTrue(hostConnectionIds.contains(room.hostUserConnectionId))
         }
     }
 
     @Test
     fun deleteRoomTest() {
         val room = roomProvider.createNewRoom("1ffbec47")
-        Assert.assertTrue(roomProvider.containsRoom(room.id))
-        Assert.assertNotNull(roomProvider[room.id])
+        Assertions.assertTrue(roomProvider.containsRoom(room.id))
+        Assertions.assertNotNull(roomProvider[room.id])
 
-        Assert.assertEquals(room, roomProvider.deleteRoom(room.id))
+        Assertions.assertEquals(room, roomProvider.deleteRoom(room.id))
 
-        Assert.assertFalse(roomProvider.containsRoom(room.id))
-        Assert.assertNull(roomProvider[room.id])
+        Assertions.assertFalse(roomProvider.containsRoom(room.id))
+        Assertions.assertNull(roomProvider[room.id])
     }
 
     @Test
@@ -167,17 +167,17 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         }
 
         for (room in rooms) {
-            Assert.assertTrue(roomProvider.containsRoom(room.id))
-            Assert.assertNotNull(roomProvider[room.id])
+            Assertions.assertTrue(roomProvider.containsRoom(room.id))
+            Assertions.assertNotNull(roomProvider[room.id])
         }
 
         val deletedRooms = roomProvider.deleteRooms(*roomIds.toTypedArray())
 
-        Assert.assertEquals(rooms, deletedRooms)
+        Assertions.assertEquals(rooms, deletedRooms)
 
         for (room in rooms) {
-            Assert.assertFalse(roomProvider.containsRoom(room.id))
-            Assert.assertNull(roomProvider[room.id])
+            Assertions.assertFalse(roomProvider.containsRoom(room.id))
+            Assertions.assertNull(roomProvider[room.id])
         }
     }
 
@@ -200,11 +200,11 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
             roomProvider.createNewRoom(hostConnectionId)
         }
 
-        Assert.assertEquals(hostConnectionIds.size, roomProvider.getAllRooms().size)
+        Assertions.assertEquals(hostConnectionIds.size, roomProvider.getAllRooms().size)
 
         roomProvider.clearRooms()
 
-        Assert.assertEquals(0, roomProvider.getAllRooms().size)
+        Assertions.assertEquals(0, roomProvider.getAllRooms().size)
     }
 
     @Test
@@ -229,10 +229,10 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
         val allRooms = roomProvider.getAllRooms()
 
-        Assert.assertEquals(createdRooms.size, allRooms.size)
+        Assertions.assertEquals(createdRooms.size, allRooms.size)
 
         for (room in allRooms) {
-            Assert.assertTrue(createdRooms.contains(room))
+            Assertions.assertTrue(createdRooms.contains(room))
         }
     }
 }

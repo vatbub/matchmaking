@@ -20,7 +20,7 @@
 package com.github.vatbub.matchmaking.common.data
 
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GameDataTest : KotlinTestSuperclass() {
@@ -31,8 +31,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleByte
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleByte, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleByte, gameData[key]!!)
     }
 
     @Test
@@ -42,8 +42,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleByteArray
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleByteArray, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleByteArray, gameData[key])
     }
 
     @Test
@@ -53,8 +53,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleChar
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleChar, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleChar, gameData[key]!!)
     }
 
     @Test
@@ -64,8 +64,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleCharArray
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleCharArray, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleCharArray, gameData[key])
     }
 
     @Test
@@ -75,8 +75,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleString
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleString, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleString, gameData[key])
     }
 
     @Test
@@ -86,8 +86,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleStringArray
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertArrayEquals(sampleStringArray, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertArrayEquals(sampleStringArray, gameData[key])
     }
 
     @Test
@@ -97,8 +97,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleStringList
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleStringList, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleStringList, gameData[key])
     }
 
     @Test
@@ -108,8 +108,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleFloat
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleFloat, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleFloat, gameData[key]!!)
     }
 
     @Test
@@ -119,8 +119,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleFloatArray
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleFloatArray, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleFloatArray, gameData[key])
     }
 
     @Test
@@ -130,8 +130,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleIntegerList
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleIntegerList, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleIntegerList, gameData[key])
     }
 
     @Test
@@ -141,8 +141,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleShort
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleShort, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleShort, gameData[key]!!)
     }
 
     @Test
@@ -152,8 +152,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleShortArray
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleShortArray, gameData[key])
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleShortArray, gameData[key])
     }
 
     @Test
@@ -163,9 +163,9 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleString
 
-        Assert.assertTrue(gameData.contains(key))
+        Assertions.assertTrue(gameData.contains(key))
         val returnedObject: Int? = gameData[key, null, Int::class.java]
-        Assert.assertNull(returnedObject)
+        Assertions.assertNull(returnedObject)
     }
 
     @Test
@@ -176,9 +176,9 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleString
 
-        Assert.assertTrue(gameData.contains(key))
+        Assertions.assertTrue(gameData.contains(key))
         val returnedObject: Int? = gameData[key, defaultValue, Int::class.java]
-        Assert.assertEquals(defaultValue, returnedObject)
+        Assertions.assertEquals(defaultValue, returnedObject)
     }
 
     @Test
@@ -186,8 +186,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val key = "sampleString"
         val gameData = GameData()
 
-        Assert.assertFalse(gameData.contains(key))
-        Assert.assertNull(gameData[key])
+        Assertions.assertFalse(gameData.contains(key))
+        Assertions.assertNull(gameData[key])
     }
 
     @Test
@@ -196,8 +196,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val defaultValue = "DefaultValue"
         val gameData = GameData()
 
-        Assert.assertFalse(gameData.contains(key))
-        Assert.assertEquals(defaultValue, gameData[key, defaultValue])
+        Assertions.assertFalse(gameData.contains(key))
+        Assertions.assertEquals(defaultValue, gameData[key, defaultValue])
     }
 
     @Test
@@ -207,8 +207,8 @@ class GameDataTest : KotlinTestSuperclass() {
         val gameData = GameData()
         gameData[key] = sampleString
 
-        Assert.assertTrue(gameData.contains(key))
-        Assert.assertEquals(sampleString, gameData.remove(key))
-        Assert.assertFalse(gameData.contains(key))
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertEquals(sampleString, gameData.remove(key))
+        Assertions.assertFalse(gameData.contains(key))
     }
 }

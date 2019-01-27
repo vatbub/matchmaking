@@ -23,7 +23,7 @@ import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyRequestHandler
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class MessageDispatcherTest : KotlinTestSuperclass() {
@@ -35,7 +35,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         messageDispatcher.registerHandler(handler)
         messageDispatcher.registerHandler(handler)
 
-        Assert.assertEquals(1, messageDispatcher.handlers.size)
+        Assertions.assertEquals(1, messageDispatcher.handlers.size)
     }
 
     @Test
@@ -43,9 +43,9 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
 
-        Assert.assertFalse(messageDispatcher.isHandlerRegistered(handler))
+        Assertions.assertFalse(messageDispatcher.isHandlerRegistered(handler))
         messageDispatcher.registerHandler(handler)
-        Assert.assertTrue(messageDispatcher.isHandlerRegistered(handler))
+        Assertions.assertTrue(messageDispatcher.isHandlerRegistered(handler))
     }
 
     @Test
@@ -53,16 +53,16 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
         messageDispatcher.registerHandler(handler)
-        Assert.assertTrue(messageDispatcher.removeHandler(handler))
-        Assert.assertFalse(messageDispatcher.isHandlerRegistered(handler))
+        Assertions.assertTrue(messageDispatcher.removeHandler(handler))
+        Assertions.assertFalse(messageDispatcher.isHandlerRegistered(handler))
     }
 
     @Test
     fun negativeRemoveHandlerTest() {
         val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
-        Assert.assertFalse(messageDispatcher.removeHandler(handler))
-        Assert.assertFalse(messageDispatcher.isHandlerRegistered(handler))
+        Assertions.assertFalse(messageDispatcher.removeHandler(handler))
+        Assertions.assertFalse(messageDispatcher.isHandlerRegistered(handler))
     }
 
     @Test
@@ -76,9 +76,9 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val request = DummyRequest(connectionId, password)
         val response = messageDispatcher.dispatch(request, null, null)
 
-        Assert.assertNotNull(response)
-        Assert.assertTrue(handler.handledRequests.isNotEmpty())
-        Assert.assertSame(handler.handledRequests[request], response)
+        Assertions.assertNotNull(response)
+        Assertions.assertTrue(handler.handledRequests.isNotEmpty())
+        Assertions.assertSame(handler.handledRequests[request], response)
     }
 
     @Test
@@ -91,7 +91,7 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val request = DummyRequest(connectionId, password)
         val response = messageDispatcher.dispatch(request, null, null)
 
-        Assert.assertNull(response)
-        Assert.assertTrue(handler.handledRequests.isEmpty())
+        Assertions.assertNull(response)
+        Assertions.assertTrue(handler.handledRequests.isEmpty())
     }
 }
