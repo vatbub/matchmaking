@@ -50,6 +50,7 @@ class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : Re
             )
 
         room.gameState = request.gameData
+        room.dataToBeSentToTheHost.removeAll(request.processedData)
         roomProvider.commitChangesToRoom(room)
         return GetRoomDataResponse(request.connectionId, room)
     }

@@ -33,9 +33,16 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to save the game state to
  * @param gameData The game state to set. Important: This must be the complete game state (not a delta) as it overwrites the entire game state in the specified room.
+ * @param processedData The data coming from [Room.dataToBeSentToTheHost] that was used to generate the new game state. The server will then remove this data from [Room.dataToBeSentToTheHost]
  * @see GetRoomDataResponse
  */
-class UpdateGameStateRequest(connectionId: String, password: String, val roomId: String, val gameData: GameData) :
+class UpdateGameStateRequest(
+    connectionId: String,
+    password: String,
+    val roomId: String,
+    val gameData: GameData,
+    val processedData: List<GameData>
+) :
     Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,6 +53,7 @@ class UpdateGameStateRequest(connectionId: String, password: String, val roomId:
 
         if (roomId != other.roomId) return false
         if (gameData != other.gameData) return false
+        if (processedData != other.processedData) return false
 
         return true
     }
@@ -54,6 +62,7 @@ class UpdateGameStateRequest(connectionId: String, password: String, val roomId:
         var result = super.hashCode()
         result = 31 * result + roomId.hashCode()
         result = 31 * result + gameData.hashCode()
+        result = 31 * result + processedData.hashCode()
         return result
     }
 }
