@@ -38,9 +38,12 @@ class SendDataToHostRequestHandler(private val roomProvider: RoomProvider) : Req
 
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         request as SendDataToHostRequest
-        val room = roomProvider[request.roomId] ?: return GetRoomDataResponse(request.connectionId, null)
-        room.dataToBeSentToTheHost.addAll(request.dataToHost)
-        roomProvider.commitChangesToRoom(room)
+        val roomTransaction = roomProvider.beginTransactionWithRoom(request.roomId) ?: return GetRoomDataResponse(
+            request.connectionId,
+            null
+        )
+        roomTransaction.room.dataToBeSentToTheHost.addAll(request.dataToHost)
+        roomTransaction.commit()
         // get the room again to make sure that the returned info is up to date
         return GetRoomDataResponse(request.connectionId, roomProvider[request.roomId])
     }

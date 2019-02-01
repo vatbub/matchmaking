@@ -41,21 +41,21 @@ class DisconnectRequestHandler(private val roomProvider: RoomProvider) : Request
         request as DisconnectRequest
         val roomIdsToDelete = mutableListOf<String>()
         val disconnectedRoomIds = mutableListOf<String>()
-        for (room in roomProvider.getAllRooms()) {
-            if (room.hostUserConnectionId == request.connectionId)
-                roomIdsToDelete.add(room.id)
+        for (roomTransaction in roomProvider.beginTransactionForAllRooms()) {
+            if (roomTransaction.room.hostUserConnectionId == request.connectionId)
+                roomIdsToDelete.add(roomTransaction.room.id)
 
             val usersToDisconnect = mutableListOf<User>()
-            for (user in room.connectedUsers) {
+            for (user in roomTransaction.room.connectedUsers) {
                 if (user.connectionId == request.connectionId) {
-                    if (!disconnectedRoomIds.contains(room.id))
-                        disconnectedRoomIds.add(room.id)
+                    if (!disconnectedRoomIds.contains(roomTransaction.room.id))
+                        disconnectedRoomIds.add(roomTransaction.room.id)
                     usersToDisconnect.add(user)
                 }
             }
 
-            room.connectedUsers.removeAll(usersToDisconnect)
-            roomProvider.commitChangesToRoom(room)
+            roomTransaction.room.connectedUsers.removeAll(usersToDisconnect)
+            roomTransaction.commit()
         }
 
         val deletedRooms = roomProvider.deleteRooms(*roomIdsToDelete.toTypedArray())

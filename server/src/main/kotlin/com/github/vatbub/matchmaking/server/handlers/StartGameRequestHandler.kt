@@ -21,7 +21,6 @@ package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.StartGameRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
@@ -40,16 +39,21 @@ class StartGameRequestHandler(private val roomProvider: RoomProvider) : RequestH
 
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         request as StartGameRequest
-        val room: Room = roomProvider[request.roomId] ?: return GetRoomDataResponse(request.connectionId, null)
+        val roomTransaction = roomProvider.beginTransactionWithRoom(request.roomId) ?: return GetRoomDataResponse(
+            request.connectionId,
+            null
+        )
 
-        if (room.hostUserConnectionId != request.connectionId)
+        if (roomTransaction.room.hostUserConnectionId != request.connectionId) {
+            roomTransaction.abort()
             return NotAllowedException(
                 "Unable to start the game: The sending client is not the host, only a game host can start the game",
                 request.connectionId
             )
+        }
 
-        room.gameStarted = true
-        roomProvider.commitChangesToRoom(room)
-        return GetRoomDataResponse(request.connectionId, room)
+        roomTransaction.room.gameStarted = true
+        roomTransaction.commit()
+        return GetRoomDataResponse(request.connectionId, roomTransaction.room)
     }
 }

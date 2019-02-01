@@ -24,17 +24,29 @@ import com.github.vatbub.matchmaking.common.requests.UserListMode
 import kotlin.random.Random
 
 class MemoryRoomProvider : RoomProvider() {
-    override fun commitChangesToRoom(vararg roomsToCommit: Room) {
-        for (room in roomsToCommit) {
-            if (!containsRoom(room.id)) continue
-            rooms[room.id] = room
-        }
+    private val rooms = mutableMapOf<String, Room>()
+    private val pendingTransactions = mutableListOf<RoomTransaction>()  // TODO: Implement locking
+
+    override fun beginTransactionWithRoom(id: String): RoomTransaction? {
+        val room = rooms[id] ?: return null
+        val transaction = RoomTransaction(room.copy(), this)
+        pendingTransactions.add(transaction)
+        return transaction
     }
 
-    private val rooms = mutableMapOf<String, Room>()
+    override fun commitTransaction(roomTransaction: RoomTransaction) {
+        if (!pendingTransactions.contains(roomTransaction)) return
+        if (!containsRoom(roomTransaction.room.id)) return
+        rooms[roomTransaction.room.id] = roomTransaction.room
+        pendingTransactions.remove(roomTransaction)
+    }
+
+    override fun abortTransaction(roomTransaction: RoomTransaction) {
+        pendingTransactions.remove(roomTransaction)
+    }
 
     override fun getAllRooms(): Collection<Room> {
-        return rooms.values
+        return rooms.values.toList() // copy the list
     }
 
     override fun containsRoom(id: String): Boolean {
@@ -71,7 +83,7 @@ class MemoryRoomProvider : RoomProvider() {
     }
 
     override fun get(id: String): Room? {
-        return rooms[id]
+        return rooms[id]?.copy()
     }
 
     override fun deleteRoom(id: String): Room? {

@@ -31,7 +31,7 @@ import com.github.vatbub.matchmaking.common.requests.UserListMode
  * @param minRoomSize The minimum amount of players required for a game. Important: It is up to the game host to verify whether the current amount of connected users lies within the boundaries. If so, the host must start the game by sending a [StartGameRequest]
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
  */
-data class Room(
+class Room(
     val id: String,
     val hostUserConnectionId: String,
     val configuredUserNameList: List<String>? = null,
@@ -57,4 +57,37 @@ data class Room(
      * The matchmaking server therefore clears the queue on his end once the queue has been sent to the user.
      */
     val dataToBeSentToTheHost = mutableListOf<GameData>()
+
+    fun copy(): Room {
+        synchronized(this) {
+            val result = Room(
+                id,
+                hostUserConnectionId,
+                configuredUserNameList,
+                configuredUserNameListMode,
+                minRoomSize,
+                maxRoomSize
+            )
+            result.connectedUsers.addAll(connectedUsers)
+            result.gameState = gameState
+            result.gameStarted = gameStarted
+            result.dataToBeSentToTheHost.addAll(dataToBeSentToTheHost)
+            return result
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Room
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }

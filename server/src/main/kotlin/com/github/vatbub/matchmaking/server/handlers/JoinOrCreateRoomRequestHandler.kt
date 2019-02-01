@@ -46,17 +46,21 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
         if (request.connectionId == null)
             throw IllegalArgumentException("Connection id must not be null when sending a JoinOrCreateRoomRequest")
         if (request.operation == Operation.JoinRoom || request.operation == Operation.JoinOrCreateRoom) {
-            val applicableRoom = roomProvider.hasApplicableRoom(
+            val applicableRoomTransaction = roomProvider.hasApplicableRoom(
                 request.userName,
                 request.userList,
                 request.userListMode,
                 request.minRoomSize,
                 request.maxRoomSize
             )
-            if (applicableRoom != null) {
-                applicableRoom.connectedUsers.add(user)
-                roomProvider.commitChangesToRoom(applicableRoom)
-                return JoinOrCreateRoomResponse(request.connectionId, Result.RoomJoined, applicableRoom.id)
+            if (applicableRoomTransaction != null) {
+                applicableRoomTransaction.room.connectedUsers.add(user)
+                applicableRoomTransaction.commit()
+                return JoinOrCreateRoomResponse(
+                    request.connectionId,
+                    Result.RoomJoined,
+                    applicableRoomTransaction.room.id
+                )
             }
         }
 

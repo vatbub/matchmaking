@@ -21,7 +21,6 @@ package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
@@ -41,17 +40,22 @@ class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : Re
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         request as UpdateGameStateRequest
 
-        val room: Room = roomProvider[request.roomId] ?: return GetRoomDataResponse(request.connectionId, null)
+        val roomTransaction = roomProvider.beginTransactionWithRoom(request.roomId) ?: return GetRoomDataResponse(
+            request.connectionId,
+            null
+        )
 
-        if (room.hostUserConnectionId != request.connectionId)
+        if (roomTransaction.room.hostUserConnectionId != request.connectionId) {
+            roomTransaction.abort()
             return NotAllowedException(
                 "Unable to set the game state: The sending client is not the host, only a game host can start the game",
                 request.connectionId
             )
+        }
 
-        room.gameState = request.gameData
-        room.dataToBeSentToTheHost.removeAll(request.processedData)
-        roomProvider.commitChangesToRoom(room)
-        return GetRoomDataResponse(request.connectionId, room)
+        roomTransaction.room.gameState = request.gameData
+        roomTransaction.room.dataToBeSentToTheHost.removeAll(request.processedData)
+        roomTransaction.commit()
+        return GetRoomDataResponse(request.connectionId, roomTransaction.room)
     }
 }

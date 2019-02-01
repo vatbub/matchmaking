@@ -47,8 +47,10 @@ class DisconnectRequestHandlerTest : RequestHandlerTestSuperclass() {
         )
 
         for (room in connectedRooms) {
-            room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
-            roomProvider.commitChangesToRoom(room)
+            val roomTransaction = roomProvider.beginTransactionWithRoom(room.id) ?: continue
+            roomTransaction.room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
+            roomTransaction.commit()
+            Assertions.assertEquals(1, roomProvider[room.id]!!.connectedUsers.size)
         }
 
         val request = DisconnectRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)

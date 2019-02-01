@@ -43,23 +43,63 @@ abstract class RoomProvider {
 
     /**
      * Returns the [Room] with the specified id or `null` if no room with the given id was found.
-     * **IMPORTANT:** Depending on the implementation, changes to the [Room] object might not be saved automatically.
-     * To make sure that changes are saved, call [commitChangesToRoom]
+     * **IMPORTANT:** Changes to the returned object will not be saved automatically. To be able to
+     * make changes to a room, use [beginTransactionWithRoom], do your changes and then call
+     * [RoomTransaction.commit] to save your changes.
      * @param id The id of the room to get
      * @return The [Room] with the specified id or `null` if no room with the given id was found
-     * @see commitChangesToRoom
+     * @see beginTransactionWithRoom
      */
     abstract operator fun get(id: String): Room?
+
+    abstract fun beginTransactionWithRoom(id: String): RoomTransaction?
+
+    fun beginTransactionsWithRooms(ids: Collection<String>): List<RoomTransaction> {
+        return beginTransactionsWithRooms(*ids.toTypedArray())
+    }
+
+    fun beginTransactionsWithRooms(vararg ids: String): List<RoomTransaction> {
+        val result = mutableListOf<RoomTransaction>()
+        for (id in ids) {
+            val transaction = beginTransactionWithRoom(id)
+            if (transaction != null)
+                result.add(transaction)
+        }
+        return result
+    }
+
+    fun beginTransactionForAllRooms(): List<RoomTransaction> {
+        val result = mutableListOf<RoomTransaction>()
+        for (room in getAllRooms()) {
+            val transaction = beginTransactionWithRoom(room.id) ?: continue
+            result.add(transaction)
+        }
+        return result
+    }
 
     /**
      * Makes sure that changes to the supplied rooms are saved in the room provider
      */
-    abstract fun commitChangesToRoom(vararg roomsToCommit: Room)
+    internal abstract fun commitTransaction(roomTransaction: RoomTransaction)
 
+    internal abstract fun abortTransaction(roomTransaction: RoomTransaction)
+
+    /**
+     * Returns multiple rooms by their id.
+     * **IMPORTANT:** Changes to the returned rooms will not be saved automatically. To be able to
+     * make changes to a room, use [beginTransactionsWithRooms], do your changes and then call
+     * [RoomTransaction.commit] to save your changes.
+     */
     open fun getRoomsById(ids: Collection<String>): List<Room> {
         return getRoomsById(*ids.toTypedArray())
     }
 
+    /**
+     * Returns multiple rooms by their id.
+     * **IMPORTANT:** Changes to the returned rooms will not be saved automatically. To be able to
+     * make changes to a room, use [beginTransactionsWithRooms], do your changes and then call
+     * [RoomTransaction.commit] to save your changes.
+     */
     open fun getRoomsById(vararg ids: String): List<Room> {
         val result = mutableListOf<Room>()
         for (room in getAllRooms()) {
@@ -87,57 +127,93 @@ abstract class RoomProvider {
         userListMode: UserListMode = Ignore,
         minRoomSize: Int = 1,
         maxRoomSize: Int = 1
-    ): Room? {
-        for (room in getAllRooms()) {
-            if (room.gameStarted) continue
-            if ((room.connectedUsers.size + 1) > room.maxRoomSize) continue
-            if (room.minRoomSize < minRoomSize) continue
-            if (room.maxRoomSize > maxRoomSize) continue
+    ): RoomTransaction? {
+        var result: RoomTransaction? = null
+
+        for (roomTransaction in beginTransactionForAllRooms()) {
+            if (result != null) { // we have a room already, abort all other transactions
+                roomTransaction.abort()
+                continue
+            }
+
+            if (roomTransaction.room.gameStarted) {
+                roomTransaction.abort()
+                continue
+            }
+            if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
+                roomTransaction.abort()
+                continue
+            }
+            if (roomTransaction.room.minRoomSize < minRoomSize) {
+                roomTransaction.abort()
+                continue
+            }
+            if (roomTransaction.room.maxRoomSize > maxRoomSize) {
+                roomTransaction.abort()
+                continue
+            }
 
             // check the supplied user list
             when (userListMode) {
                 Blacklist -> {
-                    if (userList == null)
+                    if (userList == null) {
+                        roomTransaction.abort()
                         throw IllegalArgumentException("UserList must not be null when using UserListMode.Blacklist")
-                    for (user in room.connectedUsers)
-                        if (userList.contains(user.userName))
+                    }
+                    for (user in roomTransaction.room.connectedUsers) {
+                        if (userList.contains(user.userName)) {
+                            roomTransaction.abort()
                             continue
+                        }
+                    }
                 }
                 Whitelist -> {
-                    if (userList == null)
+                    if (userList == null) {
+                        roomTransaction.abort()
                         throw IllegalArgumentException("UserList must not be null when using UserListMode.Whitelist")
-                    for (user in room.connectedUsers)
-                        if (!userList.contains(user.userName))
+                    }
+                    for (user in roomTransaction.room.connectedUsers) {
+                        if (!userList.contains(user.userName)) {
+                            roomTransaction.abort()
                             continue
+                        }
+                    }
                 }
                 Ignore ->
-                    if (userList != null)
+                    if (userList != null) {
+                        roomTransaction.abort()
                         throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")
+                    }
             }
 
             // check the room's user list
-            val configuredUserNameList = room.configuredUserNameList
-            val configuredUserNameListMode = room.configuredUserNameListMode
+            val configuredUserNameList = roomTransaction.room.configuredUserNameList
+            val configuredUserNameListMode = roomTransaction.room.configuredUserNameListMode
 
             if (configuredUserNameList != null && configuredUserNameListMode != Ignore) {
                 @Suppress("NON_EXHAUSTIVE_WHEN")
                 when (configuredUserNameListMode) {
                     Blacklist ->
-                        for (user in configuredUserNameList)
-                            if (configuredUserNameList.contains(userName))
+                        for (user in configuredUserNameList) {
+                            if (configuredUserNameList.contains(userName)) {
+                                roomTransaction.abort()
                                 continue
+                            }
+                        }
                     Whitelist ->
-                        for (user in configuredUserNameList)
-                            if (!configuredUserNameList.contains(userName))
+                        for (user in configuredUserNameList) {
+                            if (!configuredUserNameList.contains(userName)) {
+                                roomTransaction.abort()
                                 continue
+                            }
+                        }
                 }
             }
 
-            return room
+            result = roomTransaction
         }
 
-        // nothing found
-        return null
+        return result
     }
 
     /**
@@ -172,5 +248,11 @@ abstract class RoomProvider {
      */
     abstract fun containsRoom(id: String): Boolean
 
+    /**
+     * Returns all rooms known to this [RoomProvider].
+     * **IMPORTANT:** Changes to the returned rooms will not be saved automatically. To be able to
+     * make changes to a room, use [beginTransactionsWithRooms], do your changes and then call
+     * [RoomTransaction.commit] to save your changes.
+     */
     abstract fun getAllRooms(): Collection<Room>
 }

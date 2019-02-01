@@ -20,7 +20,6 @@
 package com.github.vatbub.matchmaking.server.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
-import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.jupiter.api.Assertions
@@ -82,38 +81,6 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         Assertions.assertEquals(createdRoom2, retrievedRoom2)
         Assertions.assertNotEquals(createdRoom1, retrievedRoom2)
         Assertions.assertNotEquals(createdRoom2, retrievedRoom1)
-    }
-
-    @Test
-    fun commitUnknownRoomTest() {
-        val unknownRoom = Room("3aa02661", "22321b1b")
-        roomProvider.commitChangesToRoom(unknownRoom)
-        Assertions.assertFalse(roomProvider.containsRoom(unknownRoom.id))
-    }
-
-    @Test
-    fun commitRoomTest() {
-        val room = roomProvider.createNewRoom("2e1eb54a")
-        val connectingUser = User("2d4e4630", "vatbub")
-        room.connectedUsers.add(connectingUser)
-        roomProvider.commitChangesToRoom(room)
-        Assertions.assertEquals(room.connectedUsers, roomProvider[room.id]?.connectedUsers)
-    }
-
-    @Test
-    fun commitMultipleRoomsTest() {
-        val room1 = roomProvider.createNewRoom("2e1eb54a")
-        val room2 = roomProvider.createNewRoom("10391622")
-        val connectingUser1 = User("2d4e4630", "vatbub")
-        val connectingUser2 = User("2c14467f", "heykey")
-
-        room1.connectedUsers.add(connectingUser1)
-        room2.connectedUsers.add(connectingUser2)
-
-        roomProvider.commitChangesToRoom(room1, room2)
-
-        Assertions.assertEquals(room1.connectedUsers, roomProvider[room1.id]?.connectedUsers)
-        Assertions.assertEquals(room2.connectedUsers, roomProvider[room2.id]?.connectedUsers)
     }
 
     @Test
