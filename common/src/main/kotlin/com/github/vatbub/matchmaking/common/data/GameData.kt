@@ -36,8 +36,8 @@ package com.github.vatbub.matchmaking.common.data
  * - [Short]
  * - [ShortArray]
  */
-class GameData {
-    private val contents = mutableMapOf<String, Any>()
+class GameData private constructor(private val contents: MutableMap<String, Any>) {
+    constructor() : this(mutableMapOf())
 
     /**
      * Stores the specified value together with its key.
@@ -107,6 +107,10 @@ class GameData {
 
     override fun hashCode(): Int {
         return contents.hashCode()
+    }
+
+    fun copy(): GameData {
+        return GameData(contents)
     }
 
 

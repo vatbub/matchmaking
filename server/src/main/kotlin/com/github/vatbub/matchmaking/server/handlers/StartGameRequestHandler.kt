@@ -54,6 +54,6 @@ class StartGameRequestHandler(private val roomProvider: RoomProvider) : RequestH
 
         roomTransaction.room.gameStarted = true
         roomTransaction.commit()
-        return GetRoomDataResponse(request.connectionId, roomTransaction.room)
+        return GetRoomDataResponse(request.connectionId, roomTransaction.room.toRoom())
     }
 }

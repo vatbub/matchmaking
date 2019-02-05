@@ -23,13 +23,18 @@ import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import kotlin.random.Random
 
+/**
+ * This implementation of [RoomProvider] keeps the provided rooms in memory. This implementation therefore
+ * - *does not* support sharing data across multiple nodes
+ * - *does not* persist its data across server restarts
+ */
 class MemoryRoomProvider : RoomProvider() {
     private val rooms = mutableMapOf<String, Room>()
     private val pendingTransactions = mutableListOf<RoomTransaction>()  // TODO: Implement locking
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
         val room = rooms[id] ?: return null
-        val transaction = RoomTransaction(room.copy(), this)
+        val transaction = RoomTransaction(ObservableRoom(room), this)
         pendingTransactions.add(transaction)
         return transaction
     }
@@ -37,7 +42,7 @@ class MemoryRoomProvider : RoomProvider() {
     override fun commitTransaction(roomTransaction: RoomTransaction) {
         if (!pendingTransactions.contains(roomTransaction)) return
         if (!containsRoom(roomTransaction.room.id)) return
-        rooms[roomTransaction.room.id] = roomTransaction.room
+        rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
         pendingTransactions.remove(roomTransaction)
     }
 

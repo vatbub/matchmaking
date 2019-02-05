@@ -19,18 +19,37 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders
 
-import com.github.vatbub.matchmaking.common.data.Room
-
-class RoomTransaction(val room: Room, private val roomProvider: RoomProvider) {
+/**
+ * [RoomTransaction]s are used to perform changes on rooms. The reason for the transaction principle is to ensure thread safety.
+ * Multiple threads and/or multiple nodes might access the [RoomProvider] at the same time and they all need a consistent
+ * database state.
+ * Therefore, all changes to rooms must be done within one transaction. The changes will not become visible to other threads until
+ * [RoomTransaction.commit] is called.
+ */
+class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvider) {
+    val room = room
+        get() {
+            if (finalized)
+                throw IllegalStateException("A RoomTransaction cannot be modified after it has been committed or aborted.")
+            return field
+        }
     var finalized = false
         private set
 
+    /**
+     * Changes to the room will only be visible after this method has been called.
+     * Changes to the transaction will result in an [IllegalStateException] after calling this method.
+     */
     fun commit() {
         if (finalized) return
         roomProvider.commitTransaction(this)
         finalized = true
     }
 
+    /**
+     * Cancels all changes performed by this transaction.
+     * Changes to the transaction will result in an [IllegalStateException] after calling this method.
+     */
     fun abort() {
         if (finalized) return
         roomProvider.abortTransaction(this)
