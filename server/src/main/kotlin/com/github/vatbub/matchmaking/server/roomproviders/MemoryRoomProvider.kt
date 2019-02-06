@@ -28,7 +28,10 @@ import kotlin.random.Random
  * - *does not* support sharing data across multiple nodes
  * - *does not* persist its data across server restarts
  */
-class MemoryRoomProvider : RoomProvider() {
+open class MemoryRoomProvider : RoomProvider() {
+
+    override val supportsConsurrentTransactionsOnSameRoom: Boolean = false
+
     private val rooms = mutableMapOf<String, Room>()
     private val pendingTransactions = mutableListOf<RoomTransaction>()  // TODO: Implement locking
 

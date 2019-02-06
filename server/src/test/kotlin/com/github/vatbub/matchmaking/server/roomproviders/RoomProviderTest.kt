@@ -19,9 +19,12 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders
 
+import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -220,5 +223,90 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         for (room in allRooms) {
             Assertions.assertTrue(createdRooms.contains(room))
         }
+    }
+
+    @Test
+    fun atomicityOfTransactionsAbortTest() {
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+
+        val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
+        transaction.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
+        transaction.room.gameStarted = true
+        transaction.room.dataToBeSentToTheHost.add(GameData())
+        transaction.room.gameState.backingGameData = GameData()
+
+        transaction.abort()
+
+        val roomAfterTransaction = roomProvider[room.id]
+
+        Assertions.assertEquals(room, roomAfterTransaction)
+    }
+
+    @Test
+    fun atomicityOfTransactionsCommitTest() {
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+
+        val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
+        transaction.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
+        transaction.room.gameStarted = true
+        transaction.room.dataToBeSentToTheHost.add(GameData())
+        val newGameState = GameData()
+        newGameState["some_key"] = "hello"
+        transaction.room.gameState.backingGameData = newGameState
+
+        transaction.commit()
+
+        val roomAfterTransaction = roomProvider[room.id]!!
+
+        Assertions.assertEquals(1, roomAfterTransaction.connectedUsers.size)
+        Assertions.assertTrue(roomAfterTransaction.gameStarted)
+        Assertions.assertEquals(1, roomAfterTransaction.dataToBeSentToTheHost.size)
+        Assertions.assertEquals(newGameState, roomAfterTransaction.gameState)
+    }
+
+    @Test
+    fun isolationOfParallelTransactionsTest() {
+        if (!roomProvider.supportsConsurrentTransactionsOnSameRoom)
+            return
+
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+        val transaction1 = roomProvider.beginTransactionWithRoom(room.id)!!
+        val transaction2 = roomProvider.beginTransactionWithRoom(room.id)!!
+
+        transaction1.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
+        transaction2.room.dataToBeSentToTheHost.add(GameData())
+
+        Assertions.assertEquals(0, transaction1.room.dataToBeSentToTheHost.size)
+        Assertions.assertEquals(0, transaction2.room.connectedUsers.size)
+
+        transaction1.commit()
+        transaction2.commit()
+
+        val roomAfterTransactions = roomProvider[room.id]!!
+
+        Assertions.assertEquals(1, roomAfterTransactions.connectedUsers.size)
+        Assertions.assertEquals(1, roomAfterTransactions.dataToBeSentToTheHost.size)
+    }
+
+    @Test
+    fun schedulingOfParallelTransactionsTest() {
+        if (roomProvider.supportsConsurrentTransactionsOnSameRoom)
+            return
+
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+
+        val transaction1 = roomProvider.beginTransactionWithRoom(room.id)!!
+        var result = false
+
+        val transaction2Thread = Thread {
+            roomProvider.beginTransactionWithRoom(room.id)
+            result = transaction1.finalized
+        }
+        transaction2Thread.start()
+
+        Thread.sleep(100)
+        transaction1.abort()
+        transaction2Thread.join()
+        Assertions.assertTrue(result)
     }
 }

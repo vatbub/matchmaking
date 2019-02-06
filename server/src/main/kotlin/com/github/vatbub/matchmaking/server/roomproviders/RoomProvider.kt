@@ -24,6 +24,8 @@ import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.common.requests.UserListMode.*
 
 abstract class RoomProvider {
+    abstract val supportsConsurrentTransactionsOnSameRoom: Boolean
+
     /**
      * Creates a new room with the specified parameters, stores it and returns it.
      * @param hostUserConnectionId The connection id of the game host
