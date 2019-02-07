@@ -32,8 +32,8 @@ class RoomTransactionTest : KotlinTestSuperclass() {
         val roomProvider = DummyRoomProvider()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
-        val transaction1 = roomProvider.beginTransactionWithRoom(room.id)
-        val transaction2 = roomProvider.beginTransactionWithRoom(room.id)
+        val transaction1 = RoomTransaction(ObservableRoom(room), roomProvider)
+        val transaction2 = RoomTransaction(ObservableRoom(room), roomProvider)
 
         Assertions.assertEquals(transaction1, transaction2)
         Assert.assertEquals(transaction1.hashCode(), transaction2.hashCode())

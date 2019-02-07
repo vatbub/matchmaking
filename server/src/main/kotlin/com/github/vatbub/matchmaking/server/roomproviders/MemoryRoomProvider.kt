@@ -42,13 +42,18 @@ open class MemoryRoomProvider : RoomProvider() {
         val transaction = RoomTransaction(
             ObservableRoom(room), this
         )
-        pendingTransactions.add(transaction)
-        return transaction
+        while (true) {
+            synchronized(pendingTransactions) {
+                if (!pendingTransactions.contains(transaction)) {
+                    pendingTransactions.add(transaction)
+                    return transaction
+                }
+            }
+        }
     }
 
     override fun commitTransaction(roomTransaction: RoomTransaction) {
         if (!pendingTransactions.contains(roomTransaction)) return
-        if (!containsRoom(roomTransaction.room.id)) return
         rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
         pendingTransactions.remove(roomTransaction)
     }
