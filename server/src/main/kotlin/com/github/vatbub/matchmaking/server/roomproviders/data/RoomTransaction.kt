@@ -17,7 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.roomproviders
+package com.github.vatbub.matchmaking.server.roomproviders.data
+
+import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
 
 /**
  * [RoomTransaction]s are used to perform changes on rooms. The reason for the transaction principle is to ensure thread safety.

@@ -33,6 +33,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleByte, gameData[key]!!)
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -44,6 +45,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleByteArray, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -55,6 +57,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleChar, gameData[key]!!)
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -66,6 +69,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleCharArray, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -77,6 +81,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleString, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -88,6 +93,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertArrayEquals(sampleStringArray, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -99,6 +105,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleStringList, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -110,6 +117,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleFloat, gameData[key]!!)
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -121,6 +129,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleFloatArray, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -132,6 +141,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleIntegerList, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -143,6 +153,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleShort, gameData[key]!!)
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -154,6 +165,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleShortArray, gameData[key])
+        Assertions.assertEquals(1, gameData.size)
     }
 
     @Test
@@ -210,5 +222,6 @@ class GameDataTest : KotlinTestSuperclass() {
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(sampleString, gameData.remove(key))
         Assertions.assertFalse(gameData.contains(key))
+        Assertions.assertEquals(0, gameData.size)
     }
 }

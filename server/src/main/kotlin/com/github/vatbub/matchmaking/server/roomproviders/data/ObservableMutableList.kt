@@ -17,107 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.roomproviders
-
-import com.github.vatbub.matchmaking.common.data.GameData
-import com.github.vatbub.matchmaking.common.data.Room
-import kotlin.properties.Delegates
-
-/**
- * This class wraps a [Room] and allows other entities to subscribe to changes to the room.
- * This allows more efficient database interactions.
- * **Important:** The room data is copied within the constructor. Later changes to `fromRoom` will not be reflected by this class.
- * @param fromRoom The room too copy the data from
- */
-class ObservableRoom(
-    fromRoom: Room,
-    var onGameStartedChange: ((Boolean) -> Unit)? = null
-) {
-    val id = fromRoom.id
-    val hostUserConnectionId = fromRoom.hostUserConnectionId
-    val configuredUserNameList = fromRoom.configuredUserNameList
-    val configuredUserNameListMode = fromRoom.configuredUserNameListMode
-    val minRoomSize = fromRoom.minRoomSize
-    val maxRoomSize = fromRoom.maxRoomSize
-
-    val connectedUsers = ObservableMutableList(fromRoom.connectedUsers)
-    val gameState = ObservableGameData(fromRoom.gameState)
-
-    var gameStarted: Boolean by Delegates.observable(false) { _, _, newValue -> onGameStartedChange?.invoke(newValue) }
-
-    val dataToBeSentToTheHost = ObservableMutableList<GameData>()
-
-    /**
-     * Constructs a new [Room] object which contains all data of `this` object.
-     */
-    fun toRoom(): Room {
-        val result =
-            Room(id, hostUserConnectionId, configuredUserNameList, configuredUserNameListMode, minRoomSize, maxRoomSize)
-        result.connectedUsers.clear()
-        result.connectedUsers.addAll(connectedUsers)
-        result.gameState = gameState.backingGameData
-        result.gameStarted = gameStarted
-        result.dataToBeSentToTheHost.clear()
-        result.dataToBeSentToTheHost.addAll(dataToBeSentToTheHost)
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ObservableRoom
-
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
-}
-
-/**
- * This class wraps a [GameData] object and allows other entities to subscribe to changes it.
- * This allows more efficient database interactions.
- * **Important:** The [GameData] is copied within the constructor. Later changes to `fromGameData` will not be reflected by this class.
- * @param fromGameData The [GameData] too copy the data from
- */
-class ObservableGameData(
-    fromGameData: GameData,
-    var onReplace: ((oldGameData: GameData, newGameData: GameData) -> Unit)? = null,
-    var onSet: ((key: String, oldValue: Any?, newValue: Any) -> Unit)? = null,
-    val onRemove: ((key: String, element: Any?) -> Unit)? = null
-) {
-
-    var backingGameData: GameData by Delegates.observable(fromGameData.copy()) { _, oldValue, newValue ->
-        onReplace?.invoke(
-            oldValue,
-            newValue
-        )
-    }
-
-    operator fun <T : Any> set(key: String, content: T) {
-        val oldValue = backingGameData.get<T>(key)
-        backingGameData[key] = content
-        onSet?.invoke(key, oldValue, content)
-    }
-
-    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null): T? {
-        return backingGameData[key, defaultValue, typeClass]
-    }
-
-    fun contains(key: String): Boolean {
-        return backingGameData.contains(key)
-    }
-
-    fun <T : Any> remove(key: String): T? {
-        val result = backingGameData.remove<T>(key)
-        onRemove?.invoke(key, result)
-        return result
-    }
-}
+package com.github.vatbub.matchmaking.server.roomproviders.data
 
 /**
  * A list which allows other entities to subscribe to changes
@@ -296,6 +196,12 @@ class ObservableMutableList<E> private constructor(
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): ObservableMutableList<E> {
-        return ObservableMutableList(onAdd, onSet, onRemove, onClear, backingList.subList(fromIndex, toIndex))
+        return ObservableMutableList(
+            onAdd,
+            onSet,
+            onRemove,
+            onClear,
+            backingList.subList(fromIndex, toIndex)
+        )
     }
 }

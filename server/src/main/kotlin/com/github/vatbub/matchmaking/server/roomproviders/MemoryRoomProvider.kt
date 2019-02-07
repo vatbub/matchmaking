@@ -21,6 +21,8 @@ package com.github.vatbub.matchmaking.server.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.UserListMode
+import com.github.vatbub.matchmaking.server.roomproviders.data.ObservableRoom
+import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 import kotlin.random.Random
 
 /**
@@ -37,7 +39,9 @@ open class MemoryRoomProvider : RoomProvider() {
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
         val room = rooms[id] ?: return null
-        val transaction = RoomTransaction(ObservableRoom(room), this)
+        val transaction = RoomTransaction(
+            ObservableRoom(room), this
+        )
         pendingTransactions.add(transaction)
         return transaction
     }

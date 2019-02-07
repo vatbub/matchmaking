@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.server.roomproviders
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.common.requests.UserListMode.*
+import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 
 abstract class RoomProvider {
     abstract val supportsConsurrentTransactionsOnSameRoom: Boolean
