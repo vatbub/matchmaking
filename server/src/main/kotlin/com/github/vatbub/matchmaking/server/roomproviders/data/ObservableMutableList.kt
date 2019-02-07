@@ -44,7 +44,7 @@ class ObservableMutableList<E> private constructor(
     )
 
     constructor(
-        c: MutableCollection<out E>?,
+        c: Collection<E>?,
         onAdd: ((element: E, index: Int) -> Unit)? = null,
         onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
         onRemove: ((element: E, index: Int) -> Unit)? = null,
@@ -118,9 +118,8 @@ class ObservableMutableList<E> private constructor(
     }
 
     override fun addAll(elements: Collection<E>): Boolean {
-        val result = backingList.addAll(elements)
-
         val index = size
+        val result = backingList.addAll(elements)
         for ((i, element) in elements.withIndex()) {
             onAdd?.invoke(element, index + i)
         }
