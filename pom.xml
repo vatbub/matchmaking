@@ -62,6 +62,7 @@
         <module>server</module>
         <module>common</module>
         <module>testutils</module>
+        <module>standaloneserverlauncher</module>
     </modules>
 
     <properties>
