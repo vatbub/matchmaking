@@ -35,7 +35,9 @@ import org.apache.tomcat.util.descriptor.web.LoginConfig
 import org.apache.tomcat.util.descriptor.web.SecurityCollection
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint
 import org.apache.tomcat.util.scan.StandardJarScanner
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import javax.naming.CompositeName
@@ -60,7 +62,9 @@ class Main {
             }
 
             val tomcat = Tomcat()
-            tomcat.setBaseDir(resolveTomcatBaseDir(commandLineParams.port, commandLineParams.tempDirectory))
+            val baseDir = resolveTomcatBaseDir(commandLineParams.port, commandLineParams.tempDirectory)
+            println("Tomcat base dir: $baseDir")
+            tomcat.setBaseDir(baseDir)
 
             val port = commandLineParams.port
 
@@ -165,6 +169,7 @@ class Main {
             val contextPath = commandLineParams.contextPath
 
             val war = exportResource(warName)
+            war.deleteOnExit()
 
             println("Adding Context " + contextPath + " for " + war.path)
             context = tomcat.addWebapp(contextPath, war.absolutePath)
@@ -328,14 +333,11 @@ class Main {
         private fun addShutdownHook(tomcat: Tomcat?) {
 
             // add shutdown hook to stop server
-            Runtime.getRuntime().addShutdownHook(object : Thread() {
-                override fun run() {
-                    try {
-                        tomcat?.server?.stop()
-                    } catch (exception: LifecycleException) {
-                        throw RuntimeException("WARNING: Cannot Stop Tomcat " + exception.message, exception)
-                    }
-
+            Runtime.getRuntime().addShutdownHook(Thread {
+                try {
+                    tomcat?.server?.stop()
+                } catch (exception: LifecycleException) {
+                    throw RuntimeException("WARNING: Cannot Stop Tomcat " + exception.message, exception)
                 }
             })
         }
@@ -348,26 +350,20 @@ class Main {
          * @throws Exception
          */
         private fun exportResource(resourceName: String): File {
-            var stream: InputStream? = null
-            var resStreamOut: OutputStream? = null
-            val jarFolder: String
-            try {
-                stream = Main::class.java.getResourceAsStream(resourceName)
-                if (stream == null)
-                    throw Exception("Cannot get resource \"$resourceName\" from Jar file.")
+            val jarFolder: String = File(Main::class.java.protectionDomain.codeSource.location.toURI().path).parentFile
+                .path.replace('\\', '/')
 
-                jarFolder = File(Main::class.java.protectionDomain.codeSource.location.toURI().path).parentFile
-                    .path.replace('\\', '/')
-                resStreamOut = FileOutputStream(jarFolder + resourceName)
 
-                IOUtils.copy(stream, resStreamOut)
-            } catch (ex: Exception) {
-                throw ex
-            } finally {
-                stream!!.close()
-                resStreamOut!!.close()
+            val stream = Main::class.java.getResourceAsStream(resourceName)
+                ?: throw Exception("Cannot get resource \"$resourceName\" from Jar file.")
+
+            stream.use { resourceInputStream ->
+                val finalName = jarFolder + resourceName
+                println("Extracting resource '$resourceName' to '$finalName'")
+                FileOutputStream(finalName).use { resourceOutputStream ->
+                    IOUtils.copy(resourceInputStream, resourceOutputStream)
+                }
             }
-
             return File(jarFolder + resourceName)
         }
     }
