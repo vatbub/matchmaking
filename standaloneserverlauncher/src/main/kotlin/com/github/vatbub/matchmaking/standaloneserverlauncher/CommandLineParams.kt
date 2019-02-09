@@ -95,12 +95,6 @@ class CommandLineParams {
     )
     var tomcatUsersLocation: String? = null
 
-    @Parameter(
-        names = ["--expanded-dir-name"],
-        description = "The name of the directory the WAR file will be expanded into."
-    )
-    var expandedDirName = "expanded"
-
     @Parameter(names = ["--uri-encoding"], description = "Set the URI encoding to be used for the Connector.")
     var uriEncoding: String? = null
 
@@ -131,12 +125,6 @@ class CommandLineParams {
 
     @Parameter(names = ["--max-threads"], description = "Set the maximum number of worker threads")
     var maxThreads: Int? = 0
-
-    @Parameter(
-        names = ["--memcached-transcoder-factory-class"],
-        description = "The class name of the factory that creates the transcoder to use for serializing/deserializing sessions to/from memcached."
-    )
-    var memcachedTranscoderFactoryClass: String? = null
 
     @DynamicParameter(
         names = ["-A"],
