@@ -42,7 +42,7 @@ class CommandLineParams {
 
     @Parameter(
         names = ["--shutdown-override"],
-        description = "Overrides the default behavior and casues Tomcat to ignore lifecycle failure events rather than shutting down when they occur."
+        description = "Overrides the default behavior and causes Tomcat to ignore lifecycle failure events rather than shutting down when they occur."
     )
     var shutdownOverride = false
 
