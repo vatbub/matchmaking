@@ -41,10 +41,11 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
 
     override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         request as JoinOrCreateRoomRequest
-        val user = User(request.connectionId!!, request.userName, sourceIp, sourceIpv6)
+        val connectionId = request.connectionId
+            ?: throw IllegalArgumentException("Connection id must not be null when sending a JoinOrCreateRoomRequest")
 
-        if (request.connectionId == null)
-            throw IllegalArgumentException("Connection id must not be null when sending a JoinOrCreateRoomRequest")
+        val user = User(connectionId, request.userName, sourceIp, sourceIpv6)
+
         if (request.operation == Operation.JoinRoom || request.operation == Operation.JoinOrCreateRoom) {
             val applicableRoomTransaction = roomProvider.hasApplicableRoom(
                 request.userName,
@@ -55,37 +56,28 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
             )
             if (applicableRoomTransaction != null) {
                 applicableRoomTransaction.room.connectedUsers.add(user)
+                val applicableRoomId = applicableRoomTransaction.room.id
                 applicableRoomTransaction.commit()
                 return JoinOrCreateRoomResponse(
-                    request.connectionId,
+                    connectionId,
                     Result.RoomJoined,
-                    applicableRoomTransaction.room.id
+                    applicableRoomId
                 )
             }
         }
 
         if (request.operation == Operation.CreateRoom || request.operation == Operation.JoinOrCreateRoom) {
             val room = roomProvider.createNewRoom(
-                request.connectionId!!,
+                connectionId,
                 request.userList,
                 request.userListMode,
                 request.minRoomSize,
                 request.maxRoomSize
             )
-            return JoinOrCreateRoomResponse(request.connectionId, Result.RoomCreated, room.id)
+            return JoinOrCreateRoomResponse(connectionId, Result.RoomCreated, room.id)
         }
 
         // nothing happened
-        return JoinOrCreateRoomResponse(request.connectionId, Result.Nothing, null)
+        return JoinOrCreateRoomResponse(connectionId, Result.Nothing, null)
     }
-
-    /*
-    connectionId: String?,
-    val operation: Operation,
-    val userName: String,
-    val userList: List<String>? = null,
-    val userListMode: UserListMode = UserListMode.Ignore,
-    val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 1
-     */
 }
