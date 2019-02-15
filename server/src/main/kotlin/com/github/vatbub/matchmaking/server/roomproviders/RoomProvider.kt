@@ -131,6 +131,11 @@ abstract class RoomProvider {
         minRoomSize: Int = 1,
         maxRoomSize: Int = 1
     ): RoomTransaction? {
+        if (userListMode == Ignore && userList != null)
+            throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")
+        if (userListMode != Ignore && userList == null)
+            throw IllegalArgumentException("UserList must not be null when using UserListMode.Blacklist or UserListMode.Whitelist")
+
         var result: RoomTransaction? = null
 
         for (roomTransaction in beginTransactionForAllRooms()) {
@@ -157,36 +162,24 @@ abstract class RoomProvider {
             }
 
             // check the supplied user list
+            @Suppress("NON_EXHAUSTIVE_WHEN")
             when (userListMode) {
                 Blacklist -> {
-                    if (userList == null) {
-                        roomTransaction.abort()
-                        throw IllegalArgumentException("UserList must not be null when using UserListMode.Blacklist")
-                    }
                     for (user in roomTransaction.room.connectedUsers) {
-                        if (userList.contains(user.userName)) {
+                        if (userList!!.contains(user.userName)) {
                             roomTransaction.abort()
                             continue
                         }
                     }
                 }
                 Whitelist -> {
-                    if (userList == null) {
-                        roomTransaction.abort()
-                        throw IllegalArgumentException("UserList must not be null when using UserListMode.Whitelist")
-                    }
                     for (user in roomTransaction.room.connectedUsers) {
-                        if (!userList.contains(user.userName)) {
+                        if (!userList!!.contains(user.userName)) {
                             roomTransaction.abort()
                             continue
                         }
                     }
                 }
-                Ignore ->
-                    if (userList != null) {
-                        roomTransaction.abort()
-                        throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")
-                    }
             }
 
             // check the room's user list
