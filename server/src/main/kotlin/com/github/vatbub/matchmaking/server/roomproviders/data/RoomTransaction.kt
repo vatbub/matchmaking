@@ -29,11 +29,12 @@ import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
  * [RoomTransaction.commit] is called.
  */
 class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvider) {
-    val room = room
+    private val _room = room
+    val room: ObservableRoom
         get() {
             if (finalized)
                 throw IllegalStateException("A RoomTransaction cannot be modified after it has been committed or aborted.")
-            return field
+            return _room
         }
     var finalized = false
         private set
@@ -64,14 +65,14 @@ class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvid
 
         other as RoomTransaction
 
-        if (room != other.room) return false
+        if (_room != other._room) return false
         if (roomProvider != other.roomProvider) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = room.hashCode()
+        var result = _room.hashCode()
         result = 31 * result + roomProvider.hashCode()
         return result
     }
