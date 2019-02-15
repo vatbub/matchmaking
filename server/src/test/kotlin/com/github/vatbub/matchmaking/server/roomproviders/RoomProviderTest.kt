@@ -25,23 +25,21 @@ import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.Assert
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-abstract class RoomProviderTest(private val roomProvider: RoomProvider) : KotlinTestSuperclass() {
-    @BeforeEach
-    fun setUp() {
-        roomProvider.clearRooms()
-    }
+abstract class RoomProviderTest() : KotlinTestSuperclass() {
+    abstract fun newInstance(): RoomProvider
 
     @Test
     fun negativeContainsTest() {
-        Assertions.assertFalse(roomProvider.containsRoom("khczufgijkln"))
+        Assertions.assertFalse(newInstance().containsRoom("khczufgijkln"))
     }
 
     @Test
     fun positiveContainsTest() {
+        val roomProvider = newInstance()
         val room = roomProvider.createNewRoom("1d6aa98d")
         Assertions.assertTrue(roomProvider.containsRoom(room.id))
     }
@@ -57,7 +55,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
         val roomIds = mutableListOf<String>()
         for (expectedRoom in expectedRooms) {
-            val room = roomProvider.createNewRoom(
+            val room = newInstance().createNewRoom(
                 expectedRoom.hostUserConnectionId,
                 expectedRoom.configuredUserNameList,
                 expectedRoom.configuredUserNameListMode,
@@ -76,6 +74,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun getRoomTest() {
+        val roomProvider = newInstance()
         val createdRoom1 = roomProvider.createNewRoom("29c806f4")
         val createdRoom2 = roomProvider.createNewRoom("325f6f32")
         val retrievedRoom1 = roomProvider[createdRoom1.id]
@@ -87,7 +86,42 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
     }
 
     @Test
+    fun createRoomImmutabilityTest() {
+        val roomProvider = newInstance()
+        val createdRoom = roomProvider.createNewRoom("29c806f4")
+        val retrievedRoom1 = roomProvider[createdRoom.id]!!
+        retrievedRoom1.gameStarted = true
+        retrievedRoom1.dataToBeSentToTheHost.add(GameData())
+        retrievedRoom1.gameState["key"] = "value"
+        retrievedRoom1.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
+
+        Assertions.assertNotEquals(retrievedRoom1.gameStarted, createdRoom.gameStarted)
+        Assertions.assertNotEquals(retrievedRoom1.dataToBeSentToTheHost, createdRoom.dataToBeSentToTheHost)
+        Assertions.assertNotEquals(retrievedRoom1.gameState, createdRoom.gameState)
+        Assertions.assertNotEquals(retrievedRoom1.connectedUsers, createdRoom.connectedUsers)
+    }
+
+    @Test
+    fun getRoomImmutabilityTest() {
+        val roomProvider = newInstance()
+        val createdRoom = roomProvider.createNewRoom("29c806f4")
+        val retrievedRoom1 = roomProvider[createdRoom.id]!!
+        retrievedRoom1.gameStarted = true
+        retrievedRoom1.dataToBeSentToTheHost.add(GameData())
+        retrievedRoom1.gameState["key"] = "value"
+        retrievedRoom1.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
+
+        val retrievedRoom2 = roomProvider[createdRoom.id]!!
+
+        Assertions.assertNotEquals(retrievedRoom1.gameStarted, retrievedRoom2.gameStarted)
+        Assertions.assertNotEquals(retrievedRoom1.dataToBeSentToTheHost, retrievedRoom2.dataToBeSentToTheHost)
+        Assertions.assertNotEquals(retrievedRoom1.gameState, retrievedRoom2.gameState)
+        Assertions.assertNotEquals(retrievedRoom1.connectedUsers, retrievedRoom2.connectedUsers)
+    }
+
+    @Test
     fun getRoomsByIdTest() {
+        val roomProvider = newInstance()
         val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
         val hostConnectionIds = listOf(
             "250b7528",
@@ -122,6 +156,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun deleteRoomTest() {
+        val roomProvider = newInstance()
         val room = roomProvider.createNewRoom("1ffbec47")
         Assertions.assertTrue(roomProvider.containsRoom(room.id))
         Assertions.assertNotNull(roomProvider[room.id])
@@ -134,6 +169,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun deleteRoomsTest() {
+        val roomProvider = newInstance()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -172,6 +208,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun clearRoomsTest() {
+        val roomProvider = newInstance()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -198,6 +235,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun getAllRoomsTest() {
+        val roomProvider = newInstance()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -227,6 +265,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun atomicityOfTransactionsAbortTest() {
+        val roomProvider = newInstance()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -244,6 +283,7 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun atomicityOfTransactionsCommitTest() {
+        val roomProvider = newInstance()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -266,7 +306,8 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun isolationOfParallelTransactionsTest() {
-        if (!roomProvider.supportsConsurrentTransactionsOnSameRoom)
+        val roomProvider = newInstance()
+        if (!roomProvider.supportsConcurrentTransactionsOnSameRoom)
             return
 
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
@@ -290,7 +331,8 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
 
     @Test
     fun schedulingOfParallelTransactionsTest() {
-        if (roomProvider.supportsConsurrentTransactionsOnSameRoom)
+        val roomProvider = newInstance()
+        if (roomProvider.supportsConcurrentTransactionsOnSameRoom)
             return
 
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
@@ -308,5 +350,77 @@ abstract class RoomProviderTest(private val roomProvider: RoomProvider) : Kotlin
         transaction1.abort()
         transaction2Thread.join()
         Assertions.assertTrue(result)
+    }
+
+    @Test
+    fun beginTransactionTest() {
+        val roomProvider = newInstance()
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+        val roomTransaction = roomProvider.beginTransactionWithRoom(room.id)
+        Assert.assertNotNull(roomTransaction)
+        roomTransaction!!
+        Assertions.assertEquals(room.id, roomTransaction.room.id)
+        roomTransaction.abort()
+    }
+
+    @Test
+    fun beginTransactionRoomNotFoundTest() {
+        val roomProvider = newInstance()
+        val roomTransaction = roomProvider.beginTransactionWithRoom(TestUtils.getRandomHexString())
+        Assert.assertNull(roomTransaction)
+    }
+
+    @Test
+    fun beginTransactionsWithRoomsVarargTest() {
+        val roomProvider = newInstance()
+        val createdRoomIds = Array(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
+        val transactions = roomProvider.beginTransactionsWithRooms(*createdRoomIds)
+        Assertions.assertEquals(createdRoomIds.size, transactions.size)
+        for (id in createdRoomIds.withIndex())
+            Assertions.assertEquals(id.value, transactions[id.index].room.id)
+
+        for (transaction in transactions)
+            transaction.abort()
+    }
+
+    @Test
+    fun beginTransactionsWithRoomsListTest() {
+        val roomProvider = newInstance()
+        val createdRoomIds = List(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
+        val transactions = roomProvider.beginTransactionsWithRooms(createdRoomIds)
+        Assertions.assertEquals(createdRoomIds.size, transactions.size)
+        for (id in createdRoomIds.withIndex())
+            Assertions.assertEquals(id.value, transactions[id.index].room.id)
+
+        for (transaction in transactions)
+            transaction.abort()
+    }
+
+    @Test
+    fun beginTransactionsWithRoomsVarargUnknownIdTest() {
+        val roomProvider = newInstance()
+        val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
+        createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
+        val transactions = roomProvider.beginTransactionsWithRooms(*createdRoomIds.toTypedArray())
+        Assertions.assertEquals(createdRoomIds.size - 1, transactions.size)
+        for (transaction in transactions.withIndex())
+            Assertions.assertEquals(createdRoomIds[transaction.index], transaction.value.room.id)
+
+        for (transaction in transactions)
+            transaction.abort()
+    }
+
+    @Test
+    fun beginTransactionsWithRoomsListUnknownIdTest() {
+        val roomProvider = newInstance()
+        val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
+        createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
+        val transactions = roomProvider.beginTransactionsWithRooms(createdRoomIds)
+        Assertions.assertEquals(createdRoomIds.size - 1, transactions.size)
+        for (transaction in transactions.withIndex())
+            Assertions.assertEquals(createdRoomIds[transaction.index], transaction.value.room.id)
+
+        for (transaction in transactions)
+            transaction.abort()
     }
 }

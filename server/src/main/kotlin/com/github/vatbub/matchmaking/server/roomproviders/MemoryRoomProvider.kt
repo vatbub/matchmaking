@@ -32,7 +32,7 @@ import kotlin.random.Random
  */
 open class MemoryRoomProvider : RoomProvider() {
 
-    override val supportsConsurrentTransactionsOnSameRoom: Boolean = false
+    override val supportsConcurrentTransactionsOnSameRoom: Boolean = false
 
     private val rooms = mutableMapOf<String, Room>()
     private val pendingTransactions = mutableListOf<RoomTransaction>()  // TODO: Implement locking

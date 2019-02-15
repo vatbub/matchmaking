@@ -69,7 +69,7 @@ class Room(
                 maxRoomSize
             )
             result.connectedUsers.addAll(connectedUsers)
-            result.gameState = gameState
+            result.gameState = gameState.copy()
             result.gameStarted = gameStarted
             result.dataToBeSentToTheHost.addAll(dataToBeSentToTheHost)
             return result
