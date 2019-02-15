@@ -71,13 +71,17 @@ abstract class RoomProvider {
         return result
     }
 
-    fun beginTransactionForAllRooms(): List<RoomTransaction> {
+    fun beginTransactionsForRoomsWithFilter(filter: ((Room) -> Boolean)): List<RoomTransaction> {
         val result = mutableListOf<RoomTransaction>()
-        for (room in getAllRooms()) {
+        for (room in getAllRooms().filter(filter)) {
             val transaction = beginTransactionWithRoom(room.id) ?: continue
             result.add(transaction)
         }
         return result
+    }
+
+    fun beginTransactionForAllRooms(): List<RoomTransaction> {
+        return beginTransactionsForRoomsWithFilter { true }
     }
 
     /**
@@ -138,16 +142,22 @@ abstract class RoomProvider {
 
         var result: RoomTransaction? = null
 
-        for (roomTransaction in beginTransactionForAllRooms()) {
+        outer@ for (roomTransaction in beginTransactionsForRoomsWithFilter { room -> !room.gameStarted }) {
             if (result != null) { // we have a room already, abort all other transactions
                 roomTransaction.abort()
                 continue
             }
 
+            /*
+            * We have to check again even though we have the filter in place
+            * because room.gameStarted might have changed between the call to
+            * the filter and the beginning of the transaction (multithreading magic :/ )
+            */
             if (roomTransaction.room.gameStarted) {
                 roomTransaction.abort()
                 continue
             }
+
             if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
                 roomTransaction.abort()
                 continue
@@ -168,7 +178,7 @@ abstract class RoomProvider {
                     for (user in roomTransaction.room.connectedUsers) {
                         if (userList!!.contains(user.userName)) {
                             roomTransaction.abort()
-                            continue
+                            continue@outer
                         }
                     }
                 }
@@ -176,7 +186,7 @@ abstract class RoomProvider {
                     for (user in roomTransaction.room.connectedUsers) {
                         if (!userList!!.contains(user.userName)) {
                             roomTransaction.abort()
-                            continue
+                            continue@outer
                         }
                     }
                 }
@@ -193,14 +203,14 @@ abstract class RoomProvider {
                         for (user in configuredUserNameList) {
                             if (configuredUserNameList.contains(userName)) {
                                 roomTransaction.abort()
-                                continue
+                                continue@outer
                             }
                         }
                     Whitelist ->
                         for (user in configuredUserNameList) {
                             if (!configuredUserNameList.contains(userName)) {
                                 roomTransaction.abort()
-                                continue
+                                continue@outer
                             }
                         }
                 }
