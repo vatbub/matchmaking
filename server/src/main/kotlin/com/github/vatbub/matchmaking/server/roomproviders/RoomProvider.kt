@@ -41,7 +41,7 @@ abstract class RoomProvider {
         configuredUserNameList: List<String>? = null,
         configuredUserNameListMode: UserListMode = Ignore,
         minRoomSize: Int = 1,
-        maxRoomSize: Int = 1
+        maxRoomSize: Int = 2
     ): Room
 
     /**
@@ -129,7 +129,7 @@ abstract class RoomProvider {
         userList: List<String>? = null,
         userListMode: UserListMode = Ignore,
         minRoomSize: Int = 1,
-        maxRoomSize: Int = 1
+        maxRoomSize: Int = 2
     ): RoomTransaction? {
         if (userListMode == Ignore && userList != null)
             throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")

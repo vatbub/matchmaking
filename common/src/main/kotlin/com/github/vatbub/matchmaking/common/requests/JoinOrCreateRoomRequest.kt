@@ -44,7 +44,7 @@ class JoinOrCreateRoomRequest(
     val userList: List<String>? = null,
     val userListMode: UserListMode = UserListMode.Ignore,
     val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 1
+    val maxRoomSize: Int = 2
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

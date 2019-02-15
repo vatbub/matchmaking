@@ -47,8 +47,7 @@ class JoinOrCreateRoomHandlerTest : RequestHandlerTestSuperclass() {
             TestUtils.defaultConnectionId,
             TestUtils.defaultPassword,
             Operation.JoinOrCreateRoom,
-            "vatbub",
-            maxRoomSize = 2
+            "vatbub"
         )
 
         val response1 = handler.handle(request1, null, null)
@@ -63,8 +62,7 @@ class JoinOrCreateRoomHandlerTest : RequestHandlerTestSuperclass() {
             TestUtils.getRandomHexString(TestUtils.defaultConnectionId),
             TestUtils.getRandomHexString(TestUtils.defaultPassword),
             Operation.JoinOrCreateRoom,
-            "heykey",
-            maxRoomSize = 2
+            "heykey"
         )
 
         val response2 = handler.handle(request2, null, null)

@@ -37,7 +37,7 @@ class Room(
     val configuredUserNameList: List<String>? = null,
     val configuredUserNameListMode: UserListMode = UserListMode.Ignore,
     val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 1
+    val maxRoomSize: Int = 2
 ) {
     /**
      * The list of currently connected users
