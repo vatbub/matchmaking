@@ -56,7 +56,11 @@ class JoinOrCreateRoomHandlerTest : RequestHandlerTestSuperclass() {
         Assertions.assertTrue(response1 is JoinOrCreateRoomResponse)
         response1 as JoinOrCreateRoomResponse
         Assertions.assertEquals(Result.RoomCreated, response1.result)
+        Assertions.assertNotNull(response1.roomId)
         val roomId = response1.roomId!!
+        Assertions.assertEquals(1, roomProvider[roomId]!!.connectedUsers.size)
+        Assertions.assertEquals(request1.connectionId, roomProvider[roomId]!!.connectedUsers[0].connectionId)
+        Assertions.assertEquals(request1.userName, roomProvider[roomId]!!.connectedUsers[0].userName)
 
         val request2 = JoinOrCreateRoomRequest(
             TestUtils.getRandomHexString(TestUtils.defaultConnectionId),
@@ -71,7 +75,11 @@ class JoinOrCreateRoomHandlerTest : RequestHandlerTestSuperclass() {
         Assertions.assertTrue(response2 is JoinOrCreateRoomResponse)
         response2 as JoinOrCreateRoomResponse
         Assertions.assertEquals(Result.RoomJoined, response2.result)
+        Assertions.assertNotNull(response2.roomId)
         Assertions.assertEquals(roomId, response2.roomId)
+        Assertions.assertEquals(2, roomProvider[roomId]!!.connectedUsers.size)
+        Assertions.assertEquals(request2.connectionId, roomProvider[roomId]!!.connectedUsers[1].connectionId)
+        Assertions.assertEquals(request2.userName, roomProvider[roomId]!!.connectedUsers[1].userName)
     }
 
     @Test

@@ -74,6 +74,10 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
                 request.minRoomSize,
                 request.maxRoomSize
             )
+            val transaction = roomProvider.beginTransactionWithRoom(room.id)
+                ?: throw IllegalStateException("Unable to create a room transaction for the newly created room. Please try again.")
+            transaction.room.connectedUsers.add(user)
+            transaction.commit()
             return JoinOrCreateRoomResponse(connectionId, Result.RoomCreated, room.id)
         }
 
