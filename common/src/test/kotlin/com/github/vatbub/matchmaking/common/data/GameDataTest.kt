@@ -224,4 +224,18 @@ class GameDataTest : KotlinTestSuperclass() {
         Assertions.assertFalse(gameData.contains(key))
         Assertions.assertEquals(0, gameData.size)
     }
+
+    @Test
+    fun copyTest() {
+        val original = GameData()
+        original["key1"] = "value1"
+        original["key2"] = "value2"
+        original["key3"] = "value3"
+
+        val copy = original.copy()
+
+        Assertions.assertEquals(original, copy)
+        Assertions.assertEquals(original.hashCode(), copy.hashCode())
+        Assertions.assertNotSame(original, copy)
+    }
 }

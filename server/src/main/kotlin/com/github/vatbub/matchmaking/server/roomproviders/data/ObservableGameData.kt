@@ -32,7 +32,7 @@ class ObservableGameData(
     fromGameData: GameData,
     var onReplace: ((oldGameData: GameData, newGameData: GameData) -> Unit)? = null,
     var onSet: ((key: String, oldValue: Any?, newValue: Any) -> Unit)? = null,
-    val onRemove: ((key: String, element: Any?) -> Unit)? = null
+    var onRemove: ((key: String, element: Any?) -> Unit)? = null
 ) {
     val size: Int
         get() = backingGameData.size
@@ -62,5 +62,20 @@ class ObservableGameData(
         val result = backingGameData.remove<T>(key)
         onRemove?.invoke(key, result)
         return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ObservableGameData
+
+        if (backingGameData != other.backingGameData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return backingGameData.hashCode()
     }
 }

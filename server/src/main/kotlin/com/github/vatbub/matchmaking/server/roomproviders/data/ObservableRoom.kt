@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders.data
 
-import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import kotlin.properties.Delegates
 
@@ -44,10 +43,14 @@ class ObservableRoom(
         ObservableMutableList(fromRoom.connectedUsers)
     val gameState = ObservableGameData(fromRoom.gameState)
 
-    var gameStarted: Boolean by Delegates.observable(false) { _, _, newValue -> onGameStartedChange?.invoke(newValue) }
+    var gameStarted: Boolean by Delegates.observable(fromRoom.gameStarted) { _, _, newValue ->
+        onGameStartedChange?.invoke(
+            newValue
+        )
+    }
 
     val dataToBeSentToTheHost =
-        ObservableMutableList<GameData>()
+        ObservableMutableList(fromRoom.dataToBeSentToTheHost)
 
     /**
      * Constructs a new [Room] object which contains all data of `this` object.

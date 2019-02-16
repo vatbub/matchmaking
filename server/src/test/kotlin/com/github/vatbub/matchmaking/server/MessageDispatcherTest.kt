@@ -147,4 +147,15 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         Assertions.assertTrue(handler.handledRequests.isNotEmpty())
         Assertions.assertSame(handler.handledRequests[request], response)
     }
+
+    @Test
+    fun removeAllHandlersTest() {
+        val idProvider = MemoryIdProvider()
+        val messageDispatcher = MessageDispatcher(idProvider)
+        messageDispatcher.registerHandler(DummyRequestHandler())
+
+        Assertions.assertEquals(1, messageDispatcher.handlers.size)
+        messageDispatcher.removeAllHandlers()
+        Assertions.assertEquals(0, messageDispatcher.handlers.size)
+    }
 }

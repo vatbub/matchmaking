@@ -19,4 +19,15 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
-class MemoryIdProviderTest : ConnectionIdProviderTest(MemoryIdProvider())
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+
+class MemoryIdProviderTest : ConnectionIdProviderTest(MemoryIdProvider()) {
+    @Test
+    fun unmodifiableConnectionIdsInUseList() {
+        val connectionIds = (connectionIdProvider as MemoryIdProvider).connectionIdsInUse as MutableMap
+        Assertions.assertThrows(UnsupportedOperationException::class.java) {
+            connectionIds["id"] = Id("id", "password")
+        }
+    }
+}
