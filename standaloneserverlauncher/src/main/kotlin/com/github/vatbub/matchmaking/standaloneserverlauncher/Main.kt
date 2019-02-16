@@ -113,7 +113,6 @@ class Main {
                 if (commandLineParams.enableClientAuth) {
                     nioConnector.setAttribute("clientAuth", true)
                 }
-
             }
 
             if (commandLineParams.proxyBaseUrl.isNotEmpty()) {
