@@ -151,7 +151,7 @@ class ObservableMutableList<E> private constructor(
         val deletedElements = mutableMapOf<Int, E>()
         for (element in elements) {
             val index = indexOf(element)
-            if (index >= 0) continue
+            if (index < 0) continue
             deletedElements[index] = element
         }
 
@@ -173,7 +173,7 @@ class ObservableMutableList<E> private constructor(
     override fun retainAll(elements: Collection<E>): Boolean {
         val deletedElements = mutableMapOf<Int, E>()
         for ((index, element) in backingList.withIndex()) {
-            if (!elements.contains(element))
+            if (elements.contains(element))
                 continue
 
             deletedElements[index] = element

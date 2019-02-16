@@ -114,6 +114,121 @@ class ObservableMutableListTest {
     }
 
     @Test
+    fun onRemoveTest() {
+        val expectedElement = "second"
+        val expectedIndex = 1
+        val values = listOf("first", expectedElement, "third")
+        var listenerCalled = false
+
+        val observableMutableList =
+            ObservableMutableList(values, onRemove = { element, index ->
+                Assertions.assertEquals(expectedElement, element)
+                Assertions.assertEquals(expectedIndex, index)
+                listenerCalled = true
+            })
+
+        Assertions.assertEquals(values.size, observableMutableList.size)
+        Assertions.assertTrue(observableMutableList.remove(expectedElement))
+        Assertions.assertTrue(listenerCalled)
+    }
+
+    @Test
+    fun onRemoveNonExistingItemTest() {
+        val expectedElement = "second"
+
+        val observableMutableList =
+            ObservableMutableList<String>(onRemove = { _, _ ->
+                Assertions.fail("Listener should not be called")
+            })
+
+        Assertions.assertFalse(observableMutableList.remove(expectedElement))
+    }
+
+    @Test
+    fun onRemoveAllTest() {
+        val elementsToBeDeleted = listOf("first", "second", "third")
+        val values = mutableListOf<String>()
+        for (element in elementsToBeDeleted)
+            values.add(element)
+        values.add("fourth")
+
+        var listenerCallCount = 0
+
+        val observableMutableList =
+            ObservableMutableList(values, onRemove = { element, index ->
+                Assertions.assertEquals(values[index], element)
+                Assertions.assertTrue(element in elementsToBeDeleted)
+                listenerCallCount++
+            })
+
+        Assertions.assertEquals(values.size, observableMutableList.size)
+        Assertions.assertTrue(observableMutableList.removeAll(elementsToBeDeleted))
+        Assertions.assertEquals(elementsToBeDeleted.size, listenerCallCount)
+        Assertions.assertEquals(values.size - elementsToBeDeleted.size, observableMutableList.size)
+    }
+
+    @Test
+    fun onRemoveAtTest() {
+        val expectedElement = "second"
+        val expectedIndex = 1
+        val values = listOf("first", expectedElement, "third")
+        var listenerCalled = false
+
+        val observableMutableList =
+            ObservableMutableList(values, onRemove = { element, index ->
+                Assertions.assertEquals(expectedElement, element)
+                Assertions.assertEquals(expectedIndex, index)
+                listenerCalled = true
+            })
+
+        Assertions.assertEquals(values.size, observableMutableList.size)
+        Assertions.assertEquals(expectedElement, observableMutableList.removeAt(expectedIndex))
+        Assertions.assertTrue(listenerCalled)
+    }
+
+    @Test
+    fun retainAllTest() {
+        val elementsToBeRetained = listOf("second", "third")
+        val values = mutableListOf<String>()
+        values.add("first")
+        for (element in elementsToBeRetained)
+            values.add(element)
+        values.add("fourth")
+
+        var listenerCallCount = 0
+
+        val observableMutableList =
+            ObservableMutableList(values, onRemove = { element, index ->
+                Assertions.assertEquals(values[index], element)
+                Assertions.assertFalse(element in elementsToBeRetained)
+                listenerCallCount++
+            })
+
+        Assertions.assertEquals(values.size, observableMutableList.size)
+        Assertions.assertTrue(observableMutableList.retainAll(elementsToBeRetained))
+        Assertions.assertEquals(values.size - elementsToBeRetained.size, listenerCallCount)
+        Assertions.assertEquals(elementsToBeRetained.size, observableMutableList.size)
+    }
+
+    @Test
+    fun onSetTest() {
+        val expectedOldValue = "old"
+        val expectedNewValue = "new"
+        val expectedIndex = 0
+        var listenerCalled = false
+        val observableMutableList =
+            ObservableMutableList(listOf(expectedOldValue), onSet = { oldValue, newValue, index ->
+                Assertions.assertEquals(expectedOldValue, oldValue)
+                Assertions.assertEquals(expectedNewValue, newValue)
+                Assertions.assertEquals(expectedIndex, index)
+                listenerCalled = true
+            })
+
+        Assertions.assertEquals(expectedOldValue, observableMutableList.set(expectedIndex, expectedNewValue))
+        Assertions.assertTrue(listenerCalled)
+    }
+
+    @Test
     fun defaultConstructorTest() {
         val observableMutableList = ObservableMutableList<String>()
         assertNoListenersSpecified(observableMutableList)
@@ -308,6 +423,41 @@ class ObservableMutableListTest {
     }
 
     @Test
+    fun listIteratorTest() {
+        val values = listOf("first", "second", "third")
+        val observableMutableList = ObservableMutableList<String>()
+        observableMutableList.addAll(values)
+
+        val iterator = observableMutableList.listIterator()
+
+        for (value in values) {
+            Assertions.assertTrue(iterator.hasNext())
+            Assertions.assertEquals(value, iterator.next())
+        }
+
+        Assertions.assertFalse(iterator.hasNext())
+        Assertions.assertThrows(NoSuchElementException::class.java) { iterator.next() }
+    }
+
+    @Test
+    fun listIteratorWithIndexTest() {
+        val iteratorStartIndex = 1
+        val values = listOf("first", "second", "third")
+        val observableMutableList = ObservableMutableList<String>()
+        observableMutableList.addAll(values)
+
+        val iterator = observableMutableList.listIterator(iteratorStartIndex)
+
+        for (i in iteratorStartIndex until values.size) {
+            Assertions.assertTrue(iterator.hasNext())
+            Assertions.assertEquals(values[i], iterator.next())
+        }
+
+        Assertions.assertFalse(iterator.hasNext())
+        Assertions.assertThrows(NoSuchElementException::class.java) { iterator.next() }
+    }
+
+    @Test
     fun positiveLastIndexOfTest() {
         val values = listOf("first", "second", "second", "third")
         val observableMutableList = ObservableMutableList<String>()
@@ -323,5 +473,31 @@ class ObservableMutableListTest {
         observableMutableList.addAll(values)
 
         Assertions.assertEquals(-1, observableMutableList.lastIndexOf("something else"))
+    }
+
+    @Test
+    fun subListTest() {
+        val values = listOf("first", "second", "third", "fourth")
+        val subListStart = 1
+        val subListEnd = 3
+
+        val observableMutableList = ObservableMutableList(
+            values,
+            this::defaultOnAdd,
+            this::defaultOnSet,
+            this::defaultOnRemove,
+            this::defaultOnClear
+        )
+
+        val subList = observableMutableList.subList(subListStart, subListEnd)
+
+        Assertions.assertEquals(subListEnd - subListStart, subList.size)
+        for (value in subList.withIndex())
+            Assertions.assertEquals(values[value.index + subListStart], value.value)
+
+        Assertions.assertSame(observableMutableList.onAdd, subList.onAdd)
+        Assertions.assertSame(observableMutableList.onSet, subList.onSet)
+        Assertions.assertSame(observableMutableList.onRemove, subList.onRemove)
+        Assertions.assertSame(observableMutableList.onClear, subList.onClear)
     }
 }
