@@ -1,0 +1,23 @@
+language: java
+sudo: required
+jdk:
+- oraclejdk8
+cache:
+  directories:
+  - "$HOME/.m2"
+install:
+- wget https://s3.eu-central-1.amazonaws.com/vatbubjdk/jdk-8u191-linux-x64.tar.gz -nv
+- tar -xf jdk-8u191-linux-x64.tar.gz
+- export JAVA_HOME=/home/travis/build/vatbub/tictactoe/jdk1.8.0_191/
+- curl https://cli-assets.heroku.com/install.sh | sh
+script:
+- mvn package --settings travisMavenSettings.xml
+after_success:
+- heroku plugins:install java
+- heroku deploy:jar standaloneserverlauncher/target/matchmaking.standalone-server-launcher-1.0-SNAPSHOT-jar-with-dependencies.jar --app vatbubmatchmakingstaging
+notifications:
+  email:
+    recipients:
+    - vatbub123+travisbuildnotification@googlemail.com
+    on_success: never
+on_failure: always
