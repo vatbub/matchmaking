@@ -8,6 +8,7 @@ cache:
 install:
 - wget https://s3.eu-central-1.amazonaws.com/vatbubjdk/jdk-8u191-linux-x64.tar.gz -nv
 - tar -xf jdk-8u191-linux-x64.tar.gz
+- ls
 - export JAVA_HOME=/home/travis/build/vatbub/tictactoe/jdk1.8.0_191/
 - curl https://cli-assets.heroku.com/install.sh | sh
 script:
