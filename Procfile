@@ -1,0 +1,1 @@
+web: java -jar standaloneserverlauncher/target/matchmaking.standalone-server-launcher-1.0-SNAPSHOT-jar-with-dependencies.jar --port $PORT
