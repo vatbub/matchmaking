@@ -8,11 +8,7 @@ cache:
 install:
 - wget https://s3.eu-central-1.amazonaws.com/vatbubjdk/jdk-8u191-linux-x64.tar.gz -nv
 - tar -xf jdk-8u191-linux-x64.tar.gz
-- ls
-- ls jdk1.8.0_191
-- export JAVA_HOME=/home/travis/build/vatbub/tictactoe/jdk1.8.0_191/
-- echo $JAVA_HOME
-- ls $JAVA_HOME
+- export JAVA_HOME=/home/travis/build/vatbub/matchmaking/jdk1.8.0_191/
 - curl https://cli-assets.heroku.com/install.sh | sh
 script:
 - mvn package --settings travisMavenSettings.xml
