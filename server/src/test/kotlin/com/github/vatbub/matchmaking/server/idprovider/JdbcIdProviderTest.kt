@@ -2,7 +2,7 @@
  * #%L
  * matchmaking.server
  * %%
- * Copyright (C) 2016 - 2018 Frederik Kammel
+ * Copyright (C) 2016 - 2019 Frederik Kammel
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,18 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
 
-class MemoryIdProviderTest : ConnectionIdProviderTest<MemoryIdProvider>() {
-    override fun newInstance(): MemoryIdProvider = MemoryIdProvider()
-
-    @Test
-    fun unmodifiableConnectionIdsInUseList() {
-        val connectionIds = newInstance().connectionIdsInUse as MutableMap
-        Assertions.assertThrows(UnsupportedOperationException::class.java) {
-            connectionIds["id"] = Id("id", "password")
-        }
+class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
+    companion object {
+        var dbCounter = 0
+    }
+    override fun newInstance(): JdbcIdProvider {
+        val provider= JdbcIdProvider(
+            "jdbc:hsqldb:mem:connectionIdTestDB$dbCounter",
+            "SA",
+            ""
+        )
+        dbCounter++
+        return provider
     }
 }

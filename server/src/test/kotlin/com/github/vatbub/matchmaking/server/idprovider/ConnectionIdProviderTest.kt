@@ -23,21 +23,18 @@ import com.github.vatbub.matchmaking.server.idprovider.AuthorizationResult.*
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate") val connectionIdProvider: ConnectionIdProvider) :
+abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
     KotlinTestSuperclass() {
 
-    @BeforeEach
-    fun setUp() {
-        connectionIdProvider.reset()
-    }
+    abstract fun newInstance(): T
 
     @Test
     fun createIdTest() {
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
+        val connectionIdProvider = newInstance()
         for (i in 1..numberOfIdsToCreate) {
             val newId = connectionIdProvider.getNewId()
             Assertions.assertNotNull(newId.connectionId)
@@ -50,17 +47,19 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
     @Test
     fun negativeContainsIdTest() {
         val testValue = (4567876543).toString(16)
-        Assertions.assertFalse(connectionIdProvider.containsId(testValue))
+        Assertions.assertFalse(newInstance().containsId(testValue))
     }
 
     @Test
     fun positiveContainsIdTest() {
+        val connectionIdProvider = newInstance()
         val id = connectionIdProvider.getNewId()
         Assertions.assertTrue(connectionIdProvider.containsId(id.connectionId))
     }
 
     @Test
     fun resetTest() {
+        val connectionIdProvider = newInstance()
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
@@ -74,6 +73,7 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
 
     @Test
     fun positiveDeleteIdTest() {
+        val connectionIdProvider = newInstance()
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
@@ -90,27 +90,29 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
     @Test
     fun negativeDeleteIdTest() {
         val testValue = (4567876543).toString(16)
-        Assertions.assertNull(connectionIdProvider.deleteId(testValue))
+        Assertions.assertNull(newInstance().deleteId(testValue))
     }
 
     @Test
     fun deleteIdConnectionIdNullTest() {
-        Assertions.assertNull(connectionIdProvider.deleteId(Id(null, null)))
+        Assertions.assertNull(newInstance().deleteId(Id(null, null)))
     }
 
     @Test
     fun isAuthorizedConnectionIdNullTest() {
-        Assertions.assertEquals(NotAuthorized, connectionIdProvider.isAuthorized(Id(null, null)))
+        Assertions.assertEquals(NotAuthorized, newInstance().isAuthorized(Id(null, null)))
     }
 
     @Test
     fun isAuthorizedPasswordNullTest() {
+        val connectionIdProvider = newInstance()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(NotAuthorized, connectionIdProvider.isAuthorized(Id(id.connectionId, null)))
     }
 
     @Test
     fun negativeIsAuthorizedTest() {
+        val connectionIdProvider = newInstance()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
             NotAuthorized,
@@ -120,6 +122,7 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
 
     @Test
     fun isAuthorizedConnectionIdNotFoundTest() {
+        val connectionIdProvider = newInstance()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
             NotFound,
@@ -129,6 +132,7 @@ abstract class ConnectionIdProviderTest(@Suppress("MemberVisibilityCanBePrivate"
 
     @Test
     fun positiveIsAuthorizedTest() {
+        val connectionIdProvider = newInstance()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(Authorized, connectionIdProvider.isAuthorized(id))
     }
