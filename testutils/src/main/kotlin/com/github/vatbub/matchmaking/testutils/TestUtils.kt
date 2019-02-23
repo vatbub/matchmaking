@@ -25,14 +25,17 @@ object TestUtils {
     val defaultConnectionId = getRandomHexString()
     val defaultPassword = getRandomHexString()
 
-    fun getRandomHexString(): String {
-        return Random.nextInt().toString(16)
+    fun getRandomHexString(allowNegativeNumbers: Boolean = false): String {
+        var number = Random.nextInt()
+        if (!allowNegativeNumbers && number < 0)
+            number = -number
+        return number.toString(16)
     }
 
-    fun getRandomHexString(vararg disallowedStrings: String?): String {
+    fun getRandomHexString(vararg disallowedStrings: String?, allowNegativeNumbers: Boolean = false): String {
         var result: String
         do {
-            result = getRandomHexString()
+            result = getRandomHexString(allowNegativeNumbers)
         } while (disallowedStrings.asList().contains(result))
 
         return result
