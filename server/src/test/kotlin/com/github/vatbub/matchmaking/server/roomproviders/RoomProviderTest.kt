@@ -387,6 +387,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     }
 
     @Test
+
     fun beginTransactionForRoomsWithFilterTest() {
         val roomProvider = newInstance()
         val targetConnectionId = "250b7528"

@@ -19,13 +19,21 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders
 
+import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.UserListMode
+import com.github.vatbub.matchmaking.server.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 import com.mchange.v2.c3p0.ComboPooledDataSource
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetAddress
+import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Types
 import java.util.*
+import kotlin.random.Random
 
 class JdbcRoomProvider private constructor(
     connectionString: String,
@@ -50,8 +58,12 @@ class JdbcRoomProvider private constructor(
 
     private val connectionPoolDataSource = ComboPooledDataSource()
 
+    private val pendingTransactions = mutableMapOf<RoomTransaction, Connection>()
+
     private val roomIdLength = 8
     private val varcharMax = 500
+    private val nullString = "NULL"
+    private val userListDelimiter = ","
 
     private val roomsTableName = "rooms"
     private val roomIdColumnName = "id"
@@ -86,6 +98,7 @@ class JdbcRoomProvider private constructor(
 
     init {
         val driver = DriverManager.getDriver(connectionString)!!
+        connectionPoolDataSource.maxPoolSize = 999999999
         connectionPoolDataSource.driverClass = driver.javaClass.name
         connectionPoolDataSource.jdbcUrl = connectionString
         if (dbUser != null)
@@ -157,33 +170,124 @@ class JdbcRoomProvider private constructor(
         return columnResultSet.next() && expectedDataType == type
     }
 
+    private fun getConnection(): Connection {
+        val connection = connectionPoolDataSource.connection
+        connection.autoCommit = false
+        return connection
+    }
+
+    private fun getConnectionAndCommit(transaction: ((connection: Connection) -> Boolean)) {
+        val connection = getConnection()
+        if (transaction.invoke(connection))
+            connection.commit()
+        else
+            connection.rollback()
+    }
+
     // TODO: CASCADING CHANGES
     private fun initializeSchema() {
-        val connection = connectionPoolDataSource.connection!!
-        val autoCommit = connection.autoCommit
-        connection.autoCommit = false
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $roomsTableName")
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $usersTableName")
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $gameDataTableName")
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $gameDataContentsTableName")
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $dataToBeSentToHostTableName")
+        getConnectionAndCommit {
+            it.createStatement().executeUpdate("DROP TABLE IF EXISTS $roomsTableName")
+            it.createStatement().executeUpdate("DROP TABLE IF EXISTS $usersTableName")
+            it.createStatement().executeUpdate("DROP TABLE IF EXISTS $gameDataTableName")
+            it.createStatement().executeUpdate("DROP TABLE IF EXISTS $gameDataContentsTableName")
+            it.createStatement().executeUpdate("DROP TABLE IF EXISTS $dataToBeSentToHostTableName")
 
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $roomsTableName ($roomIdColumnName CHAR($roomIdLength) PRIMARY KEY, $hostUserConnectionIdColumnName VARCHAR($varcharMax), $configuredUserNameListColumnName VARCHAR($varcharMax), $configuredUserNameListModeColumnName INT, $minRoomSizeColumnName INT, $maxRoomSizeColumnName INT, $gameStateIdColumnName INT REFERENCES $gameDataTableName($gameDataIdColumnName), $gameStartedColumnName BOOLEAN)")
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $usersTableName ($usersConnectionIdColumnName VARCHAR($varcharMax) PRIMARY KEY, $usersUserNameColumnName VARCHAR($varcharMax), $usersIpv4ColumnName VARCHAR($varcharMax), $usersIpv6ColumnName VARCHAR($varcharMax), $usersConnectedToRoomColumnName CHAR($roomIdLength))")
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $gameDataTableName ($gameDataIdColumnName INT PRIMARY KEY)")
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $gameDataContentsTableName ($gameDataContentsIdColumnName INT PRIMARY KEY, $gameDataContentsBelongsToGameDataColumnName INT, $gameDataContentsKeyColumnName VARCHAR($varcharMax), $gameDataContentsValueColumnName VARCHAR($varcharMax))")
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $dataToBeSentToHostTableName ($dataToBeSentToHostIdColumnName INT PRIMARY KEY, $dataToBeSentToHostBelongsToRoomColumnName CHAR($roomIdLength), $dataToBeSentToHostGameDataIdColumnName INT)")
-
-        connection.commit()
-        connection.autoCommit = autoCommit
+            it.createStatement()
+                .executeUpdate("CREATE TABLE $gameDataTableName ($gameDataIdColumnName INT PRIMARY KEY)")
+            it.createStatement()
+                .executeUpdate("CREATE TABLE $roomsTableName ($roomIdColumnName CHAR($roomIdLength) PRIMARY KEY, $hostUserConnectionIdColumnName VARCHAR($varcharMax), $configuredUserNameListColumnName VARCHAR($varcharMax), $configuredUserNameListModeColumnName INT, $minRoomSizeColumnName INT, $maxRoomSizeColumnName INT, $gameStateIdColumnName INT REFERENCES $gameDataTableName($gameDataIdColumnName) ON DELETE CASCADE, $gameStartedColumnName INT)")
+            it.createStatement()
+                .executeUpdate("CREATE TABLE $usersTableName ($usersConnectionIdColumnName VARCHAR($varcharMax) PRIMARY KEY, $usersUserNameColumnName VARCHAR($varcharMax), $usersIpv4ColumnName VARCHAR($varcharMax), $usersIpv6ColumnName VARCHAR($varcharMax), $usersConnectedToRoomColumnName CHAR($roomIdLength) REFERENCES $roomsTableName($roomIdColumnName) ON DELETE CASCADE)")
+            it.createStatement()
+                .executeUpdate("CREATE TABLE $gameDataContentsTableName ($gameDataContentsIdColumnName INT PRIMARY KEY, $gameDataContentsBelongsToGameDataColumnName INT REFERENCES $gameDataTableName($gameDataIdColumnName) ON DELETE CASCADE, $gameDataContentsKeyColumnName VARCHAR($varcharMax), $gameDataContentsValueColumnName VARCHAR($varcharMax))")
+            it.createStatement()
+                .executeUpdate("CREATE TABLE $dataToBeSentToHostTableName ($dataToBeSentToHostIdColumnName INT PRIMARY KEY, $dataToBeSentToHostBelongsToRoomColumnName CHAR($roomIdLength) REFERENCES $roomsTableName($roomIdColumnName) ON DELETE CASCADE, $dataToBeSentToHostGameDataIdColumnName INT REFERENCES $gameDataTableName($gameDataIdColumnName) ON DELETE CASCADE)")
+            true
+        }
     }
 
     override val supportsConcurrentTransactionsOnSameRoom = true
+
+    private fun createNewGameData(connection: Connection): Int {
+        var gameDataId = 0
+        do {
+            gameDataId++
+        } while (connection.createStatement().executeQuery("SELECT * FROM $gameDataTableName WHERE $gameDataIdColumnName = $gameDataId").next())
+        connection.createStatement()
+            .executeUpdate("INSERT INTO $gameDataTableName ($gameDataIdColumnName) VALUES ($gameDataId)")
+        return gameDataId
+    }
+
+    private fun encodeUserList(userList: List<String>?): String {
+        if (userList == null)
+            return nullString
+        return userList.joinToString(userListDelimiter)
+    }
+
+    private fun decodeUserList(userListString: String): List<String>? {
+        if (userListString == nullString)
+            return null
+        return userListString.split(userListDelimiter)
+    }
+
+    private fun getRoom(id: String, connection: Connection): Room? {
+        val queryResult =
+            connection.createStatement().executeQuery("SELECT * FROM $roomsTableName WHERE $roomIdColumnName = '$id'")
+        if (!queryResult.next())
+            return null
+
+        val result = Room(
+            id,
+            queryResult.getString(hostUserConnectionIdColumnName),
+            decodeUserList(queryResult.getString(configuredUserNameListColumnName)),
+            UserListMode.values()[queryResult.getInt(configuredUserNameListModeColumnName)],
+            queryResult.getInt(minRoomSizeColumnName),
+            queryResult.getInt(maxRoomSizeColumnName)
+        )
+        result.connectedUsers.addAll(getConnectedUsers(id, connection))
+        result.gameState = getGameData(queryResult.getInt(gameStateIdColumnName), connection)
+        result.gameStarted = queryResult.getInt(gameStartedColumnName) != 0
+        result.dataToBeSentToTheHost.addAll(getDataToBeSentToHost(id, connection))
+        return result
+    }
+
+    private fun getConnectedUsers(roomId: String, connection: Connection): List<User> {
+        val queryResult = connection.createStatement()
+            .executeQuery("SELECT * FROM $usersTableName WHERE $usersConnectedToRoomColumnName = '$roomId'")
+        val result = mutableListOf<User>()
+        while (queryResult.next()) {
+            result.add(
+                User(
+                    queryResult.getString(usersConnectionIdColumnName), queryResult.getString(usersUserNameColumnName),
+                    InetAddress.getByName(queryResult.getString(usersIpv4ColumnName)) as Inet4Address,
+                    InetAddress.getByName(queryResult.getString(usersIpv6ColumnName)) as Inet6Address
+                )
+            )
+        }
+        return result
+    }
+
+    private fun getGameData(gameDataId: Int, connection: Connection): GameData {
+        val queryResult = connection.createStatement()
+            .executeQuery("SELECT * FROM $gameDataContentsTableName WHERE $gameDataContentsBelongsToGameDataColumnName = $gameDataId")
+        val gameData = GameData()
+        while (queryResult.next()) {
+            gameData[queryResult.getString(gameDataContentsKeyColumnName)] =
+                queryResult.getString(gameDataContentsValueColumnName)
+        }
+        return gameData
+    }
+
+    private fun getDataToBeSentToHost(roomId: String, connection: Connection): List<GameData> {
+        val queryResult = connection.createStatement()
+            .executeQuery("SELECT * FROM $dataToBeSentToHostTableName WHERE $dataToBeSentToHostBelongsToRoomColumnName = '$roomId'")
+        val result = mutableListOf<GameData>()
+        while (queryResult.next()) {
+            result.add(getGameData(queryResult.getInt(dataToBeSentToHostGameDataIdColumnName), connection))
+        }
+        return result
+    }
 
     override fun createNewRoom(
         hostUserConnectionId: String,
@@ -192,38 +296,102 @@ class JdbcRoomProvider private constructor(
         minRoomSize: Int,
         maxRoomSize: Int
     ): Room {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var room: Room? = null
+        getConnectionAndCommit {
+            var roomIdAsString: String
+            do {
+                var roomId = Random.nextInt()
+                if (roomId < 0)
+                    roomId = -roomId
+
+                roomIdAsString = roomId.toString(16)
+            } while (containsRoom(roomIdAsString))
+
+            val gameStateId = createNewGameData(it)
+            val encodedUserList = encodeUserList(configuredUserNameList)
+            val encodedUserListMode = configuredUserNameListMode.ordinal
+            it.createStatement()
+                .executeUpdate("INSERT INTO $roomsTableName ($roomIdColumnName, $hostUserConnectionIdColumnName, $configuredUserNameListColumnName, $configuredUserNameListModeColumnName, $minRoomSizeColumnName, $maxRoomSizeColumnName, $gameStateIdColumnName, $gameStartedColumnName) VALUES ('$roomIdAsString', '$hostUserConnectionId', '$encodedUserList', $encodedUserListMode, $minRoomSize, $maxRoomSize, $gameStateId, 0)")
+
+            room = getRoom(roomIdAsString, it)
+            true
+        }
+
+        return room!!
     }
 
     override fun get(id: String): Room? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var room: Room? = null
+        getConnectionAndCommit {
+            room = getRoom(id, it)
+            true
+        }
+        return room
     }
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val connection = getConnection()
+        val room = getRoom(id, connection)
+        if (room == null) {
+            connection.rollback()
+            return null
+        }
+        val roomTransaction = RoomTransaction(ObservableRoom(room), this)
+        pendingTransactions[roomTransaction] = connection
+        return roomTransaction
     }
 
     override fun commitTransaction(roomTransaction: RoomTransaction) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        pendingTransactions[roomTransaction]?.commit()
+        pendingTransactions.remove(roomTransaction)
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        pendingTransactions[roomTransaction]?.rollback()
+        pendingTransactions.remove(roomTransaction)
     }
 
     override fun deleteRoom(id: String): Room? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var room: Room? = null
+        getConnectionAndCommit {
+            val roomResult =
+                it.createStatement().executeQuery("SELECT * FROM $roomsTableName WHERE $roomIdColumnName = '$id'")!!
+            if (!roomResult.next()) return@getConnectionAndCommit false
+            room = getRoom(id, it)
+            val gameStateId = roomResult.getRowId(gameStateIdColumnName)
+            it.createStatement()
+                .executeUpdate("DELETE FROM $gameDataTableName WHERE $gameDataIdColumnName = $gameStateId")
+            true
+        }
+        return room
     }
 
     override fun clearRooms() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        getConnectionAndCommit {
+            it.createStatement().executeUpdate("DELETE FROM $gameDataTableName")
+            true
+        }
     }
 
     override fun containsRoom(id: String): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var result = false
+        getConnectionAndCommit {
+            val room = getRoom(id, it)
+            result = room != null
+            true
+        }
+        return result
     }
 
     override fun getAllRooms(): Collection<Room> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val rooms = mutableListOf<Room>()
+        getConnectionAndCommit {
+            val roomIdQueryResult = it.createStatement().executeQuery("SELECT * FROM $roomsTableName")
+            while (roomIdQueryResult.next()) {
+                rooms.add(getRoom(roomIdQueryResult.getString(roomIdColumnName), it)!!)
+            }
+            true
+        }
+        return rooms
     }
 }
