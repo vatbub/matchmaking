@@ -19,6 +19,9 @@
  */
 package com.github.vatbub.matchmaking.common.data
 
+import java.time.Instant
+import java.time.ZoneOffset
+
 /**
  * Contains the current state of the game as defined by the game host.
  * The data in this class can be stored and retrieved by using key-value-pairs.
@@ -36,8 +39,16 @@ package com.github.vatbub.matchmaking.common.data
  * - [Short]
  * - [ShortArray]
  */
-class GameData private constructor(private val contents: MutableMap<String, Any>) {
-    constructor() : this(mutableMapOf())
+class GameData(val createdByConnectionId: String, private val contents: MutableMap<String, Any>) {
+    constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
+    internal constructor() : this("")
+
+    var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toString()
+
+    val keys
+        get() = contents.keys
+    val values
+        get() = contents.values
 
     val size: Int
         get() = contents.size
@@ -97,23 +108,30 @@ class GameData private constructor(private val contents: MutableMap<String, Any>
         return contents.remove(key) as T?
     }
 
+    fun copy(): GameData {
+        val result = GameData(createdByConnectionId, HashMap(contents))
+        result.createdAtUtc = createdAtUtc
+        return result;
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as GameData
 
+        if (createdByConnectionId != other.createdByConnectionId) return false
         if (contents != other.contents) return false
+        if (createdAtUtc != other.createdAtUtc) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return contents.hashCode()
-    }
-
-    fun copy(): GameData {
-        return GameData(HashMap(contents))
+        var result = createdByConnectionId.hashCode()
+        result = 31 * result + contents.hashCode()
+        result = 31 * result + createdAtUtc.hashCode()
+        return result
     }
 
 
