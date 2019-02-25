@@ -41,7 +41,8 @@ import java.time.ZoneOffset
  */
 class GameData(val createdByConnectionId: String, private val contents: MutableMap<String, Any>) {
     constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
-    internal constructor() : this("")
+    @Deprecated("For internal use only")
+    constructor() : this("")
 
     var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toString()
 
