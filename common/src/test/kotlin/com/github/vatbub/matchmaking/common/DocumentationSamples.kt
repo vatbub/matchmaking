@@ -95,7 +95,7 @@ class DocumentationSamples : KotlinTestSuperclass() {
                 "13527189",
                 "vatbub",
                 InetAddress.getByName("192.168.5.0") as Inet4Address,
-                InetAddress.getByName("684D:1111:222:3333:4444:5555:6:77 ") as Inet6Address
+                InetAddress.getByName("684D:1111:222:3333:4444:5555:6:77") as Inet6Address
             )
         )
         serializeAndPrint(GetRoomDataResponse(connectionId, roomCopy))
