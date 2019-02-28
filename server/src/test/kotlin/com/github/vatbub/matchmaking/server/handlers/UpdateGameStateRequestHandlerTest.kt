@@ -52,8 +52,6 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
         val newGameState = GameData(room.hostUserConnectionId)
         newGameState["newKey"] = "newValue"
 
-        Thread.sleep(5000)
-
         val request =
             UpdateGameStateRequest(
                 TestUtils.defaultConnectionId,
