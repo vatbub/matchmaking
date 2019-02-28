@@ -550,7 +550,8 @@ class JdbcRoomProvider private constructor(
     override fun getAllRooms(): Collection<Room> {
         val rooms = mutableListOf<Room>()
         getConnectionAndCommit {
-            val roomIdQueryResult = it.createStatement().executeQuery("SELECT * FROM ${roomsTable.name}")
+            val roomIdQueryResult = it.createStatement()
+                .executeQuery("SELECT * FROM ${roomsTable.name} ORDER BY ${roomsTable.columns[6].name}")
             while (roomIdQueryResult.next()) {
                 rooms.add(getRoom(roomIdQueryResult.getString(1), it)!!)
             }
