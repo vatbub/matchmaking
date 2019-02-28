@@ -39,12 +39,12 @@ import java.time.ZoneOffset
  * - [Short]
  * - [ShortArray]
  */
-class GameData(val createdByConnectionId: String, private val contents: MutableMap<String, Any>) {
+class GameData(val createdByConnectionId: String, val contents: MutableMap<String, Any>) {
     constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
     @Deprecated("For internal use only")
     constructor() : this("")
 
-    var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toString()
+    var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toInstant()!!
 
     val keys
         get() = contents.keys
