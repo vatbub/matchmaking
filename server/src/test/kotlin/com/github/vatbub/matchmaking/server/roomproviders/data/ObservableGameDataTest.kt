@@ -30,6 +30,7 @@ class ObservableGameDataTest {
     @Test
     fun immutabilityTest() {
         val originalGameData = GameData(TestUtils.defaultConnectionId)
+        Thread.sleep(2000)
         val observableGameData = ObservableGameData(originalGameData)
         observableGameData["foo"] = "bar"
         observableGameData.createdAtUtc = Instant.now()
