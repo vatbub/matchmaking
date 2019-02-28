@@ -34,7 +34,7 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
         val roomProvider = MemoryRoomProvider()
         val handler = SendDataToHostRequestHandler(roomProvider)
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
-        val gameDataToBeSent = listOf(GameData())
+        val gameDataToBeSent = listOf(GameData(TestUtils.defaultConnectionId))
         val request =
             SendDataToHostRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, room.id, gameDataToBeSent)
         val response = handler.handle(request, null, null)
@@ -53,7 +53,7 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     fun handleNonExistingRoomTest() {
         val handler = SendDataToHostRequestHandler(MemoryRoomProvider())
-        val gameDataToBeSent = listOf(GameData())
+        val gameDataToBeSent = listOf(GameData(TestUtils.defaultConnectionId))
         val request =
             SendDataToHostRequest(
                 TestUtils.defaultConnectionId,

@@ -44,13 +44,15 @@ data class Schema(val tables: List<Table>) {
     private fun hasColumn(connection: Connection, table: Table, column: Column): Boolean {
         val columnResultSet =
             connection.metaData.getColumns(null, null, "%$${table.name}%", "%${column.name}%")!!
+        if (!columnResultSet.next())
+            return false
         val type = columnResultSet.getInt("DATA_TYPE")
         return columnResultSet.next() && column.type.typesValue == type
     }
 
     fun create(connection: Connection) {
         for (table in tables) {
-            connection.createStatement().executeUpdate("DROP TABLE IF EXISTS ${table.name}")
+            connection.createStatement().executeUpdate("DROP TABLE IF EXISTS ${table.name} CASCADE")
         }
 
         for (table in tables) {

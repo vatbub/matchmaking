@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.common.data
 
+import com.google.gson.GsonBuilder
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -41,8 +42,13 @@ import java.time.ZoneOffset
  */
 class GameData(val createdByConnectionId: String, val contents: MutableMap<String, Any>) {
     constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
-    @Deprecated("For internal use only")
+    @Deprecated("For internal use only", ReplaceWith("GameData(createdByConnectionId)"), DeprecationLevel.HIDDEN)
     constructor() : this("")
+
+    companion object {
+        @JvmStatic
+        private val gson = GsonBuilder().setPrettyPrinting().create()
+    }
 
     var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toInstant()!!
 
@@ -135,5 +141,7 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
         return result
     }
 
-
+    override fun toString(): String {
+        return gson.toJson(this)
+    }
 }

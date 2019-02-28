@@ -90,7 +90,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val createdRoom = roomProvider.createNewRoom("29c806f4")
         val retrievedRoom1 = roomProvider[createdRoom.id]!!
         retrievedRoom1.gameStarted = true
-        retrievedRoom1.dataToBeSentToTheHost.add(GameData())
+        retrievedRoom1.dataToBeSentToTheHost.add(GameData(TestUtils.getRandomHexString(createdRoom.hostUserConnectionId)))
         retrievedRoom1.gameState["key"] = "value"
         retrievedRoom1.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
 
@@ -106,7 +106,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val createdRoom = roomProvider.createNewRoom("29c806f4")
         val retrievedRoom1 = roomProvider[createdRoom.id]!!
         retrievedRoom1.gameStarted = true
-        retrievedRoom1.dataToBeSentToTheHost.add(GameData())
+        retrievedRoom1.dataToBeSentToTheHost.add(GameData(TestUtils.getRandomHexString(createdRoom.hostUserConnectionId)))
         retrievedRoom1.gameState["key"] = "value"
         retrievedRoom1.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
 
@@ -266,9 +266,9 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
         transaction.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
         transaction.room.gameStarted = true
-        transaction.room.dataToBeSentToTheHost.add(GameData())
+        transaction.room.dataToBeSentToTheHost.add(GameData(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)))
 
-        val newGameState = GameData()
+        val newGameState = GameData(transaction.room.hostUserConnectionId)
         newGameState["should_not_appear_key"] = "should_not_appear_value"
         transaction.room.gameState.replaceContents(newGameState)
 
@@ -287,8 +287,8 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
         transaction.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
         transaction.room.gameStarted = true
-        transaction.room.dataToBeSentToTheHost.add(GameData())
-        val newGameState = GameData()
+        transaction.room.dataToBeSentToTheHost.add(GameData(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)))
+        val newGameState = GameData(transaction.room.hostUserConnectionId)
         newGameState["some_key"] = "hello"
         transaction.room.gameState.replaceContents(newGameState)
 
@@ -312,8 +312,9 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val transaction1 = roomProvider.beginTransactionWithRoom(room.id)!!
         val transaction2 = roomProvider.beginTransactionWithRoom(room.id)!!
 
-        transaction1.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
-        transaction2.room.dataToBeSentToTheHost.add(GameData())
+        val userConnectionId = TestUtils.getRandomHexString()
+        transaction1.room.connectedUsers.add(User(userConnectionId, "vatbub"))
+        transaction2.room.dataToBeSentToTheHost.add(GameData(userConnectionId))
 
         Assertions.assertEquals(0, transaction1.room.dataToBeSentToTheHost.size)
         Assertions.assertEquals(0, transaction2.room.connectedUsers.size)

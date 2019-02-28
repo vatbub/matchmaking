@@ -60,7 +60,7 @@ class JdbcRoomProvider private constructor(
     )
 
     private val connectionPoolDataSource = ComboPooledDataSource()
-    val gson = Gson()
+    private val gson = Gson()
 
     private val pendingTransactions = mutableMapOf<RoomTransaction, Connection>()
 
@@ -147,6 +147,7 @@ class JdbcRoomProvider private constructor(
     init {
         val driver = DriverManager.getDriver(connectionString)!!
         connectionPoolDataSource.maxPoolSize = 999999999
+        // connectionPoolDataSource.maxPoolSize = 5
         connectionPoolDataSource.driverClass = driver.javaClass.name
         connectionPoolDataSource.jdbcUrl = connectionString
         if (dbUser != null)
@@ -167,10 +168,15 @@ class JdbcRoomProvider private constructor(
 
     private fun getConnectionAndCommit(transaction: ((connection: Connection) -> Boolean)) {
         val connection = getConnection()
-        if (transaction.invoke(connection))
-            connection.commit()
-        else
-            connection.rollback()
+        @Suppress("ConvertTryFinallyToUseCall")
+        try {
+            if (transaction.invoke(connection))
+                connection.commit()
+            else
+                connection.rollback()
+        } finally {
+            connection.close()
+        }
     }
 
     override val supportsConcurrentTransactionsOnSameRoom = true

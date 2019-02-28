@@ -19,9 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders
 
-import org.junit.jupiter.api.Disabled
-
-@Disabled
 class JdbcRoomProviderTest : RoomProviderTest() {
     companion object {
         var dbCounter = 0
@@ -33,6 +30,11 @@ class JdbcRoomProviderTest : RoomProviderTest() {
             "SA",
             ""
         )
+        /*val provider = JdbcRoomProvider(
+            "jdbc:postgresql://manny.db.elephantsql.com:5432/ehlblzzc",
+            "ehlblzzc",
+            "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
+        )*/
         dbCounter++
         return provider
     }

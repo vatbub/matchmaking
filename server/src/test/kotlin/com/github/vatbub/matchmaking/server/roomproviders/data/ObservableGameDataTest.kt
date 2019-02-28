@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.server.roomproviders.data
 
 import com.github.vatbub.matchmaking.common.data.GameData
+import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test
 class ObservableGameDataTest {
     @Test
     fun immutabilityTest() {
-        val originalGameData = GameData()
+        val originalGameData = GameData(TestUtils.defaultConnectionId)
         val observableGameData = ObservableGameData(originalGameData)
         observableGameData["foo"] = "bar"
         Assertions.assertEquals(0, originalGameData.size)
@@ -36,11 +37,11 @@ class ObservableGameDataTest {
 
     @Test
     fun onReplaceBackingGameData() {
-        val originalBackingGameData = GameData()
+        val originalBackingGameData = GameData(TestUtils.defaultConnectionId)
         val expectedOriginalKey = "originalKey"
         val expectedOriginalValue = "originalValue"
         originalBackingGameData[expectedOriginalKey] = expectedOriginalValue
-        val newGameData = GameData()
+        val newGameData = GameData(TestUtils.defaultConnectionId)
         val expectedNewKey = "newKey"
         val expectedNewValue = "newValue"
         newGameData[expectedNewKey] = expectedNewValue
@@ -69,7 +70,8 @@ class ObservableGameDataTest {
         val expectedValue = "value"
         var callbackCalled = false
 
-        val observableGameData = ObservableGameData(GameData(), onSet = { key, oldValue, newValue ->
+        val observableGameData =
+            ObservableGameData(GameData(TestUtils.defaultConnectionId), onSet = { key, oldValue, newValue ->
             Assertions.assertEquals(expectedKey, key)
             Assertions.assertNull(oldValue)
             Assertions.assertEquals(expectedValue, newValue)
@@ -87,7 +89,7 @@ class ObservableGameDataTest {
         val expectedNewValue = "new_value"
         var callbackCalled = false
 
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[expectedKey] = expectedOldValue
 
         val observableGameData = ObservableGameData(gameData, onSet = { key, oldValue, newValue ->
@@ -103,7 +105,7 @@ class ObservableGameDataTest {
 
     @Test
     fun positiveGetTest() {
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         val key = "key"
         val expectedValue = "value"
         observableGameData[key] = expectedValue
@@ -114,7 +116,7 @@ class ObservableGameDataTest {
     fun typeMismatchTest() {
         val key = "sampleString"
         val sampleString = "Hello"
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         observableGameData[key] = sampleString
 
         Assertions.assertTrue(observableGameData.contains(key))
@@ -127,7 +129,7 @@ class ObservableGameDataTest {
         val key = "sampleString"
         val sampleString = "Hello"
         val defaultValue = 5
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         observableGameData[key] = sampleString
 
         Assertions.assertTrue(observableGameData.contains(key))
@@ -138,7 +140,7 @@ class ObservableGameDataTest {
     @Test
     fun notFoundTest() {
         val key = "sampleString"
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
 
         Assertions.assertFalse(observableGameData.contains(key))
         Assertions.assertNull(observableGameData[key])
@@ -148,7 +150,7 @@ class ObservableGameDataTest {
     fun notFoundWithDefaultValueTest() {
         val key = "sampleString"
         val defaultValue = "DefaultValue"
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
 
         Assertions.assertFalse(observableGameData.contains(key))
         Assertions.assertEquals(defaultValue, observableGameData[key, defaultValue])
@@ -156,7 +158,7 @@ class ObservableGameDataTest {
 
     @Test
     fun positiveContainsTest() {
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         val key = "key"
         val value = "value"
         observableGameData[key] = value
@@ -165,7 +167,7 @@ class ObservableGameDataTest {
 
     @Test
     fun negativeContainsTest() {
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         val key = "key"
         Assertions.assertFalse(observableGameData.contains(key))
     }
@@ -174,7 +176,7 @@ class ObservableGameDataTest {
     fun removeTest() {
         val key = "sampleString"
         val sampleString = "Hello"
-        val observableGameData = ObservableGameData(GameData())
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId))
         observableGameData[key] = sampleString
 
         Assertions.assertTrue(observableGameData.contains(key))
@@ -188,7 +190,7 @@ class ObservableGameDataTest {
         val expectedKey = "sampleString"
         val expectedValue = "Hello"
         var callbackCalled = false
-        val observableGameData = ObservableGameData(GameData(), onRemove = { key, value ->
+        val observableGameData = ObservableGameData(GameData(TestUtils.defaultConnectionId), onRemove = { key, value ->
             Assertions.assertEquals(expectedKey, key)
             Assertions.assertEquals(expectedValue, value)
             callbackCalled = true
