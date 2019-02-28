@@ -20,8 +20,6 @@
 package com.github.vatbub.matchmaking.server.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
-import com.github.vatbub.matchmaking.common.requests.UserListMode
-import com.github.vatbub.matchmaking.common.requests.UserListMode.*
 import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 
 abstract class RoomProvider {
@@ -30,16 +28,16 @@ abstract class RoomProvider {
     /**
      * Creates a new room with the specified parameters, stores it and returns it.
      * @param hostUserConnectionId The connection id of the game host
-     * @param configuredUserNameList The user name list to be used in the room
-     * @param configuredUserNameListMode The [UserListMode] of [configuredUserNameList]
+     * @param whitelist If specified, a list of users allowed to join this room
+     * @param blacklist If specified, a list of users prohibited to join this room
      * @param minRoomSize The minimum amount of players required to start a game in that room
      * @param maxRoomSize The maximum amount of players required to start a game in that room
      * @return The new [Room]
      */
     abstract fun createNewRoom(
         hostUserConnectionId: String,
-        configuredUserNameList: List<String>? = null,
-        configuredUserNameListMode: UserListMode = Ignore,
+        whitelist: List<String>? = null,
+        blacklist: List<String>? = null,
         minRoomSize: Int = 1,
         maxRoomSize: Int = 2
     ): Room
@@ -120,8 +118,8 @@ abstract class RoomProvider {
      * Checks whether a room exists where the user can join into.
      * @param userName The name of the user to join. This user name should not be on a room's blacklist
      * (if the room has a blacklist) and must be on the room's whitelist (if the room has a whitelist).
-     * @param userList A whitelist or blacklist of users that the user wishes to play with. If not null and
-     * `[userListMode] != [UserListMode.Ignore]`, this list must match the room's list.
+     * @param whitelist A whitelist of users that the user wishes to play with. If not null, this list must match the room's list.
+     * @param blacklist A blacklist of users that the user wishes to play with. If not null, this list must match the room's list.
      * @param minRoomSize The minimum size of the room that the user wishes to play in. The minimum size of a room
      * must be equal or higher than this value.
      * @param maxRoomSize The maximum size of the room that the user wishes to play in. The maximum size of a room
@@ -130,16 +128,11 @@ abstract class RoomProvider {
      */
     open fun hasApplicableRoom(
         userName: String,
-        userList: List<String>? = null,
-        userListMode: UserListMode = Ignore,
+        whitelist: List<String>? = null,
+        blacklist: List<String>? = null,
         minRoomSize: Int = 1,
         maxRoomSize: Int = 2
     ): RoomTransaction? {
-        if (userListMode == Ignore && userList != null)
-            throw IllegalArgumentException("UserList must be null when using UserListMode.Ignore")
-        if (userListMode != Ignore && userList == null)
-            throw IllegalArgumentException("UserList must not be null when using UserListMode.Blacklist or UserListMode.Whitelist")
-
         var result: RoomTransaction? = null
 
         outer@ for (roomTransaction in beginTransactionsForRoomsWithFilter { room -> !room.gameStarted }) {
@@ -172,47 +165,41 @@ abstract class RoomProvider {
             }
 
             // check the supplied user list
-            @Suppress("NON_EXHAUSTIVE_WHEN")
-            when (userListMode) {
-                Blacklist -> {
-                    for (user in roomTransaction.room.connectedUsers) {
-                        if (userList!!.contains(user.userName)) {
-                            roomTransaction.abort()
-                            continue@outer
-                        }
+            if (whitelist != null) {
+                for (user in roomTransaction.room.connectedUsers) {
+                    if (!whitelist.contains(user.userName)) {
+                        roomTransaction.abort()
+                        continue@outer
                     }
                 }
-                Whitelist -> {
-                    for (user in roomTransaction.room.connectedUsers) {
-                        if (!userList!!.contains(user.userName)) {
-                            roomTransaction.abort()
-                            continue@outer
-                        }
+            }
+            if (blacklist != null) {
+                for (user in roomTransaction.room.connectedUsers) {
+                    if (blacklist.contains(user.userName)) {
+                        roomTransaction.abort()
+                        continue@outer
                     }
                 }
             }
 
             // check the room's user list
-            val configuredUserNameList = roomTransaction.room.configuredUserNameList
-            val configuredUserNameListMode = roomTransaction.room.configuredUserNameListMode
+            val configuredWhitelist = roomTransaction.room.whitelist
+            val configuredBlacklist = roomTransaction.room.blacklist
 
-            if (configuredUserNameList != null && configuredUserNameListMode != Ignore) {
-                @Suppress("NON_EXHAUSTIVE_WHEN")
-                when (configuredUserNameListMode) {
-                    Blacklist ->
-                        for (user in configuredUserNameList) {
-                            if (configuredUserNameList.contains(userName)) {
-                                roomTransaction.abort()
-                                continue@outer
-                            }
-                        }
-                    Whitelist ->
-                        for (user in configuredUserNameList) {
-                            if (!configuredUserNameList.contains(userName)) {
-                                roomTransaction.abort()
-                                continue@outer
-                            }
-                        }
+            if (configuredWhitelist != null) {
+                for (user in configuredWhitelist) {
+                    if (!configuredWhitelist.contains(userName)) {
+                        roomTransaction.abort()
+                        continue@outer
+                    }
+                }
+            }
+            if (configuredBlacklist != null) {
+                for (user in configuredBlacklist) {
+                    if (configuredBlacklist.contains(userName)) {
+                        roomTransaction.abort()
+                        continue@outer
+                    }
                 }
             }
 

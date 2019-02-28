@@ -20,7 +20,6 @@
 package com.github.vatbub.matchmaking.server.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
-import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.server.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 import kotlin.random.Random
@@ -72,8 +71,8 @@ open class MemoryRoomProvider : RoomProvider() {
 
     override fun createNewRoom(
         hostUserConnectionId: String,
-        configuredUserNameList: List<String>?,
-        configuredUserNameListMode: UserListMode,
+        whitelist: List<String>?,
+        blacklist: List<String>?,
         minRoomSize: Int,
         maxRoomSize: Int
     ): Room {
@@ -90,8 +89,8 @@ open class MemoryRoomProvider : RoomProvider() {
         val room = Room(
             roomIdAsString,
             hostUserConnectionId,
-            configuredUserNameList,
-            configuredUserNameListMode,
+            whitelist,
+            blacklist,
             minRoomSize,
             maxRoomSize
         )

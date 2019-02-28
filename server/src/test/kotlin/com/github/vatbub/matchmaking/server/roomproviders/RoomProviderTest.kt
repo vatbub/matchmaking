@@ -22,7 +22,6 @@ package com.github.vatbub.matchmaking.server.roomproviders
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.requests.UserListMode.*
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
@@ -47,9 +46,9 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     @Test
     fun createRoomTest() {
         val expectedRooms = listOf(
-            Room("", "325f6f32", listOf("vatbub", "mo-mar"), Whitelist, 2, 5),
-            Room("", "22321b1b", listOf("heykey", "mylord"), Blacklist, 4, 10),
-            Room("", "0208e980", listOf("somedude", "guys"), Ignore, 3, 4),
+            Room("", "325f6f32", listOf("vatbub", "mo-mar"), listOf("leoll"), 2, 5),
+            Room("", "22321b1b", listOf("heykey", "mylord"), listOf("leoll"), 4, 10),
+            Room("", "0208e980", null, null, 3, 4),
             Room("", "29c806f4")
         )
 
@@ -57,14 +56,14 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         for (expectedRoom in expectedRooms) {
             val room = newInstance().createNewRoom(
                 expectedRoom.hostUserConnectionId,
-                expectedRoom.configuredUserNameList,
-                expectedRoom.configuredUserNameListMode,
+                expectedRoom.whitelist,
+                expectedRoom.blacklist,
                 expectedRoom.minRoomSize,
                 expectedRoom.maxRoomSize
             )
             Assertions.assertEquals(expectedRoom.hostUserConnectionId, room.hostUserConnectionId)
-            Assertions.assertEquals(expectedRoom.configuredUserNameList, room.configuredUserNameList)
-            Assertions.assertEquals(expectedRoom.configuredUserNameListMode, room.configuredUserNameListMode)
+            Assertions.assertEquals(expectedRoom.whitelist, room.whitelist)
+            Assertions.assertEquals(expectedRoom.blacklist, room.blacklist)
             Assertions.assertEquals(expectedRoom.minRoomSize, room.minRoomSize)
             Assertions.assertEquals(expectedRoom.maxRoomSize, room.maxRoomSize)
             Assertions.assertFalse(roomIds.contains(room.id))
@@ -268,7 +267,10 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         transaction.room.connectedUsers.add(User(TestUtils.getRandomHexString(), "vatbub"))
         transaction.room.gameStarted = true
         transaction.room.dataToBeSentToTheHost.add(GameData())
-        transaction.room.gameState.backingGameData = GameData()
+
+        val newGameState = GameData()
+        newGameState["should_not_appear_key"] = "should_not_appear_value"
+        transaction.room.gameState.replaceContents(newGameState)
 
         transaction.abort()
 
@@ -288,7 +290,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         transaction.room.dataToBeSentToTheHost.add(GameData())
         val newGameState = GameData()
         newGameState["some_key"] = "hello"
-        transaction.room.gameState.backingGameData = newGameState
+        transaction.room.gameState.replaceContents(newGameState)
 
         transaction.commit()
 
@@ -484,38 +486,6 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     }
 
     @Test
-    fun hasApplicableRoomUserListModeIgnoreUserListNotNullTest() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            newInstance().hasApplicableRoom(
-                "vatbub",
-                listOf()
-            )
-        }
-    }
-
-    @Test
-    fun hasApplicableRoomUserListModeBlacklistUserListNullTest() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            newInstance().hasApplicableRoom(
-                "vatbub",
-                null,
-                Blacklist
-            )
-        }
-    }
-
-    @Test
-    fun hasApplicableRoomUserListModeWhitelistUserListNullTest() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            newInstance().hasApplicableRoom(
-                "vatbub",
-                null,
-                Whitelist
-            )
-        }
-    }
-
-    @Test
     fun hasApplicableRoomLobbyFullTest() {
         val roomProvider = newInstance()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
@@ -546,14 +516,14 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     fun hasApplicableRoomNonMatchingRoomBlacklistTest() {
         val roomProvider = newInstance()
         val userName = "mo-mar"
-        roomProvider.createNewRoom(TestUtils.defaultConnectionId, listOf(userName), Blacklist)
+        roomProvider.createNewRoom(TestUtils.defaultConnectionId, blacklist = listOf(userName))
         Assertions.assertNull(roomProvider.hasApplicableRoom(userName))
     }
 
     @Test
     fun hasApplicableRoomNonMatchingRoomWhitelistTest() {
         val roomProvider = newInstance()
-        roomProvider.createNewRoom(TestUtils.defaultConnectionId, listOf("mo-mar"), Whitelist)
+        roomProvider.createNewRoom(TestUtils.defaultConnectionId, whitelist = listOf("mo-mar"))
         Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub"))
     }
 
@@ -565,7 +535,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
         transaction.room.connectedUsers.add(User(TestUtils.defaultConnectionId, userName))
         transaction.commit()
-        Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub", listOf(userName), Blacklist))
+        Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub", blacklist = listOf(userName)))
     }
 
     @Test
@@ -575,7 +545,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
         transaction.room.connectedUsers.add(User(TestUtils.defaultConnectionId, "mo-mar"))
         transaction.commit()
-        Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub", listOf("heykey"), Whitelist))
+        Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub", whitelist = listOf("heykey")))
     }
 
     @Test

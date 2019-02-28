@@ -34,8 +34,8 @@ class ObservableRoom(
 ) {
     val id = fromRoom.id
     val hostUserConnectionId = fromRoom.hostUserConnectionId
-    val configuredUserNameList = fromRoom.configuredUserNameList
-    val configuredUserNameListMode = fromRoom.configuredUserNameListMode
+    val whitelist = fromRoom.whitelist
+    val blacklist = fromRoom.blacklist
     val minRoomSize = fromRoom.minRoomSize
     val maxRoomSize = fromRoom.maxRoomSize
 
@@ -57,7 +57,7 @@ class ObservableRoom(
      */
     fun toRoom(): Room {
         val result =
-            Room(id, hostUserConnectionId, configuredUserNameList, configuredUserNameListMode, minRoomSize, maxRoomSize)
+            Room(id, hostUserConnectionId, whitelist, blacklist, minRoomSize, maxRoomSize)
         result.connectedUsers.clear()
         result.connectedUsers.addAll(connectedUsers)
         result.gameState = gameState.backingGameData

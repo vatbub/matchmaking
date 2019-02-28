@@ -22,7 +22,6 @@ package com.github.vatbub.matchmaking.common.serializationtests.data
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import java.net.Inet4Address
@@ -35,7 +34,7 @@ class RoomSerializationTest :
             TestUtils.getRandomHexString(),
             TestUtils.defaultConnectionId,
             listOf(TestUtils.getRandomHexString(), TestUtils.getRandomHexString()),
-            UserListMode.Blacklist,
+            listOf(TestUtils.getRandomHexString(), TestUtils.getRandomHexString()),
             2,
             2
         )

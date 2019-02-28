@@ -21,13 +21,18 @@ package com.github.vatbub.matchmaking.common.serializationtests.data
 
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
 
 class GameDataSerializationTest : SerializationTestSuperclass<GameData>(GameData::class.java) {
     override fun newObjectUnderTest(): GameData {
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         for (i in 1..5) {
             gameData["key$i"] = "value$i"
         }
+        // objects are serialized as maps, too
+        /*for(i in 1..5){
+            gameData["object$i"] = mapOf(Pair("someString", "someString$i"), Pair("someInt", i))
+        }*/
         return gameData
     }
 }

@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.common.data
 
-import com.github.vatbub.matchmaking.common.requests.UserListMode
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
@@ -33,7 +32,7 @@ class RoomTest : KotlinTestSuperclass() {
                 TestUtils.getRandomHexString(),
                 TestUtils.defaultConnectionId,
                 listOf("vatbub", "heykey"),
-                UserListMode.Whitelist,
+                listOf("leoll"),
                 2,
                 5
             )
@@ -48,8 +47,8 @@ class RoomTest : KotlinTestSuperclass() {
 
         Assertions.assertEquals(original.id, copy.id)
         Assertions.assertEquals(original.hostUserConnectionId, copy.hostUserConnectionId)
-        Assertions.assertEquals(original.configuredUserNameList, copy.configuredUserNameList)
-        Assertions.assertEquals(original.configuredUserNameListMode, copy.configuredUserNameListMode)
+        Assertions.assertEquals(original.whitelist, copy.whitelist)
+        Assertions.assertEquals(original.blacklist, copy.blacklist)
         Assertions.assertEquals(original.minRoomSize, copy.minRoomSize)
         Assertions.assertEquals(original.maxRoomSize, copy.maxRoomSize)
         Assertions.assertEquals(original.connectedUsers, copy.connectedUsers)
@@ -64,7 +63,7 @@ class RoomTest : KotlinTestSuperclass() {
             TestUtils.getRandomHexString(),
             TestUtils.defaultConnectionId,
             listOf("vatbub", "heykey"),
-            UserListMode.Whitelist,
+            listOf("leoll"),
             2,
             5
         )
@@ -81,7 +80,7 @@ class RoomTest : KotlinTestSuperclass() {
             TestUtils.getRandomHexString(),
             TestUtils.defaultConnectionId,
             listOf("vatbub", "heykey"),
-            UserListMode.Whitelist,
+            listOf("leoll"),
             2,
             5
         )

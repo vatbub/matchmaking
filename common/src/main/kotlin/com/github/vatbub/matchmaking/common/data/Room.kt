@@ -20,22 +20,21 @@
 package com.github.vatbub.matchmaking.common.data
 
 import com.github.vatbub.matchmaking.common.requests.StartGameRequest
-import com.github.vatbub.matchmaking.common.requests.UserListMode
 
 /**
  * Represents a room of players, also commonly called a lobby.
  * @param id The unique identifier of the room. Use this identifier for further updates to this room.
  * @param hostUserConnectionId The connectionId of the host user. This user will be responsible to check for rule violations and to set the [gameState]
- * @param configuredUserNameList The list of user names that was specified when the room was created. Either a black- or a whitelist (if not ignored)
- * @param configuredUserNameListMode The mode of [configuredUserNameList]
+ * @param whitelist If specified, a list of users allowed to join this room
+ * @param blacklist If specified, a list of users prohibited to join this room
  * @param minRoomSize The minimum amount of players required for a game. Important: It is up to the game host to verify whether the current amount of connected users lies within the boundaries. If so, the host must start the game by sending a [StartGameRequest]
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
  */
 class Room(
     val id: String,
     val hostUserConnectionId: String,
-    val configuredUserNameList: List<String>? = null,
-    val configuredUserNameListMode: UserListMode = UserListMode.Ignore,
+    val whitelist: List<String>? = null,
+    val blacklist: List<String>? = null,
     val minRoomSize: Int = 1,
     val maxRoomSize: Int = 2
 ) {
@@ -63,8 +62,8 @@ class Room(
             val result = Room(
                 id,
                 hostUserConnectionId,
-                configuredUserNameList,
-                configuredUserNameListMode,
+                whitelist,
+                blacklist,
                 minRoomSize,
                 maxRoomSize
             )

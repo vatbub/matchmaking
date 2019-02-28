@@ -49,8 +49,8 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
         if (request.operation == Operation.JoinRoom || request.operation == Operation.JoinOrCreateRoom) {
             val applicableRoomTransaction = roomProvider.hasApplicableRoom(
                 request.userName,
-                request.userList,
-                request.userListMode,
+                request.whitelist,
+                request.blacklist,
                 request.minRoomSize,
                 request.maxRoomSize
             )
@@ -69,8 +69,8 @@ class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : R
         if (request.operation == Operation.CreateRoom || request.operation == Operation.JoinOrCreateRoom) {
             val room = roomProvider.createNewRoom(
                 connectionId,
-                request.userList,
-                request.userListMode,
+                request.whitelist,
+                request.blacklist,
                 request.minRoomSize,
                 request.maxRoomSize
             )

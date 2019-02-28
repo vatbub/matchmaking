@@ -22,7 +22,6 @@ package com.github.vatbub.matchmaking.server.roomproviders.data
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.requests.UserListMode.Whitelist
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
@@ -36,14 +35,14 @@ class ObservableRoomTest : KotlinTestSuperclass() {
                 TestUtils.getRandomHexString(),
                 TestUtils.defaultConnectionId,
                 listOf("vatbub", "heykey"),
-                Whitelist,
+                listOf("leoll"),
                 2,
                 5
             )
         room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         room.gameState["someKey"] = "someValue"
         room.gameStarted = true
-        val dataToHost = GameData()
+        val dataToHost = GameData(room.hostUserConnectionId)
         dataToHost["anotherKey"] = "anotherValue"
         room.dataToBeSentToTheHost.add(dataToHost)
 
@@ -51,8 +50,8 @@ class ObservableRoomTest : KotlinTestSuperclass() {
 
         Assertions.assertEquals(room.id, observableRoom.id)
         Assertions.assertEquals(room.hostUserConnectionId, observableRoom.hostUserConnectionId)
-        Assertions.assertEquals(room.configuredUserNameList, observableRoom.configuredUserNameList)
-        Assertions.assertEquals(room.configuredUserNameListMode, observableRoom.configuredUserNameListMode)
+        Assertions.assertEquals(room.whitelist, observableRoom.whitelist)
+        Assertions.assertEquals(room.blacklist, observableRoom.blacklist)
         Assertions.assertEquals(room.minRoomSize, observableRoom.minRoomSize)
         Assertions.assertEquals(room.maxRoomSize, observableRoom.maxRoomSize)
         Assertions.assertEquals(room.connectedUsers, observableRoom.connectedUsers)
@@ -68,14 +67,14 @@ class ObservableRoomTest : KotlinTestSuperclass() {
                 TestUtils.getRandomHexString(),
                 TestUtils.defaultConnectionId,
                 listOf("vatbub", "heykey"),
-                Whitelist,
+                listOf("leoll"),
                 2,
                 5
             )
         room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         room.gameState["someKey"] = "someValue"
         room.gameStarted = true
-        val dataToHost = GameData()
+        val dataToHost = GameData(room.hostUserConnectionId)
         dataToHost["anotherKey"] = "anotherValue"
         room.dataToBeSentToTheHost.add(dataToHost)
 

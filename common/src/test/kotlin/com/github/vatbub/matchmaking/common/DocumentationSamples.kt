@@ -21,7 +21,10 @@ package com.github.vatbub.matchmaking.common
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.requests.*
+import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
+import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
+import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
+import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
@@ -46,7 +49,7 @@ class DocumentationSamples : KotlinTestSuperclass() {
 
         const val connectionId = "79f96ee2"
         const val password = "3450e711"
-        val room = Room("73065963", connectionId, listOf("heykey", "mo-mar"), UserListMode.Whitelist)
+        val room = Room("73065963", connectionId, listOf("heykey", "mo-mar"), listOf("leoll"))
     }
 
     private fun <T : Any> serializeAndPrint(objectToPrint: T) {
@@ -72,7 +75,7 @@ class DocumentationSamples : KotlinTestSuperclass() {
                 Operation.JoinOrCreateRoom,
                 "vatbub",
                 listOf("heykey", "mo-mar"),
-                UserListMode.Whitelist
+                listOf("leoll")
             )
         )
     }

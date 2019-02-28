@@ -41,8 +41,8 @@ class JoinOrCreateRoomRequest(
     password: String,
     val operation: Operation,
     val userName: String,
-    val userList: List<String>? = null,
-    val userListMode: UserListMode = UserListMode.Ignore,
+    val whitelist: List<String>? = null,
+    val blacklist: List<String>? = null,
     val minRoomSize: Int = 1,
     val maxRoomSize: Int = 2
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!) {
@@ -55,8 +55,8 @@ class JoinOrCreateRoomRequest(
 
         if (operation != other.operation) return false
         if (userName != other.userName) return false
-        if (userList != other.userList) return false
-        if (userListMode != other.userListMode) return false
+        if (whitelist != other.whitelist) return false
+        if (blacklist != other.blacklist) return false
         if (minRoomSize != other.minRoomSize) return false
         if (maxRoomSize != other.maxRoomSize) return false
 
@@ -67,8 +67,8 @@ class JoinOrCreateRoomRequest(
         var result = super.hashCode()
         result = 31 * result + operation.hashCode()
         result = 31 * result + userName.hashCode()
-        result = 31 * result + (userList?.hashCode() ?: 0)
-        result = 31 * result + userListMode.hashCode()
+        result = 31 * result + (whitelist?.hashCode() ?: 0)
+        result = 31 * result + (blacklist?.hashCode() ?: 0)
         result = 31 * result + minRoomSize
         result = 31 * result + maxRoomSize
         return result
@@ -77,8 +77,4 @@ class JoinOrCreateRoomRequest(
 
 enum class Operation {
     JoinRoom, CreateRoom, JoinOrCreateRoom
-}
-
-enum class UserListMode {
-    Blacklist, Whitelist, Ignore
 }
