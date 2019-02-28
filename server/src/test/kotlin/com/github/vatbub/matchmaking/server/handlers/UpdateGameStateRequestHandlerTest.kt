@@ -27,10 +27,12 @@ import com.github.vatbub.matchmaking.server.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
+    @Disabled
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
         val handler = UpdateGameStateRequestHandler(roomProvider)
