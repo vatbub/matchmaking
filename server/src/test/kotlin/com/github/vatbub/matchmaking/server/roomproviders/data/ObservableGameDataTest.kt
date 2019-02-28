@@ -37,19 +37,30 @@ class ObservableGameDataTest {
     @Test
     fun onReplaceBackingGameData() {
         val originalBackingGameData = GameData()
-        originalBackingGameData["originalKey"] = "originalValue"
+        val expectedOriginalKey = "originalKey"
+        val expectedOriginalValue = "originalValue"
+        originalBackingGameData[expectedOriginalKey] = expectedOriginalValue
         val newGameData = GameData()
-        newGameData["newKey"] = "newValue"
-        var callbackCalled = false
+        val expectedNewKey = "newKey"
+        val expectedNewValue = "newValue"
+        newGameData[expectedNewKey] = expectedNewValue
+        var onRemoveCalled = false
+        var onSetCalled = false
 
-        val observableGameData = ObservableGameData(originalBackingGameData, onReplace = { oldValue, newValue ->
-            Assertions.assertEquals(originalBackingGameData, oldValue)
-            Assertions.assertEquals(newGameData, newValue)
-            callbackCalled = true
+        val observableGameData = ObservableGameData(originalBackingGameData, onRemove = { key, value ->
+            Assertions.assertEquals(expectedOriginalKey, key)
+            Assertions.assertEquals(expectedOriginalValue, value)
+            onRemoveCalled = true
+        }, onSet = { key, oldValue, newValue ->
+            Assertions.assertEquals(expectedNewKey, key)
+            Assertions.assertNull(oldValue)
+            Assertions.assertEquals(expectedNewValue, newValue)
+            onSetCalled = true
         })
 
-        observableGameData.backingGameData = newGameData
-        Assert.assertTrue(callbackCalled)
+        observableGameData.replaceContents(newGameData)
+        Assert.assertTrue(onRemoveCalled)
+        Assert.assertTrue(onSetCalled)
     }
 
     @Test

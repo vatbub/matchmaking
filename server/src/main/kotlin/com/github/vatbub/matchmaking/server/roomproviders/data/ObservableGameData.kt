@@ -20,7 +20,6 @@
 package com.github.vatbub.matchmaking.server.roomproviders.data
 
 import com.github.vatbub.matchmaking.common.data.GameData
-import kotlin.properties.Delegates
 
 /**
  * This class wraps a [GameData] object and allows other entities to subscribe to changes it.
@@ -30,18 +29,21 @@ import kotlin.properties.Delegates
  */
 class ObservableGameData(
     fromGameData: GameData,
-    var onReplace: ((oldGameData: GameData, newGameData: GameData) -> Unit)? = null,
     var onSet: ((key: String, oldValue: Any?, newValue: Any) -> Unit)? = null,
     var onRemove: ((key: String, element: Any?) -> Unit)? = null
 ) {
     val size: Int
         get() = backingGameData.size
 
-    var backingGameData: GameData by Delegates.observable(fromGameData.copy()) { _, oldValue, newValue ->
-        onReplace?.invoke(
-            oldValue,
-            newValue
-        )
+    val backingGameData = fromGameData.copy()
+
+    fun replaceContents(newContents: GameData) {
+        for (key in backingGameData.keys) {
+            remove<Any>(key)
+        }
+        for (key in newContents.keys) {
+            set(key, newContents[key]!!)
+        }
     }
 
     operator fun <T : Any> set(key: String, content: T) {

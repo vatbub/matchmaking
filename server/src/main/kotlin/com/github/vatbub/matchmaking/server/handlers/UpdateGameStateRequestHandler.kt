@@ -53,7 +53,7 @@ class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : Re
             )
         }
 
-        roomTransaction.room.gameState.backingGameData = request.gameData
+        roomTransaction.room.gameState.replaceContents(request.gameData)
         roomTransaction.room.dataToBeSentToTheHost.removeAll(request.processedData)
         roomTransaction.commit()
         return GetRoomDataResponse(request.connectionId, roomProvider[request.roomId])
