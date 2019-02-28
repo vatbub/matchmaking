@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.common.data
 
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -28,7 +29,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun byteTest() {
         val key = "sampleByte"
         val sampleByte: Byte = 5
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleByte
 
         Assertions.assertTrue(gameData.contains(key))
@@ -40,7 +41,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun byteArrayTest() {
         val key = "sampleByteArray"
         val sampleByteArray = ByteArray(3) { i -> i.toByte() }
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleByteArray
 
         Assertions.assertTrue(gameData.contains(key))
@@ -52,7 +53,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun charTest() {
         val key = "sampleChar"
         val sampleChar = 'a'
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleChar
 
         Assertions.assertTrue(gameData.contains(key))
@@ -64,7 +65,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun charArrayTest() {
         val key = "sampleCharArray"
         val sampleCharArray = CharArray(3) { i -> i.toChar() }
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleCharArray
 
         Assertions.assertTrue(gameData.contains(key))
@@ -76,7 +77,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun stringTest() {
         val key = "sampleString"
         val sampleString = "Hello"
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleString
 
         Assertions.assertTrue(gameData.contains(key))
@@ -88,7 +89,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun stringArrayTest() {
         val key = "sampleStringArray"
         val sampleStringArray = arrayOf("Hello", "Test")
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleStringArray
 
         Assertions.assertTrue(gameData.contains(key))
@@ -100,7 +101,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun stringListTest() {
         val key = "sampleStringList"
         val sampleStringList = listOf("Hello", "Test")
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleStringList
 
         Assertions.assertTrue(gameData.contains(key))
@@ -112,7 +113,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun floatTest() {
         val key = "sampleFloat"
         val sampleFloat = 5.0f
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleFloat
 
         Assertions.assertTrue(gameData.contains(key))
@@ -124,7 +125,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun floatArrayTest() {
         val key = "sampleFloatArray"
         val sampleFloatArray = FloatArray(3) { i -> i.toFloat() }
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleFloatArray
 
         Assertions.assertTrue(gameData.contains(key))
@@ -136,7 +137,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun integerListTest() {
         val key = "sampleIntegerList"
         val sampleIntegerList = IntArray(3) { i -> i }
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleIntegerList
 
         Assertions.assertTrue(gameData.contains(key))
@@ -148,7 +149,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun shortTest() {
         val key = "sampleShort"
         val sampleShort: Short = 5
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleShort
 
         Assertions.assertTrue(gameData.contains(key))
@@ -160,7 +161,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun shortArrayTest() {
         val key = "sampleShortArray"
         val sampleShortArray = ShortArray(3) { i -> i.toShort() }
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleShortArray
 
         Assertions.assertTrue(gameData.contains(key))
@@ -172,7 +173,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun typeMismatchTest() {
         val key = "sampleString"
         val sampleString = "Hello"
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleString
 
         Assertions.assertTrue(gameData.contains(key))
@@ -185,7 +186,7 @@ class GameDataTest : KotlinTestSuperclass() {
         val key = "sampleString"
         val sampleString = "Hello"
         val defaultValue = 5
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleString
 
         Assertions.assertTrue(gameData.contains(key))
@@ -196,7 +197,7 @@ class GameDataTest : KotlinTestSuperclass() {
     @Test
     fun notFoundTest() {
         val key = "sampleString"
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
 
         Assertions.assertFalse(gameData.contains(key))
         Assertions.assertNull(gameData[key])
@@ -206,7 +207,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun notFoundWithDefaultValueTest() {
         val key = "sampleString"
         val defaultValue = "DefaultValue"
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
 
         Assertions.assertFalse(gameData.contains(key))
         Assertions.assertEquals(defaultValue, gameData[key, defaultValue])
@@ -216,7 +217,7 @@ class GameDataTest : KotlinTestSuperclass() {
     fun removeTest() {
         val key = "sampleString"
         val sampleString = "Hello"
-        val gameData = GameData()
+        val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = sampleString
 
         Assertions.assertTrue(gameData.contains(key))
@@ -227,7 +228,7 @@ class GameDataTest : KotlinTestSuperclass() {
 
     @Test
     fun copyTest() {
-        val original = GameData()
+        val original = GameData(TestUtils.defaultConnectionId)
         original["key1"] = "value1"
         original["key2"] = "value2"
         original["key3"] = "value3"

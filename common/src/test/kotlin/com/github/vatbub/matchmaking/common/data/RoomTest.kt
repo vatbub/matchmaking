@@ -39,7 +39,7 @@ class RoomTest : KotlinTestSuperclass() {
         original.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         original.gameState["someKey"] = "someValue"
         original.gameStarted = true
-        val dataToHost = GameData()
+        val dataToHost = GameData(TestUtils.getRandomHexString(TestUtils.defaultConnectionId))
         dataToHost["anotherKey"] = "anotherValue"
         original.dataToBeSentToTheHost.add(dataToHost)
 

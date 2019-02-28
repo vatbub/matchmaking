@@ -45,7 +45,7 @@ class Room(
     /**
      * The current state of the game as sent by the host. Important: It is up to the host to set this value
      */
-    var gameState = GameData()
+    var gameState = GameData(hostUserConnectionId)
     /**
      * Specifies whether this room is currently in a game or waiting for a game to start. Important: It is up to the host to set this value
      */

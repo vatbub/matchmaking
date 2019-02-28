@@ -38,15 +38,16 @@ class RoomSerializationTest :
             2,
             2
         )
+        val userConnectionId = TestUtils.getRandomHexString()
         room.connectedUsers.add(
             User(
-                TestUtils.getRandomHexString(),
+                userConnectionId,
                 "vatbub",
                 Inet4Address.getByName("129.187.211.162") as Inet4Address?,
                 Inet6Address.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address?
             )
         )
-        room.dataToBeSentToTheHost.add(GameData())
+        room.dataToBeSentToTheHost.add(GameData(userConnectionId))
         room.gameStarted = true
         return room
     }
