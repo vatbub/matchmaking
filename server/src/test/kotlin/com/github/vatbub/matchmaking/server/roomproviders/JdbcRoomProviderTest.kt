@@ -25,16 +25,20 @@ class JdbcRoomProviderTest : RoomProviderTest() {
     }
 
     override fun newInstance(): JdbcRoomProvider {
-        val provider = JdbcRoomProvider(
-            "jdbc:hsqldb:mem:roomProviderTestDB$dbCounter",
-            "SA",
-            ""
-        )
-        /*val provider = JdbcRoomProvider(
-            "jdbc:postgresql://manny.db.elephantsql.com:5432/ehlblzzc",
-            "ehlblzzc",
-            "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
-        )*/
+        val useMemDb = true
+        @Suppress("ConstantConditionIf")
+        val provider = if (useMemDb)
+            JdbcRoomProvider(
+                "jdbc:hsqldb:mem:roomProviderTestDB$dbCounter",
+                "SA",
+                ""
+            )
+        else
+            JdbcRoomProvider(
+                "jdbc:postgresql://manny.db.elephantsql.com:5432/ehlblzzc",
+                "ehlblzzc",
+                "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
+            )
         dbCounter++
         return provider
     }

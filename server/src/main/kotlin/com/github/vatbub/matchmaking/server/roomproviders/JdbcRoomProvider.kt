@@ -82,7 +82,7 @@ class JdbcRoomProvider private constructor(
     private val roomsTable = Table(
         "rooms", ColumnList(
             listOf(
-                Column("id", CHAR, listOf(roomIdLength), listOf(PrimaryKeyConstraint())),
+                Column("id", VARCHAR, listOf(roomIdLength), listOf(PrimaryKeyConstraint())),
                 Column("host_user_connection_id", VARCHAR, listOf(varcharMax)),
                 Column("whitelist", VARCHAR, listOf(varcharMax)),
                 Column("blacklist", VARCHAR, listOf(varcharMax)),
@@ -107,7 +107,7 @@ class JdbcRoomProvider private constructor(
                 Column("ipv6", VARCHAR, listOf(varcharMax)),
                 Column(
                     "connected_to",
-                    CHAR,
+                    VARCHAR,
                     listOf(roomIdLength),
                     listOf(ForeignKeyConstraint(roomsTable, roomsTable.columns["id"]!!, CASCADE))
                 )
@@ -122,7 +122,7 @@ class JdbcRoomProvider private constructor(
                 Column(
                     "belongs_to_room",
                     VARCHAR,
-                    listOf(varcharMax),
+                    listOf(roomIdLength),
                     listOf(ForeignKeyConstraint(roomsTable, roomsTable.columns["id"]!!, CASCADE))
                 ),
                 Column("index", INTEGER),
@@ -182,30 +182,34 @@ class JdbcRoomProvider private constructor(
     override val supportsConcurrentTransactionsOnSameRoom = true
 
     private fun saveGameData(connection: Connection, gameDataId: Int? = null, gameData: GameData): Int {
-        val finalGameDataId = if (gameDataId != null) {
-            val deleteStatement = connection.prepareStatement("DELETE FROM ${gameDataTable.name} WHERE id = ?")
-            deleteStatement.setInt(1, gameDataId)
-            deleteStatement.executeUpdate()
-            gameDataId
-        } else {
-            var newGameDataId = 0
-            val idExistsStatement = connection.prepareStatement("SELECT * FROM ${gameDataTable.name} WHERE id = ?")
-            do {
-                newGameDataId++
-                idExistsStatement.setInt(1, newGameDataId)
-            } while (idExistsStatement.executeQuery().next())
-            newGameDataId
+        val json = gson.toJson(gameData.contents)
+
+        if (gameDataId != null) {
+            val updateStatement =
+                connection.prepareStatement("UPDATE ${gameDataTable.name} SET ${gameDataTable.columns[1].name} = ?, ${gameDataTable.columns[3].name} = ? WHERE id = ?")
+            updateStatement.setTimestamp(1, Timestamp.from(gameData.createdAtUtc))
+            updateStatement.setString(2, json)
+            updateStatement.setInt(3, gameDataId)
+            updateStatement.executeUpdate()
+            return gameDataId
         }
 
-        val json = gson.toJson(gameData.contents)
+        var newGameDataId = 0
+        val idExistsStatement = connection.prepareStatement("SELECT * FROM ${gameDataTable.name} WHERE id = ?")
+        do {
+            newGameDataId++
+            idExistsStatement.setInt(1, newGameDataId)
+        } while (idExistsStatement.executeQuery().next())
+
         gameDataTable.insertInto(
             connection,
-            finalGameDataId,
+            newGameDataId,
             Timestamp.from(gameData.createdAtUtc),
             gameData.createdByConnectionId,
             json
         )
-        return finalGameDataId
+
+        return newGameDataId
     }
 
     private fun encodeUserList(userList: List<String>?): String? {
@@ -352,7 +356,7 @@ class JdbcRoomProvider private constructor(
         roomTransaction.room.onGameStartedChange = { gameStarted ->
             val gameStartedAsInt = if (gameStarted) 1 else 0
             val statement =
-                pendingTransactions[roomTransaction]!!.prepareStatement("UPDATE ${roomsTable.name} SET ${roomsTable.columns[6].name} = ? WHERE id = ?")
+                pendingTransactions[roomTransaction]!!.prepareStatement("UPDATE ${roomsTable.name} SET ${roomsTable.columns[7].name} = ? WHERE id = ?")
             statement.setInt(1, gameStartedAsInt)
             statement.setString(2, id)
             statement.executeUpdate()
@@ -413,6 +417,14 @@ class JdbcRoomProvider private constructor(
         }
 
         roomTransaction.room.gameState.onRemove = { _, _ ->
+            saveGameData(
+                pendingTransactions[roomTransaction]!!,
+                getGameStateIdByRoomId(pendingTransactions[roomTransaction]!!, roomTransaction.room.id),
+                roomTransaction.room.gameState.backingGameData
+            )
+        }
+
+        roomTransaction.room.gameState.onTimestampChanged = { _ ->
             saveGameData(
                 pendingTransactions[roomTransaction]!!,
                 getGameStateIdByRoomId(pendingTransactions[roomTransaction]!!, roomTransaction.room.id),

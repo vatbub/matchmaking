@@ -44,9 +44,7 @@ class ObservableRoom(
     val gameState = ObservableGameData(fromRoom.gameState)
 
     var gameStarted: Boolean by Delegates.observable(fromRoom.gameStarted) { _, _, newValue ->
-        onGameStartedChange?.invoke(
-            newValue
-        )
+        onGameStartedChange?.invoke(newValue)
     }
 
     val dataToBeSentToTheHost =

@@ -24,6 +24,7 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class ObservableGameDataTest {
     @Test
@@ -31,8 +32,11 @@ class ObservableGameDataTest {
         val originalGameData = GameData(TestUtils.defaultConnectionId)
         val observableGameData = ObservableGameData(originalGameData)
         observableGameData["foo"] = "bar"
+        observableGameData.createdAtUtc = Instant.now()
+
         Assertions.assertEquals(0, originalGameData.size)
         Assertions.assertEquals(1, observableGameData.size)
+        Assertions.assertNotEquals(originalGameData.createdAtUtc, observableGameData.createdAtUtc)
     }
 
     @Test
@@ -60,6 +64,7 @@ class ObservableGameDataTest {
         })
 
         observableGameData.replaceContents(newGameData)
+        Assertions.assertEquals(newGameData, observableGameData.backingGameData)
         Assert.assertTrue(onRemoveCalled)
         Assert.assertTrue(onSetCalled)
     }
