@@ -24,7 +24,7 @@ import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
+abstract class SerializationTestSuperclass<T : Any>(val clazz: Class<T>) :
     KotlinTestSuperclass() {
     abstract fun newObjectUnderTest(): T
 

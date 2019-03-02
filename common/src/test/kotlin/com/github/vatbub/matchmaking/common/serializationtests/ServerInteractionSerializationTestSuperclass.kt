@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.common.serializationtests
 
 import com.github.vatbub.matchmaking.common.ServerInteraction
+import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -29,5 +30,14 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
     @Test
     fun protocolVersionTest() {
         Assertions.assertEquals(ServerInteraction.defaultProtocolVersion, newObjectUnderTest().protocolVersion)
+    }
+
+    @Test
+    fun protocolVersionSerializationTest() {
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val originalObject = newObjectUnderTest()
+        val json = gson.toJson(originalObject)
+        println(json)
+        Assertions.assertTrue(json.contains("\"protocolVersion\": \"${originalObject.protocolVersion}\""))
     }
 }
