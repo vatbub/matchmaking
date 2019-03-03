@@ -30,11 +30,10 @@ import kotlin.random.Random
  * - *does not* persist its data across server restarts
  */
 open class MemoryRoomProvider : RoomProvider() {
-
     override val supportsConcurrentTransactionsOnSameRoom = false
 
     private val rooms = mutableMapOf<String, Room>()
-    private val pendingTransactions = mutableListOf<RoomTransaction>()  // TODO: Implement locking
+    private val pendingTransactions = mutableMapOf<String, RoomTransaction>()
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
         val room = rooms[id] ?: return null
@@ -43,8 +42,8 @@ open class MemoryRoomProvider : RoomProvider() {
         )
         while (true) {
             synchronized(pendingTransactions) {
-                if (!pendingTransactions.contains(transaction)) {
-                    pendingTransactions.add(transaction)
+                if (!pendingTransactions.containsKey(room.id)) {
+                    pendingTransactions[room.id] = transaction
                     return transaction
                 }
             }
@@ -52,13 +51,13 @@ open class MemoryRoomProvider : RoomProvider() {
     }
 
     override fun commitTransaction(roomTransaction: RoomTransaction) {
-        if (!pendingTransactions.contains(roomTransaction)) return
+        if (!pendingTransactions.containsValue(roomTransaction)) return
         rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
-        pendingTransactions.remove(roomTransaction)
+        pendingTransactions.remove(roomTransaction.room.id)
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
-        pendingTransactions.remove(roomTransaction)
+        pendingTransactions.remove(roomTransaction.room.id)
     }
 
     override fun getAllRooms(): Collection<Room> {
@@ -109,4 +108,11 @@ open class MemoryRoomProvider : RoomProvider() {
     override fun clearRooms() {
         rooms.clear()
     }
+
+    override fun forEach(action: (room: Room) -> Unit) = rooms.forEach { _, room -> action(room) }
+
+    override fun forEachTransaction(action: (transaction: RoomTransaction) -> Unit) =
+        forEach { room -> action(beginTransactionWithRoom(room.id)!!) }
+
+    override fun filter(filter: (room: Room) -> Boolean) = rooms.filter { filter(it.value) }.values
 }

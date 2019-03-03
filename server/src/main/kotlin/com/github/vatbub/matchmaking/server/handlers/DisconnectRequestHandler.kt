@@ -41,7 +41,7 @@ class DisconnectRequestHandler(private val roomProvider: RoomProvider) : Request
         request as DisconnectRequest
         val roomIdsToDelete = mutableListOf<String>()
         val disconnectedRoomIds = mutableListOf<String>()
-        for (roomTransaction in roomProvider.beginTransactionForAllRooms()) {
+        roomProvider.beginTransactionForAllRooms { roomTransaction ->
             if (roomTransaction.room.hostUserConnectionId == request.connectionId)
                 roomIdsToDelete.add(roomTransaction.room.id)
 
@@ -59,7 +59,7 @@ class DisconnectRequestHandler(private val roomProvider: RoomProvider) : Request
         }
 
         val deletedRooms = roomProvider.deleteRooms(*roomIdsToDelete.toTypedArray())
-        val disconnectedRooms = roomProvider.getRoomsById(disconnectedRoomIds)
+        val disconnectedRooms = roomProvider.getRoomsById(disconnectedRoomIds).toList()
 
         return DisconnectResponse(request.connectionId, disconnectedRooms, deletedRooms)
     }

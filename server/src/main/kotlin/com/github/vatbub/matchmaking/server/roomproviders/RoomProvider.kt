@@ -55,32 +55,34 @@ abstract class RoomProvider {
 
     abstract fun beginTransactionWithRoom(id: String): RoomTransaction?
 
-    fun beginTransactionsWithRooms(ids: Collection<String>): List<RoomTransaction> {
-        return beginTransactionsWithRooms(*ids.toTypedArray())
+    fun beginTransactionsWithRooms(
+        onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit),
+        ids: Collection<String>
+    ) {
+        beginTransactionsWithRooms(onTransactionAvailable, *ids.toTypedArray())
     }
 
-    fun beginTransactionsWithRooms(vararg ids: String): List<RoomTransaction> {
-        val result = mutableListOf<RoomTransaction>()
-        for (id in ids) {
-            val transaction = beginTransactionWithRoom(id)
-            if (transaction != null)
-                result.add(transaction)
+    fun beginTransactionsWithRooms(
+        onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit),
+        vararg ids: String
+    ) {
+        beginTransactionsForRoomsWithFilter({ ids.contains(it.id) }, onTransactionAvailable)
+    }
+
+    fun beginTransactionsForRoomsWithFilter(
+        filter: ((Room) -> Boolean),
+        onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit)
+    ) {
+        forEachTransaction { transaction ->
+            if (filter(transaction.room.toRoom()))
+                onTransactionAvailable(transaction)
+            else
+                transaction.abort()
         }
-        return result
     }
 
-    fun beginTransactionsForRoomsWithFilter(filter: ((Room) -> Boolean)): List<RoomTransaction> {
-        val result = mutableListOf<RoomTransaction>()
-        for (room in getAllRooms().filter(filter)) {
-            val transaction = beginTransactionWithRoom(room.id) ?: continue
-            result.add(transaction)
-        }
-        return result
-    }
-
-    fun beginTransactionForAllRooms(): List<RoomTransaction> {
-        return beginTransactionsForRoomsWithFilter { true }
-    }
+    fun beginTransactionForAllRooms(onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit)) =
+        beginTransactionsForRoomsWithFilter({ true }, onTransactionAvailable)
 
     /**
      * Makes sure that changes to the supplied rooms are saved in the room provider
@@ -95,9 +97,7 @@ abstract class RoomProvider {
      * make changes to a room, use [beginTransactionsWithRooms], do your changes and then call
      * [RoomTransaction.commit] to save your changes.
      */
-    open fun getRoomsById(ids: Collection<String>): List<Room> {
-        return getRoomsById(*ids.toTypedArray())
-    }
+    open fun getRoomsById(ids: Collection<String>) = getRoomsById(*ids.toTypedArray())
 
     /**
      * Returns multiple rooms by their id.
@@ -105,14 +105,7 @@ abstract class RoomProvider {
      * make changes to a room, use [beginTransactionsWithRooms], do your changes and then call
      * [RoomTransaction.commit] to save your changes.
      */
-    open fun getRoomsById(vararg ids: String): List<Room> {
-        val result = mutableListOf<Room>()
-        for (room in getAllRooms()) {
-            if (ids.contains(room.id))
-                result.add(room)
-        }
-        return result
-    }
+    open fun getRoomsById(vararg ids: String) = filter { ids.contains(it.id) }
 
     /**
      * Checks whether a room exists where the user can join into.
@@ -135,76 +128,72 @@ abstract class RoomProvider {
     ): RoomTransaction? {
         var result: RoomTransaction? = null
 
-        outer@ for (roomTransaction in beginTransactionsForRoomsWithFilter { room -> !room.gameStarted }) {
-            if (result != null) { // we have a room already, abort all other transactions
-                roomTransaction.abort()
-                continue
-            }
+        beginTransactionsForRoomsWithFilter({ room -> !room.gameStarted && result == null },
+            fun(roomTransaction: RoomTransaction) {
+                /*
+                           * We have to check again even though we have the filter in place
+                           * because room.gameStarted might have changed between the call to
+                           * the filter and the beginning of the transaction (multithreading magic :/ )
+                           */
+                if (roomTransaction.room.gameStarted) {
+                    roomTransaction.abort()
+                    return
+                }
 
-            /*
-            * We have to check again even though we have the filter in place
-            * because room.gameStarted might have changed between the call to
-            * the filter and the beginning of the transaction (multithreading magic :/ )
-            */
-            if (roomTransaction.room.gameStarted) {
-                roomTransaction.abort()
-                continue
-            }
+                if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
+                    roomTransaction.abort()
+                    return
+                }
+                if (roomTransaction.room.minRoomSize < minRoomSize) {
+                    roomTransaction.abort()
+                    return
+                }
+                if (roomTransaction.room.maxRoomSize > maxRoomSize) {
+                    roomTransaction.abort()
+                    return
+                }
 
-            if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
-                roomTransaction.abort()
-                continue
-            }
-            if (roomTransaction.room.minRoomSize < minRoomSize) {
-                roomTransaction.abort()
-                continue
-            }
-            if (roomTransaction.room.maxRoomSize > maxRoomSize) {
-                roomTransaction.abort()
-                continue
-            }
-
-            // check the supplied user list
-            if (whitelist != null) {
-                for (user in roomTransaction.room.connectedUsers) {
-                    if (!whitelist.contains(user.userName)) {
-                        roomTransaction.abort()
-                        continue@outer
+                // check the supplied user list
+                if (whitelist != null) {
+                    for (user in roomTransaction.room.connectedUsers) {
+                        if (!whitelist.contains(user.userName)) {
+                            roomTransaction.abort()
+                            return
+                        }
                     }
                 }
-            }
-            if (blacklist != null) {
-                for (user in roomTransaction.room.connectedUsers) {
-                    if (blacklist.contains(user.userName)) {
-                        roomTransaction.abort()
-                        continue@outer
+                if (blacklist != null) {
+                    for (user in roomTransaction.room.connectedUsers) {
+                        if (blacklist.contains(user.userName)) {
+                            roomTransaction.abort()
+                            return
+                        }
                     }
                 }
-            }
 
-            // check the room's user list
-            val configuredWhitelist = roomTransaction.room.whitelist
-            val configuredBlacklist = roomTransaction.room.blacklist
+                // check the room's user list
+                val configuredWhitelist = roomTransaction.room.whitelist
+                val configuredBlacklist = roomTransaction.room.blacklist
 
-            if (configuredWhitelist != null) {
-                for (user in configuredWhitelist) {
-                    if (!configuredWhitelist.contains(userName)) {
-                        roomTransaction.abort()
-                        continue@outer
+                if (configuredWhitelist != null) {
+                    for (user in configuredWhitelist) {
+                        if (!configuredWhitelist.contains(userName)) {
+                            roomTransaction.abort()
+                            return
+                        }
                     }
                 }
-            }
-            if (configuredBlacklist != null) {
-                for (user in configuredBlacklist) {
-                    if (configuredBlacklist.contains(userName)) {
-                        roomTransaction.abort()
-                        continue@outer
+                if (configuredBlacklist != null) {
+                    for (user in configuredBlacklist) {
+                        if (configuredBlacklist.contains(userName)) {
+                            roomTransaction.abort()
+                            return
+                        }
                     }
                 }
-            }
 
-            result = roomTransaction
-        }
+                result = roomTransaction
+            })
 
         return result
     }
@@ -248,4 +237,10 @@ abstract class RoomProvider {
      * [RoomTransaction.commit] to save your changes.
      */
     abstract fun getAllRooms(): Collection<Room>
+
+    abstract fun forEach(action: ((room: Room) -> Unit))
+
+    abstract fun forEachTransaction(action: ((transaction: RoomTransaction) -> Unit))
+
+    abstract fun filter(filter: ((room: Room) -> Boolean)): Collection<Room>
 }

@@ -19,7 +19,12 @@
  */
 package com.github.vatbub.matchmaking.server.roomproviders
 
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+
 class JdbcRoomProviderTest : RoomProviderTest() {
+    private var lastProviderInstance: JdbcRoomProvider? = null
+
     companion object {
         var dbCounter = 0
     }
@@ -40,6 +45,13 @@ class JdbcRoomProviderTest : RoomProviderTest() {
                 "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
             )
         dbCounter++
+        lastProviderInstance = provider
         return provider
+    }
+
+    @AfterEach
+    fun assertAllConnectionsReturned() {
+        val lastProviderInstanceCopy = lastProviderInstance ?: return
+        Assertions.assertEquals(0, lastProviderInstanceCopy.connectionCount)
     }
 }

@@ -29,6 +29,19 @@ import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
  * [RoomTransaction.commit] is called.
  */
 class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvider) {
+    companion object {
+        private val idsInUse = mutableListOf<Int>()
+        private val nextId: Int
+            get() {
+                synchronized(idsInUse) {
+                    val id = (idsInUse.max() ?: 0) + 1
+                    idsInUse.add(id)
+                    return id
+                }
+            }
+    }
+
+    val id = nextId
     private val _room = room
     val room: ObservableRoom
         get() {
@@ -65,15 +78,13 @@ class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvid
 
         other as RoomTransaction
 
-        if (_room != other._room) return false
-        if (roomProvider != other.roomProvider) return false
+        if (id != other.id) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = _room.hashCode()
-        result = 31 * result + roomProvider.hashCode()
-        return result
+        return id
     }
+
 }

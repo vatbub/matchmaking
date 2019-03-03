@@ -340,8 +340,11 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         var result = false
 
         val transaction2Thread = Thread {
+            println("Thread 2 started")
             roomProvider.beginTransactionWithRoom(room.id)
+            println("transaction 2 acquired")
             result = transaction1.finalized
+            println("transaction 1 finalized: $result")
         }
         transaction2Thread.start()
 
@@ -379,14 +382,14 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         )
         val createdRooms = List(hostConnectionIds.size) { roomProvider.createNewRoom(hostConnectionIds[it]) }
 
-        val allRoomTransactions = roomProvider.beginTransactionForAllRooms()
-
-        Assertions.assertEquals(createdRooms.size, allRoomTransactions.size)
-
-        for (roomTransaction in allRoomTransactions) {
+        var callCount = 0
+        roomProvider.beginTransactionForAllRooms { roomTransaction ->
+            callCount++
             Assertions.assertTrue(createdRooms.contains(roomTransaction.room.toRoom()))
             roomTransaction.abort()
         }
+
+        Assertions.assertEquals(createdRooms.size, callCount)
     }
 
     @Test
@@ -410,14 +413,16 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         for (id in hostConnectionIds)
             roomProvider.createNewRoom(id)
 
-        val roomTransactions =
-            roomProvider.beginTransactionsForRoomsWithFilter { room -> room.hostUserConnectionId == targetConnectionId }
+        var callCount = 0
+        roomProvider.beginTransactionsForRoomsWithFilter(
+            { room -> room.hostUserConnectionId == targetConnectionId },
+            { roomTransaction ->
+                callCount++
+                Assertions.assertEquals(targetConnectionId, roomTransaction.room.hostUserConnectionId)
+                roomTransaction.abort()
+            })
 
-        Assertions.assertEquals(1, roomTransactions.size)
-        Assertions.assertEquals(targetConnectionId, roomTransactions[0].room.hostUserConnectionId)
-
-        for (transaction in roomTransactions)
-            transaction.abort()
+        Assertions.assertEquals(1, callCount)
     }
 
     @Test
@@ -431,26 +436,30 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     fun beginTransactionsWithRoomsVarargTest() {
         val roomProvider = newInstance()
         val createdRoomIds = Array(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
-        val transactions = roomProvider.beginTransactionsWithRooms(*createdRoomIds)
-        Assertions.assertEquals(createdRoomIds.size, transactions.size)
-        for (id in createdRoomIds.withIndex())
-            Assertions.assertEquals(id.value, transactions[id.index].room.id)
 
-        for (transaction in transactions)
+        var callCount = 0
+        roomProvider.beginTransactionsWithRooms(ids = *createdRoomIds, onTransactionAvailable = { transaction ->
+            callCount++
+            Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
             transaction.abort()
+        })
+
+        Assertions.assertEquals(createdRoomIds.size, callCount)
     }
 
     @Test
     fun beginTransactionsWithRoomsListTest() {
         val roomProvider = newInstance()
         val createdRoomIds = List(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
-        val transactions = roomProvider.beginTransactionsWithRooms(createdRoomIds)
-        Assertions.assertEquals(createdRoomIds.size, transactions.size)
-        for (id in createdRoomIds.withIndex())
-            Assertions.assertEquals(id.value, transactions[id.index].room.id)
 
-        for (transaction in transactions)
+        var callCount = 0
+        roomProvider.beginTransactionsWithRooms(ids = createdRoomIds, onTransactionAvailable = { transaction ->
+            callCount++
+            Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
             transaction.abort()
+        })
+
+        Assertions.assertEquals(createdRoomIds.size, callCount)
     }
 
     @Test
@@ -458,13 +467,17 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val roomProvider = newInstance()
         val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
         createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
-        val transactions = roomProvider.beginTransactionsWithRooms(*createdRoomIds.toTypedArray())
-        Assertions.assertEquals(createdRoomIds.size - 1, transactions.size)
-        for (transaction in transactions.withIndex())
-            Assertions.assertEquals(createdRoomIds[transaction.index], transaction.value.room.id)
 
-        for (transaction in transactions)
-            transaction.abort()
+        var callCount = 0
+        roomProvider.beginTransactionsWithRooms(
+            ids = *createdRoomIds.toTypedArray(),
+            onTransactionAvailable = { transaction ->
+                callCount++
+                Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
+                transaction.abort()
+            })
+
+        Assertions.assertEquals(createdRoomIds.size - 1, callCount)
     }
 
     @Test
@@ -472,13 +485,15 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         val roomProvider = newInstance()
         val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
         createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
-        val transactions = roomProvider.beginTransactionsWithRooms(createdRoomIds)
-        Assertions.assertEquals(createdRoomIds.size - 1, transactions.size)
-        for (transaction in transactions.withIndex())
-            Assertions.assertEquals(createdRoomIds[transaction.index], transaction.value.room.id)
 
-        for (transaction in transactions)
+        var callCount = 0
+        roomProvider.beginTransactionsWithRooms(ids = createdRoomIds, onTransactionAvailable = { transaction ->
+            callCount++
+            Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
             transaction.abort()
+        })
+
+        Assertions.assertEquals(createdRoomIds.size - 1, callCount)
     }
 
     @Test

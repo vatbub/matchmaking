@@ -59,6 +59,9 @@ class JdbcRoomProvider private constructor(
         connectionProperties
     )
 
+    var connectionCount = 0
+        private set
+
     private val connectionPoolDataSource = ComboPooledDataSource()
     private val gson = Gson()
 
@@ -146,7 +149,9 @@ class JdbcRoomProvider private constructor(
 
     init {
         val driver = DriverManager.getDriver(connectionString)!!
-        connectionPoolDataSource.maxPoolSize = 999999999
+        // connectionPoolDataSource.maxPoolSize = 999999999
+        connectionPoolDataSource.maxPoolSize = 5
+        connectionPoolDataSource.acquireIncrement = 1
         // connectionPoolDataSource.maxPoolSize = 5
         connectionPoolDataSource.driverClass = driver.javaClass.name
         connectionPoolDataSource.jdbcUrl = connectionString
@@ -163,17 +168,25 @@ class JdbcRoomProvider private constructor(
     private fun getConnection(): Connection {
         val connection = connectionPoolDataSource.connection
         connection.autoCommit = false
-        return connection
+        connectionCount++
+        println("Opening a new connection, currently active connections (after): $connectionCount")
+        return ConnectionWrapper(connection) {
+            connectionCount--
+            println("Connection closed, currently active connections (after): $connectionCount")
+        }
     }
 
     private fun getConnectionAndCommit(transaction: ((connection: Connection) -> Boolean)) {
         val connection = getConnection()
         @Suppress("ConvertTryFinallyToUseCall")
         try {
-            if (transaction.invoke(connection))
+            if (transaction.invoke(connection)) {
+                println("Committing connection...")
                 connection.commit()
-            else
+            } else {
+                println("Rolling connection back...")
                 connection.rollback()
+            }
         } finally {
             connection.close()
         }
@@ -308,7 +321,7 @@ class JdbcRoomProvider private constructor(
                     roomId = -roomId
 
                 roomIdAsString = roomId.toString(16)
-            } while (containsRoom(roomIdAsString))
+            } while (containsRoom(it, roomIdAsString))
 
             val gameStateId = saveGameData(it, gameData = GameData(hostUserConnectionId))
             val encodedWhitelist = encodeUserList(whitelist)
@@ -347,6 +360,7 @@ class JdbcRoomProvider private constructor(
         val room = getRoom(id, connection)
         if (room == null) {
             connection.rollback()
+            connection.close()
             return null
         }
         val roomTransaction =
@@ -508,12 +522,16 @@ class JdbcRoomProvider private constructor(
     }
 
     override fun commitTransaction(roomTransaction: RoomTransaction) {
-        pendingTransactions[roomTransaction]?.commit()
+        val connection = pendingTransactions[roomTransaction] ?: return
+        connection.commit()
+        connection.close()
         pendingTransactions.remove(roomTransaction)
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
-        pendingTransactions[roomTransaction]?.rollback()
+        val connection = pendingTransactions[roomTransaction] ?: return
+        connection.rollback()
+        connection.close()
         pendingTransactions.remove(roomTransaction)
     }
 
@@ -540,12 +558,13 @@ class JdbcRoomProvider private constructor(
     override fun containsRoom(id: String): Boolean {
         var result = false
         getConnectionAndCommit {
-            val room = getRoom(id, it)
-            result = room != null
+            result = containsRoom(it, id)
             true
         }
         return result
     }
+
+    private fun containsRoom(connection: Connection, id: String) = getRoom(id, connection) != null
 
     override fun getAllRooms(): Collection<Room> {
         val rooms = mutableListOf<Room>()
@@ -559,6 +578,16 @@ class JdbcRoomProvider private constructor(
         }
         return rooms
     }
+
+    override fun forEach(action: (room: Room) -> Unit) {
+        getAllRooms().forEach(action)
+    }
+
+    override fun forEachTransaction(action: (transaction: RoomTransaction) -> Unit) =
+        forEach { room -> action(beginTransactionWithRoom(room.id)!!) }
+
+    override fun filter(filter: (room: Room) -> Boolean) =
+        getAllRooms().filter(filter)
 }
 
 
