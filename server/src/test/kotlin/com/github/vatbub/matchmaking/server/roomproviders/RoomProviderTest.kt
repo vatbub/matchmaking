@@ -154,6 +154,50 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     }
 
     @Test
+    fun getRoomsByIdImmutabilityTest() {
+        val roomProvider = newInstance()
+        val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
+        val hostConnectionIds = listOf(
+            "250b7528",
+            "2ac2ed78",
+            "2d4d21d8",
+            "19af35dc",
+            "10a032a5",
+            "0cc14cbe",
+            "351a4d9a",
+            "16567c41",
+            "0d9d3410",
+            "32f5e17c"
+        )
+        for (hostConnectionId in hostConnectionIds) {
+            var createdRoom: Room? = null
+            do {
+                if (createdRoom != null)
+                    roomProvider.deleteRoom(createdRoom.id)
+                createdRoom = roomProvider.createNewRoom(hostConnectionId)
+            } while (createdRoom == null || roomsToGet.contains(createdRoom.id))
+
+            roomsToGet.add(createdRoom.id)
+        }
+
+        val retrievedRooms = roomProvider.getRoomsById(roomsToGet)
+        Assertions.assertEquals(hostConnectionIds.size, retrievedRooms.size)
+
+        for (room in retrievedRooms) {
+            room.gameStarted = true
+            room.dataToBeSentToTheHost.add(GameData(TestUtils.getRandomHexString(room.hostUserConnectionId)))
+            room.gameState["key"] = "value"
+            room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
+
+            val retrievedRoom2 = roomProvider[room.id]!!
+            Assertions.assertNotEquals(room.gameStarted, retrievedRoom2.gameStarted)
+            Assertions.assertNotEquals(room.dataToBeSentToTheHost, retrievedRoom2.dataToBeSentToTheHost)
+            Assertions.assertNotEquals(room.gameState, retrievedRoom2.gameState)
+            Assertions.assertNotEquals(room.connectedUsers, retrievedRoom2.connectedUsers)
+        }
+    }
+
+    @Test
     fun deleteRoomTest() {
         val roomProvider = newInstance()
         val room = roomProvider.createNewRoom("1ffbec47")
@@ -393,7 +437,6 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     }
 
     @Test
-
     fun beginTransactionForRoomsWithFilterTest() {
         val roomProvider = newInstance()
         val targetConnectionId = "250b7528"
@@ -585,5 +628,80 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
         applicableRoomTransaction!!
         Assertions.assertEquals(room1.id, applicableRoomTransaction.room.id)
         applicableRoomTransaction.abort()
+    }
+
+    @Test
+    fun filterTest() {
+        val roomProvider = newInstance()
+        val targetConnectionId = "250b7528"
+        val hostConnectionIds = listOf(
+            targetConnectionId,
+            "2ac2ed78",
+            "2d4d21d8",
+            "19af35dc",
+            "10a032a5",
+            "0cc14cbe",
+            "351a4d9a",
+            "16567c41",
+            "0d9d3410",
+            "32f5e17c"
+        )
+
+        for (id in hostConnectionIds)
+            roomProvider.createNewRoom(id)
+
+        val filteredRooms = roomProvider.filter { room -> room.hostUserConnectionId == targetConnectionId }
+
+        Assertions.assertEquals(1, filteredRooms.size)
+        Assertions.assertEquals(targetConnectionId, filteredRooms.toList()[0].hostUserConnectionId)
+    }
+
+    @Test
+    fun forEachTest() {
+        val roomProvider = newInstance()
+        val hostConnectionIds = listOf(
+            "250b7528",
+            "2ac2ed78",
+            "2d4d21d8",
+            "19af35dc",
+            "10a032a5",
+            "0cc14cbe",
+            "351a4d9a",
+            "16567c41",
+            "0d9d3410",
+            "32f5e17c"
+        )
+        val createdRooms = List(hostConnectionIds.size) { roomProvider.createNewRoom(hostConnectionIds[it]) }
+
+        var callCount = 0
+        roomProvider.forEach {
+            Assertions.assertEquals(createdRooms[callCount], it)
+            callCount++
+        }
+
+        Assertions.assertEquals(createdRooms.size, callCount)
+    }
+
+    @Test
+    fun dataToBeSentToHostTest() {
+        val roomProvider = newInstance()
+        val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+        val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
+
+        val data = MutableList(2) { GameData(TestUtils.defaultConnectionId) }
+        data.forEachIndexed { index, gameData ->
+            gameData["key$index"] = "value$index"
+        }
+
+        for (gameData in data)
+            transaction.room.dataToBeSentToTheHost.add(gameData)
+        transaction.commit()
+
+        val retrievedRoom = roomProvider[room.id]!!
+        Assertions.assertEquals(data.size, retrievedRoom.dataToBeSentToTheHost.size)
+
+        room.dataToBeSentToTheHost.forEachIndexed { index, gameData ->
+            Assertions.assertEquals(data[index], gameData)
+        }
     }
 }

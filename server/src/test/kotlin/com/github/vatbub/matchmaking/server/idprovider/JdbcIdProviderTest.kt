@@ -19,18 +19,41 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
+import com.github.vatbub.matchmaking.server.roomproviders.JdbcRoomProviderTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+
 
 class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
+    private var lastProviderInstance: JdbcIdProvider? = null
+
     companion object {
         var dbCounter = 0
     }
+
     override fun newInstance(): JdbcIdProvider {
-        val provider= JdbcIdProvider(
-            "jdbc:hsqldb:mem:connectionIdTestDB$dbCounter",
-            "SA",
-            ""
-        )
-        dbCounter++
+        val useMemDb = true
+        @Suppress("ConstantConditionIf")
+        val provider = if (useMemDb)
+            JdbcIdProvider(
+                "jdbc:hsqldb:mem:connectionIdTestDB$dbCounter",
+                "SA",
+                ""
+            )
+        else
+            JdbcIdProvider(
+                "jdbc:postgresql://manny.db.elephantsql.com:5432/ehlblzzc",
+                "ehlblzzc",
+                "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
+            )
+        JdbcRoomProviderTest.dbCounter++
+        lastProviderInstance = provider
         return provider
+    }
+
+    @AfterEach
+    fun assertAllConnectionsReturned() {
+        val lastProviderInstanceCopy = lastProviderInstance ?: return
+        Assertions.assertEquals(0, lastProviderInstanceCopy.connectionPoolWrapper.connectionCount)
     }
 }

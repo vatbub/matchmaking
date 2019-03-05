@@ -114,5 +114,11 @@ open class MemoryRoomProvider : RoomProvider() {
     override fun forEachTransaction(action: (transaction: RoomTransaction) -> Unit) =
         forEach { room -> action(beginTransactionWithRoom(room.id)!!) }
 
-    override fun filter(filter: (room: Room) -> Boolean) = rooms.filter { filter(it.value) }.values
+    override fun filter(filter: (room: Room) -> Boolean): Collection<Room> {
+        val result = mutableListOf<Room>()
+        rooms.filter { filter(it.value) }.forEach {
+            result.add(it.value.copy())
+        }
+        return result
+    }
 }

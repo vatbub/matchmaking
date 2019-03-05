@@ -52,6 +52,6 @@ class JdbcRoomProviderTest : RoomProviderTest() {
     @AfterEach
     fun assertAllConnectionsReturned() {
         val lastProviderInstanceCopy = lastProviderInstance ?: return
-        Assertions.assertEquals(0, lastProviderInstanceCopy.connectionCount)
+        Assertions.assertEquals(0, lastProviderInstanceCopy.connectionPoolWrapper.connectionCount)
     }
 }
