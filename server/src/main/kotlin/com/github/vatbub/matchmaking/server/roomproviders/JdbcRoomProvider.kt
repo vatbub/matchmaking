@@ -28,41 +28,31 @@ import com.github.vatbub.matchmaking.server.roomproviders.database.*
 import com.github.vatbub.matchmaking.server.roomproviders.database.OnModificationAction.CASCADE
 import com.github.vatbub.matchmaking.server.roomproviders.database.Type.*
 import com.google.gson.Gson
-import com.mchange.v2.c3p0.ComboPooledDataSource
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.Timestamp
 import java.util.*
 import kotlin.random.Random
 
-class JdbcRoomProvider private constructor(
-    connectionString: String,
-    dbUser: String?,
-    dbPassword: String?,
-    connectionProperties: Properties?
-) : RoomProvider() {
-    constructor(connectionString: String) : this(connectionString, null, null, null)
+class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) : RoomProvider() {
+    constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
     constructor(connectionString: String, dbUser: String, dbPassword: String) : this(
-        connectionString,
-        dbUser,
-        dbPassword,
-        null
+        ConnectionPoolWrapper(
+            connectionString,
+            dbUser,
+            dbPassword
+        )
     )
 
     constructor(connectionString: String, connectionProperties: Properties) : this(
-        connectionString,
-        null,
-        null,
-        connectionProperties
+        ConnectionPoolWrapper(
+            connectionString,
+            connectionProperties
+        )
     )
 
-    var connectionCount = 0
-        private set
-
-    private val connectionPoolDataSource = ComboPooledDataSource()
     private val gson = Gson()
 
     private val pendingTransactions = mutableMapOf<RoomTransaction, Connection>()
@@ -148,48 +138,7 @@ class JdbcRoomProvider private constructor(
     )
 
     init {
-        val driver = DriverManager.getDriver(connectionString)!!
-        // connectionPoolDataSource.maxPoolSize = 999999999
-        connectionPoolDataSource.maxPoolSize = 5
-        connectionPoolDataSource.acquireIncrement = 1
-        // connectionPoolDataSource.maxPoolSize = 5
-        connectionPoolDataSource.driverClass = driver.javaClass.name
-        connectionPoolDataSource.jdbcUrl = connectionString
-        if (dbUser != null)
-            connectionPoolDataSource.user = dbUser
-        if (dbPassword != null)
-            connectionPoolDataSource.password = dbPassword
-        if (connectionProperties != null)
-            connectionPoolDataSource.properties = connectionProperties
-
-        getConnectionAndCommit { schema.createIfNecessary(it); true }
-    }
-
-    private fun getConnection(): Connection {
-        val connection = connectionPoolDataSource.connection
-        connection.autoCommit = false
-        connectionCount++
-        println("Opening a new connection, currently active connections (after): $connectionCount")
-        return ConnectionWrapper(connection) {
-            connectionCount--
-            println("Connection closed, currently active connections (after): $connectionCount")
-        }
-    }
-
-    private fun getConnectionAndCommit(transaction: ((connection: Connection) -> Boolean)) {
-        val connection = getConnection()
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            if (transaction.invoke(connection)) {
-                println("Committing connection...")
-                connection.commit()
-            } else {
-                println("Rolling connection back...")
-                connection.rollback()
-            }
-        } finally {
-            connection.close()
-        }
+        connectionPoolWrapper.getConnectionAndCommit { schema.createIfNecessary(it); true }
     }
 
     override val supportsConcurrentTransactionsOnSameRoom = true
@@ -313,7 +262,7 @@ class JdbcRoomProvider private constructor(
         maxRoomSize: Int
     ): Room {
         var room: Room? = null
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             var roomIdAsString: String
             do {
                 var roomId = Random.nextInt()
@@ -348,7 +297,7 @@ class JdbcRoomProvider private constructor(
 
     override fun get(id: String): Room? {
         var room: Room? = null
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             room = getRoom(id, it)
             true
         }
@@ -356,7 +305,7 @@ class JdbcRoomProvider private constructor(
     }
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
-        val connection = getConnection()
+        val connection = connectionPoolWrapper.getConnection()
         val room = getRoom(id, connection)
         if (room == null) {
             connection.rollback()
@@ -500,12 +449,12 @@ class JdbcRoomProvider private constructor(
         return roomTransaction
     }
 
-    private fun getGameStateIdByRoomId(connection: Connection, roomId: String): Int? {
+    private fun getGameStateIdByRoomId(connection: Connection, roomId: String): Int {
         val roomsStatement = connection.prepareStatement("SELECT * FROM ${roomsTable.name} WHERE id = ?")
         roomsStatement.setString(1, roomId)
         val roomsResult = roomsStatement.executeQuery()
         if (!roomsResult.next())
-            return null
+            throw IllegalArgumentException("Room $roomId not found")
         return roomsResult.getInt(7)
     }
 
@@ -537,7 +486,7 @@ class JdbcRoomProvider private constructor(
 
     override fun deleteRoom(id: String): Room? {
         var room: Room? = null
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             val gameStateId = getGameStateIdByRoomId(it, id) ?: return@getConnectionAndCommit false
             room = getRoom(id, it)
             val deleteStatement = it.prepareStatement("DELETE FROM ${gameDataTable.name} WHERE id = ?")
@@ -549,7 +498,7 @@ class JdbcRoomProvider private constructor(
     }
 
     override fun clearRooms() {
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             it.createStatement().executeUpdate("DELETE FROM ${gameDataTable.name}")
             true
         }
@@ -557,7 +506,7 @@ class JdbcRoomProvider private constructor(
 
     override fun containsRoom(id: String): Boolean {
         var result = false
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             result = containsRoom(it, id)
             true
         }
@@ -568,7 +517,7 @@ class JdbcRoomProvider private constructor(
 
     override fun getAllRooms(): Collection<Room> {
         val rooms = mutableListOf<Room>()
-        getConnectionAndCommit {
+        connectionPoolWrapper.getConnectionAndCommit {
             val roomIdQueryResult = it.createStatement()
                 .executeQuery("SELECT * FROM ${roomsTable.name} ORDER BY ${roomsTable.columns[6].name}")
             while (roomIdQueryResult.next()) {

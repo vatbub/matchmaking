@@ -19,43 +19,37 @@
  */
 package com.github.vatbub.matchmaking.server.idprovider
 
+import com.github.vatbub.matchmaking.server.roomproviders.database.*
 import java.security.MessageDigest
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.Types
 import java.util.*
 import kotlin.random.Random
 
-class JdbcIdProvider private constructor(
-    connectionString: String,
-    dbUser: String?,
-    dbPassword: String?,
-    connectionProperties: Properties?
-) :
+class JdbcIdProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) :
     ConnectionIdProvider {
-    constructor(connectionString: String) : this(connectionString, null, null, null)
+    constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
     constructor(connectionString: String, dbUser: String, dbPassword: String) : this(
-        connectionString,
-        dbUser,
-        dbPassword,
-        null
+        ConnectionPoolWrapper(
+            connectionString,
+            dbUser,
+            dbPassword
+        )
     )
 
     constructor(connectionString: String, connectionProperties: Properties) : this(
-        connectionString,
-        null,
-        null,
-        connectionProperties
+        ConnectionPoolWrapper(
+            connectionString,
+            connectionProperties
+        )
     )
 
-    private val connection: Connection = if (connectionProperties != null)
-        DriverManager.getConnection(connectionString, connectionProperties)!!
-    else
-        DriverManager.getConnection(connectionString, dbUser, dbPassword)!!
+    private val idsTable = Table(
+        "connectionids", ColumnList(
+            Column("id", Type.CHAR, listOf(8), listOf(PrimaryKeyConstraint())),
+            Column("passwordhash", Type.VARCHAR, listOf(64))
+        )
+    )
 
-    private val tableName = "connectionids"
-    private val idColumnName = "id"
-    private val passwordHashColumnName = "passwordhash"
+    private val schema = Schema(listOf(idsTable))
 
     /*
     Schema:
@@ -63,42 +57,7 @@ class JdbcIdProvider private constructor(
      */
 
     init {
-        connection.autoCommit = false
-        if (!checkSchemaIntegrity())
-            initializeSchema()
-    }
-
-    private fun checkSchemaIntegrity(): Boolean {
-        val tables = connection.metaData.getTables(null, null, "%$tableName%", null)!!
-        if (!tables.next())
-            return false
-
-        val columns = connection.metaData.getColumns(null, null, tableName, "%")!!
-        var idColumnFound = false
-        var passwordHashColumnFound = false
-        var columnCount = 0
-        while (columns.next()) {
-            columnCount++
-            if (columns.getString("COLUMN_NAME") == idColumnName) {
-                idColumnFound = true
-                if (columns.getInt("DATA_TYPE") != Types.CHAR)
-                    return false
-            }
-            if (columns.getString("COLUMN_NAME") == passwordHashColumnName) {
-                passwordHashColumnFound = true
-                if (columns.getInt("DATA_TYPE") != Types.VARCHAR)
-                    return false
-            }
-        }
-
-        return idColumnFound && passwordHashColumnFound && columnCount == 2
-    }
-
-    private fun initializeSchema() {
-        connection.createStatement().executeUpdate("DROP TABLE IF EXISTS $tableName")
-        connection.createStatement()
-            .executeUpdate("CREATE TABLE $tableName ( $idColumnName CHAR(8) PRIMARY KEY, $passwordHashColumnName VARCHAR(64) )")
-        connection.commit()
+        connectionPoolWrapper.getConnectionAndCommit { schema.createIfNecessary(it);true }
     }
 
     override fun getNewId(): Id {
@@ -118,41 +77,60 @@ class JdbcIdProvider private constructor(
         val result = Id(connectionIdAsString, passwordAsInt.toString(16))
         val hashedPassword = generateSha251Hash(result.password!!)
 
-        val statement = connection.createStatement()
-        statement.executeUpdate("INSERT INTO $tableName ($idColumnName, $passwordHashColumnName) VALUES ('${result.connectionId}', '$hashedPassword')")
-        connection.commit()
-
+        connectionPoolWrapper.getConnectionAndCommit {
+            idsTable.insertInto(
+                it,
+                result.connectionId,
+                hashedPassword
+            );true
+        }
         return result
     }
 
     override fun deleteId(id: String): Id? {
         val result = get(id)
-        val statement = connection.prepareStatement("DELETE FROM $tableName WHERE id = ?")
-        statement.setString(1, id)
-        statement.executeUpdate()
-        connection.commit()
+        connectionPoolWrapper.getConnectionAndCommit {
+            val statement = it.prepareStatement("DELETE FROM ${idsTable.name} WHERE id = ?")
+            statement.setString(1, id)
+            statement.executeUpdate()
+            true
+        }
         return result
     }
 
     override fun get(id: String): Id? {
-        val statement = connection.prepareStatement("SELECT $passwordHashColumnName FROM $tableName WHERE id = ?")!!
-        statement.setString(1, id)
-        val resultSet = statement.executeQuery()!!
-        if (resultSet.next())
-            return Id(id, resultSet.getString("passwordHash"))
-        return null
+        var result: Id? = null
+
+        connectionPoolWrapper.getConnectionAndCommit {
+            val statement =
+                it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
+            statement.setString(1, id)
+            val resultSet = statement.executeQuery()!!
+            if (resultSet.next())
+                result = Id(id, resultSet.getString(2))
+            true
+        }
+
+        return result
     }
 
     override fun containsId(id: String?): Boolean {
-        val statement = connection.prepareStatement("SELECT * FROM $tableName WHERE id = ?")!!
-        statement.setString(1, id)
-        return statement.executeQuery().next()
+        var result = false
+        connectionPoolWrapper.getConnectionAndCommit {
+            val statement = it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
+            statement.setString(1, id)
+            result = statement.executeQuery().next()
+            true
+        }
+        return result
     }
 
     override fun reset() {
-        val statement = connection.createStatement()
-        statement.executeUpdate("DELETE FROM $tableName")
-        connection.commit()
+        connectionPoolWrapper.getConnectionAndCommit {
+            val statement = it.createStatement()
+            statement.executeUpdate("DELETE FROM ${idsTable.name}")
+            true
+        }
     }
 
     private fun generateSha251Hash(input: String): String {
@@ -171,11 +149,8 @@ class JdbcIdProvider private constructor(
         if (id.connectionId == null)
             return AuthorizationResult.NotAuthorized
         val lookUpResult = this[id.connectionId] ?: return AuthorizationResult.NotFound
-        if (lookUpResult.password == null && id.password == null)
-            return AuthorizationResult.Authorized
-        if (lookUpResult.password == null || id.password == null)
+        if (id.password == null)
             return AuthorizationResult.NotAuthorized
-
         if (lookUpResult.password != generateSha251Hash(id.password))
             return AuthorizationResult.NotAuthorized
         return AuthorizationResult.Authorized
