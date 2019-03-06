@@ -250,6 +250,27 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
     }
 
     @Test
+    fun deleteNonExistingRoomTest() {
+        val roomProvider = newInstance()
+        Assertions.assertNull(roomProvider.deleteRoom(TestUtils.getRandomHexString()))
+    }
+
+    @Test
+    fun deleteNonExistingRoomsTest() {
+        val roomProvider = newInstance()
+
+        val roomIds = mutableListOf<String>()
+
+        for (i in 0 until 5) {
+            roomIds.add(TestUtils.getRandomHexString(*roomIds.toTypedArray()))
+        }
+
+        val deletedRooms = roomProvider.deleteRooms(*roomIds.toTypedArray())
+
+        Assertions.assertEquals(0, deletedRooms.size)
+    }
+
+    @Test
     fun clearRoomsTest() {
         val roomProvider = newInstance()
         val hostConnectionIds = listOf(
