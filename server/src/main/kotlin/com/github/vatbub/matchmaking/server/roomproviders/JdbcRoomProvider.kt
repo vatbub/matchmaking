@@ -38,7 +38,7 @@ import kotlin.random.Random
 
 class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) : RoomProvider() {
     constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
-    constructor(connectionString: String, dbUser: String, dbPassword: String) : this(
+    constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
         ConnectionPoolWrapper(
             connectionString,
             dbUser,
@@ -449,12 +449,12 @@ class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: C
         return roomTransaction
     }
 
-    private fun getGameStateIdByRoomId(connection: Connection, roomId: String): Int {
+    private fun getGameStateIdByRoomId(connection: Connection, roomId: String): Int? {
         val roomsStatement = connection.prepareStatement("SELECT * FROM ${roomsTable.name} WHERE id = ?")
         roomsStatement.setString(1, roomId)
         val roomsResult = roomsStatement.executeQuery()
         if (!roomsResult.next())
-            throw IllegalArgumentException("Room $roomId not found")
+            return null
         return roomsResult.getInt(7)
     }
 

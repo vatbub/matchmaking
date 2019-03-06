@@ -23,6 +23,8 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
+import com.github.vatbub.matchmaking.server.configuration.Configuration
+import com.github.vatbub.matchmaking.server.configuration.ConfigurationManager
 import com.github.vatbub.matchmaking.server.handlers.*
 import com.google.gson.Gson
 import java.lang.Class.forName
@@ -33,11 +35,31 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class ServerServlet(private val serverContext: ServerContext = ServerContext()) : HttpServlet() {
+class ServerServlet(initialServerContext: ServerContext? = null) :
+    HttpServlet() {
+
     private val gson = Gson()
     private val encoding = "UTF-8"
+    private var serverContext: ServerContext
 
     init {
+        serverContext = if (initialServerContext != null)
+            initialServerContext
+        else {
+            ConfigurationManager.onChangeListeners.add(this::reloadConfiguration)
+            ConfigurationManager.currentConfiguration.getAsServerContext()
+        }
+        resetHandlers()
+    }
+
+    override fun destroy() {
+        super.destroy()
+        ConfigurationManager.onChangeListeners.remove(this::reloadConfiguration)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
+        serverContext = newConfiguration.getAsServerContext()
         resetHandlers()
     }
 

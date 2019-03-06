@@ -27,7 +27,7 @@ import kotlin.random.Random
 class JdbcIdProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) :
     ConnectionIdProvider {
     constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
-    constructor(connectionString: String, dbUser: String, dbPassword: String) : this(
+    constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
         ConnectionPoolWrapper(
             connectionString,
             dbUser,
