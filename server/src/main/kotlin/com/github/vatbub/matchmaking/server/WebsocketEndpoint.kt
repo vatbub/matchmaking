@@ -128,7 +128,7 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
     }
 
     @OnClose
-    fun onSessionClose(session:Session, closeReason: CloseReason){
+    fun onSessionClose(session: Session, closeReason: CloseReason) {
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session, closeReason)
     }
 }
