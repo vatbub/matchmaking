@@ -25,6 +25,8 @@ import com.github.vatbub.matchmaking.server.roomproviders.data.RoomTransaction
 abstract class RoomProvider {
     abstract val supportsConcurrentTransactionsOnSameRoom: Boolean
 
+    val onCommitRoomTransactionListeners = mutableListOf<OnCommitRoomTransactionListener>()
+
     /**
      * Creates a new room with the specified parameters, stores it and returns it.
      * @param hostUserConnectionId The connection id of the game host
@@ -87,7 +89,12 @@ abstract class RoomProvider {
     /**
      * Makes sure that changes to the supplied rooms are saved in the room provider
      */
-    internal abstract fun commitTransaction(roomTransaction: RoomTransaction)
+    internal fun commitTransaction(roomTransaction: RoomTransaction) {
+        onCommitRoomTransactionListeners.forEach { it.onCommit(roomTransaction.room.toRoom()) }
+        commitTransactionImpl(roomTransaction)
+    }
+
+    internal abstract fun commitTransactionImpl(roomTransaction: RoomTransaction)
 
     internal abstract fun abortTransaction(roomTransaction: RoomTransaction)
 
@@ -243,4 +250,8 @@ abstract class RoomProvider {
     abstract fun forEachTransaction(action: ((transaction: RoomTransaction) -> Unit))
 
     abstract fun filter(filter: ((room: Room) -> Boolean)): Collection<Room>
+}
+
+interface OnCommitRoomTransactionListener {
+    fun onCommit(room: Room)
 }

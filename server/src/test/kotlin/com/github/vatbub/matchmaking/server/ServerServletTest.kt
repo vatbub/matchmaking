@@ -57,7 +57,7 @@ class ServerServletTest : KotlinTestSuperclass() {
 
     @BeforeEach
     fun resetServer() {
-        api.resetHandlers()
+        api.serverContext.resetMessageHandlers()
     }
 
     @AfterAll

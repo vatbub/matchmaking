@@ -470,7 +470,7 @@ class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: C
         return newId
     }
 
-    override fun commitTransaction(roomTransaction: RoomTransaction) {
+    override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
         val connection = pendingTransactions[roomTransaction] ?: return
         connection.commit()
         connection.close()

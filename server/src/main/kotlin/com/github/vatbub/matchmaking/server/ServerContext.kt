@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server
 
+import com.github.vatbub.matchmaking.server.handlers.*
 import com.github.vatbub.matchmaking.server.idprovider.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
@@ -31,4 +32,21 @@ data class ServerContext(
     var connectionIdProvider: ConnectionIdProvider = MemoryIdProvider(),
     var messageDispatcher: MessageDispatcher = MessageDispatcher(connectionIdProvider),
     var roomProvider: RoomProvider = MemoryRoomProvider()
-)
+) {
+
+    /**
+     * Removes all handlers from the [messageDispatcher] and reinstantiates the default handlers
+     */
+    fun resetMessageHandlers() {
+        messageDispatcher.removeAllHandlers()
+        messageDispatcher.registerHandler(GetConnectionIdHandler(connectionIdProvider))
+        messageDispatcher.registerHandler(JoinOrCreateRoomRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(DestroyRoomRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(DisconnectRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(GetRoomDataRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(SendDataToHostRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(StartGameRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(SubscribeToRoomRequestHandler(roomProvider))
+        messageDispatcher.registerHandler(UpdateGameStateRequestHandler(roomProvider))
+    }
+}

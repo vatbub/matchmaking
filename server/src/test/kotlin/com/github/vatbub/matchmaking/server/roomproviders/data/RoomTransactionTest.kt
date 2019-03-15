@@ -145,8 +145,8 @@ class DummyRoomProvider : MemoryRoomProvider() {
     var abortTransactionCallCount = 0
         private set
 
-    override fun commitTransaction(roomTransaction: RoomTransaction) {
-        super.commitTransaction(roomTransaction)
+    override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
+        super.commitTransactionImpl(roomTransaction)
         commitTransactionCallCount++
     }
 

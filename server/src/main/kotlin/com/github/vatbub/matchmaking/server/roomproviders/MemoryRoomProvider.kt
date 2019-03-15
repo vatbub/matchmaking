@@ -50,7 +50,7 @@ open class MemoryRoomProvider : RoomProvider() {
         }
     }
 
-    override fun commitTransaction(roomTransaction: RoomTransaction) {
+    override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
         if (!pendingTransactions.containsValue(roomTransaction)) return
         rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
         pendingTransactions.remove(roomTransaction.room.id)
