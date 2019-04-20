@@ -21,7 +21,7 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.responses.AuthorizationException
 import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
-import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.dummies.DummyRequestHandler
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
@@ -75,7 +75,10 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val handler = DummyRequestHandler()
         messageDispatcher.registerHandler(handler)
 
-        val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
+        val request = DummyRequest(
+            TestUtils.defaultConnectionId,
+            TestUtils.defaultPassword
+        )
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assertions.assertNotNull(response)
@@ -88,7 +91,10 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         val messageDispatcher = MessageDispatcher(MemoryIdProvider())
         val handler = DummyRequestHandler()
 
-        val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
+        val request = DummyRequest(
+            TestUtils.defaultConnectionId,
+            TestUtils.defaultPassword
+        )
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assertions.assertNull(response)
@@ -104,7 +110,10 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
 
         val id = idProvider.getNewId()
         val request =
-            DummyRequest(TestUtils.getRandomHexString(id.connectionId), TestUtils.getRandomHexString(id.password))
+            DummyRequest(
+                TestUtils.getRandomHexString(id.connectionId),
+                TestUtils.getRandomHexString(id.password)
+            )
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assertions.assertNotNull(response)
@@ -122,7 +131,10 @@ class MessageDispatcherTest : KotlinTestSuperclass() {
         messageDispatcher.registerHandler(handler)
 
         val id = idProvider.getNewId()
-        val request = DummyRequest(id.connectionId, TestUtils.getRandomHexString(id.password))
+        val request = DummyRequest(
+            id.connectionId,
+            TestUtils.getRandomHexString(id.password)
+        )
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assertions.assertNotNull(response)

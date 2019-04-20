@@ -23,7 +23,7 @@ import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
-import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions

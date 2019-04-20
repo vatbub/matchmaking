@@ -19,7 +19,9 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests
 
+import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.ServerInteraction
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -39,5 +41,13 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
         val json = gson.toJson(originalObject)
         println(json)
         Assertions.assertTrue(json.contains("\"protocolVersion\": \"${originalObject.protocolVersion}\""))
+    }
+
+    @Test
+    fun interactionConverterSerializationTest() {
+        val originalObject = newObjectUnderTest()
+        val json = Gson().toJson(originalObject)
+        val serializationResult = InteractionConverter.serialize(originalObject)
+        Assertions.assertEquals(json, serializationResult)
     }
 }

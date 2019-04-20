@@ -22,7 +22,7 @@ package com.github.vatbub.matchmaking.server.handlers
 import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
-import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert

@@ -17,8 +17,11 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.dummies
+package com.github.vatbub.matchmaking.common.testing.dummies
 
-import com.github.vatbub.matchmaking.common.ResponseImpl
+import com.github.vatbub.matchmaking.common.Request
 
-class DummyResponse(connectionId: String?) : ResponseImpl(connectionId, DummyResponse::class.qualifiedName!!)
+class DummyRequest(connectionId: String?, password: String?) :
+    Request(connectionId, password, DummyRequest::class.qualifiedName!!) {
+    constructor() : this(null, null)
+}

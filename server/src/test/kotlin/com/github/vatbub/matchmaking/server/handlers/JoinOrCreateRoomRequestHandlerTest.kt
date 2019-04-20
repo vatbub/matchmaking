@@ -23,7 +23,7 @@ import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
-import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils

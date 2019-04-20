@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.server.handlers.RequestHandler
 import java.net.Inet4Address
 import java.net.Inet6Address

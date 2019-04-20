@@ -21,7 +21,7 @@ package com.github.vatbub.matchmaking.server.handlers
 
 import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
-import com.github.vatbub.matchmaking.server.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.idprovider.Id
 import com.github.vatbub.matchmaking.server.idprovider.MemoryIdProvider
 import org.junit.jupiter.api.Assertions
