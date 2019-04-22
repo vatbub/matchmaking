@@ -35,18 +35,15 @@ const val httpHeadersKey = "httpHeaders"
 
 @ServerEndpoint("/websocket", configurator = WebSocketSessionConfigurator::class)
 class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
-    private var _session: Session? = null
-
-    val session: Session
-        get() = _session ?: throw IllegalStateException("Session not connected")
-
-    private var _endpointConfig: EndpointConfig? = null
-    val endpointConfig: EndpointConfig
-        get() = _endpointConfig ?: throw IllegalStateException("Session not connected")
+    private var session: Session? = null
+    private var endpointConfig: EndpointConfig? = null
 
     @Suppress("UNCHECKED_CAST")
-    val httpHeaders: Map<String, List<String>>
-        get() = endpointConfig.userProperties[HttpSession::class.java.name] as Map<String, List<String>>
+    val httpHeaders: Map<String, List<String>>?
+        get() {
+            val endpointConfigCopy = endpointConfig ?: return null
+            return endpointConfigCopy.userProperties[HttpSession::class.java.name] as Map<String, List<String>>
+        }
 
     private val remoteIpString: String?
         get() {
@@ -66,27 +63,26 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
             if (originHeaderLowercase != null)
                 return originHeaderLowercase
 
-
             return null
         }
 
-    val remoteInet4Address: Inet4Address?
+    private val remoteInet4Address: Inet4Address?
         get() = IpAddressHelper.convertToIpv4(remoteIpString)
 
-    val remoteInet6Address: Inet6Address?
+    private val remoteInet6Address: Inet6Address?
         get() = IpAddressHelper.convertToIpv6(remoteIpString)
 
     private fun getHeaderIfExists(headerName: String): String? {
-        if (!httpHeaders.containsKey(headerName))
+        val httpHeadersCopy = httpHeaders ?: return null
+        if (!httpHeadersCopy.containsKey(headerName))
             return null
-        val result = httpHeaders[headerName] ?: return null
+        val result = httpHeadersCopy[headerName] ?: return null
         if (result.isEmpty())
             return null
         return result[0]
     }
 
-    var serverContext: ServerContext
-        private set
+    private var serverContext: ServerContext
 
     init {
         serverContext = if (initialServerContext != null)
@@ -106,12 +102,16 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @OnOpen
     fun open(session: Session, endpointConfig: EndpointConfig) {
-        _session = session
-        _endpointConfig = endpointConfig
+        println("Session opened")
+        this.session = session
+        this.endpointConfig = endpointConfig
     }
 
     @OnMessage
     fun onTextMessage(session: Session, message: String) {
+        println("Received message:")
+        println(message)
+        session.asyncRemote.sendText(message)
         val request = InteractionConverter.deserializeRequest<Request>(message)
         val responseInteraction =
             serverContext.messageDispatcher.dispatchOrCreateException(
@@ -126,6 +126,7 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
+        println("Session closed")
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session, closeReason)
     }
 }

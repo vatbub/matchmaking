@@ -61,5 +61,69 @@
 <p>Read more on <a href="https://github.com/vatbub/tictactoe">GitHub</a>.</p>
 <p><a href='https://www.freepik.com/free-vector/smiley-salesman-with-flat-design_2672650.htm'>Designed by Freepik</a>
 </p>
+<div class="container">
+    <div id="messages" class="messages"></div>
+    <div class="input-fields">
+        <p>Type a message and hit send:</p>
+        <input id="message"/>
+        <button id="send">Send</button>
+
+        <p>Select an image and hit send:</p>
+        <input type="file" id="file" accept="image/*"/>
+
+        <button id="sendImage">Send Image</button>
+    </div>
+</div>
 </body>
+<script>
+    const messageWindow = document.getElementById("messages");
+
+    const sendButton = document.getElementById("send");
+    const messageInput = document.getElementById("message");
+
+    const fileInput = document.getElementById("file");
+    const sendImageButton = document.getElementById("sendImage");
+
+    const socket = new WebSocket("ws://localhost:8080/websocket");
+    socket.binaryType = "arraybuffer";
+
+    socket.onopen = function (event) {
+        addMessageToWindow("Connected");
+    };
+
+    socket.onmessage = function (event) {
+        if (event.data instanceof ArrayBuffer) {
+            addMessageToWindow('Got Image:');
+            addImageToWindow(event.data);
+        } else {
+            addMessageToWindow(`Got Message: ${event.data}`);
+        }
+    };
+
+    sendButton.onclick = function (event) {
+        sendMessage(messageInput.value);
+        messageInput.value = "";
+    };
+
+    sendImageButton.onclick = function (event) {
+        let file = fileInput.files[0];
+        sendMessage(file);
+        fileInput.value = null;
+    };
+
+    function sendMessage(message) {
+        socket.send(message);
+        addMessageToWindow("Sent Message: " + message);
+    }
+
+    function addMessageToWindow(message) {
+        messageWindow.innerHTML += `<div>${message}</div>`
+    }
+
+    function addImageToWindow(image) {
+        let url = URL.createObjectURL(new Blob([image]));
+        messageWindow.innerHTML += `<img src="${url}"/>`
+    }
+</script>
+<!-- </body> -->
 </html>
