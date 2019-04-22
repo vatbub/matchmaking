@@ -55,7 +55,16 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-websocket</artifactId>
             <version>${tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -63,12 +72,10 @@
             <version>2.6</version>
         </dependency>
         <dependency>
-            <!-- for the reactor build order -->
             <groupId>com.github.vatbub</groupId>
             <artifactId>matchmaking.server</artifactId>
-            <type>war</type>
+            <classifier>classes</classifier>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

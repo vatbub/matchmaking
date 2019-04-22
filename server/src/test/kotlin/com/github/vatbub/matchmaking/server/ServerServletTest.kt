@@ -44,11 +44,7 @@ class ServerServletTest : KotlinTestSuperclass() {
     private val apiSuffix: String = "matchmaking"
     private val serverContext = ServerContext()
     private val api: ServerServlet = ServerServlet(serverContext)
-    private val tomcatTestUtils: TomcatTestUtils
-
-    init {
-        tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$apiSuffix")
-    }
+    private val tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$apiSuffix")
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val connectionId = (4567876543).toString(16)

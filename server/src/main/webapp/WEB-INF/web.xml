@@ -58,6 +58,6 @@
         <env-entry-name>configFile</env-entry-name>
         <description>The location of the configuration file to load.</description>
         <env-entry-type>java.io.File</env-entry-type>
-        <env-entry-value>matchmakingConfig.properties</env-entry-value>
+        <env-entry-value>matchmakingConfig.json</env-entry-value>
     </env-entry>
 </web-app>

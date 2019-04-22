@@ -24,6 +24,7 @@ import org.apache.catalina.Context
 import org.apache.catalina.LifecycleException
 import org.apache.catalina.LifecycleState
 import org.apache.catalina.connector.Connector
+import org.apache.catalina.core.ApplicationContext
 import org.apache.catalina.core.StandardContext
 import org.apache.catalina.core.StandardServer
 import org.apache.catalina.startup.Tomcat
@@ -173,7 +174,9 @@ class Main {
             println("Adding Context " + contextPath + " for " + war.path)
             context = tomcat.addWebapp(contextPath, war.absolutePath)
 
-            (context as StandardContext).unpackWAR = false
+            context as StandardContext
+            context.unpackWAR = false
+            val applicationContext = ApplicationContext(context)
 
             if (!commandLineParams.shutdownOverride) {
                 // allow Tomcat to shutdown if a context failure is detected
@@ -226,6 +229,10 @@ class Main {
             }
 
             tomcat.start()
+
+            /*val serverContainer =
+                applicationContext.getAttribute("javax.websocket.server.ServerContainer") as javax.websocket.server.ServerContainer
+            serverContainer.addEndpoint(WebsocketEndpoint::class.java)*/
 
             /*
              * NamingContextListener.lifecycleEvent(LifecycleEvent event)
