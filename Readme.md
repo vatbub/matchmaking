@@ -121,7 +121,7 @@ The `className` of a request always starts with `com.github.vatbub.matchmaking.c
 
 #### Server responses
 The responses given by the server follow the same pattern as requests, except that the `className` starts with `com.github.vatbub.matchmaking.common.responses`.
-In addition, the server uses HTTP status codes to inicate the nature of the response.
+In addition, the server uses HTTP status codes to indicate the nature of the response.
 
 ### Initializing a connection
 During the communication, the client will have to send multiple requests to the server. Unfortunately, HTTP does not provide a reliable way for the server to recognize clients. 

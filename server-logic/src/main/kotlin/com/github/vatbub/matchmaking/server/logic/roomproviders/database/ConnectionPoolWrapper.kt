@@ -45,7 +45,7 @@ class ConnectionPoolWrapper private constructor(
         connectionProperties
     )
 
-    val connectionPoolDataSource = ComboPooledDataSource()
+    private val connectionPoolDataSource = ComboPooledDataSource()
     var connectionCount = 0
         private set
 

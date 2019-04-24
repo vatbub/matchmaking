@@ -54,7 +54,7 @@ open class MemoryIdProvider : ConnectionIdProvider {
             passwordAsInt = -passwordAsInt
 
         val result = Id(connectionIdAsString, passwordAsInt.toString(16))
-        _connectionIdsInUse.put(connectionIdAsString, result)
+        _connectionIdsInUse[connectionIdAsString] = result
         return result
     }
 

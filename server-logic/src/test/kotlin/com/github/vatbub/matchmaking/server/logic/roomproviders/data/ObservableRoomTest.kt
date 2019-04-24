@@ -22,8 +22,6 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.server.logic.roomproviders.data.ObservableGameData
-import com.github.vatbub.matchmaking.server.logic.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions

@@ -30,8 +30,8 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param operation The [Operation] to perform
  * @param userName The user name that was chosen by the player who submitted this request
- * @param userList The list of user names that was specified when the room was created. Either a black- or a whitelist (if not ignored)
- * @param userListMode The mode of [userList]
+ * @param whitelist If null ignored, otherwise only the users mentioned in this list will be allowed to join this room
+ * @param blacklist If null ignored, otherwise the users mentioned in this list will not be allowed to join this room
  * @param minRoomSize The minimum amount of players required for a game. Important: It is up to the game host to verify whether the current amount of connected users lies within the boundaries. If so, the host must start the game by sending a [StartGameRequest]
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
  * @see JoinOrCreateRoomResponse

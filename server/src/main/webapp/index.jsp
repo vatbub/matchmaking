@@ -1,3 +1,4 @@
+<%--suppress JSUnusedLocalSymbols --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="org.apache.taglibs.standard.functions.Functions" %><%--
   #%L
@@ -42,9 +43,10 @@
             margin-right: auto;
         }
     </style>
+    <title>Matchmaking Server</title>
 </head>
 <body>
-<img src="<c:url value="/resources/thumbsUpMan.svg"/>" width="auto" height="50%"/>
+<img src="<c:url value="/resources/thumbsUpMan.svg"/>" width="auto" height="50%" alt="Thumbs up man"/>
 <h1>Tic Tac Toe - It works!</h1><br>
 
 <p>Good news! Your server is working and you can reach it through the following ip:</p>
@@ -54,7 +56,7 @@
         if (!url.toString().endsWith("/"))
             url.append("/");
 
-        url.append("tictactoe");
+        url.append("matchmaking");
         out.println(Functions.escapeXml(url.toString()));
     %></p>
 
@@ -65,6 +67,7 @@
     <div id="messages" class="messages"></div>
     <div class="input-fields">
         <p>Type a message and hit send:</p>
+        <label for="message">Message: </label>
         <input id="message"/>
         <button id="send">Send</button>
 
@@ -96,7 +99,7 @@
             addMessageToWindow('Got Image:');
             addImageToWindow(event.data);
         } else {
-            addMessageToWindow(`Got Message: ${event.data}`);
+            addMessageToWindow('Got Message: ' + event.data);
         }
     };
 
@@ -117,12 +120,12 @@
     }
 
     function addMessageToWindow(message) {
-        messageWindow.innerHTML += `<div>${message}</div>`
+        messageWindow.innerHTML += '<div>' + message + '</div>'
     }
 
     function addImageToWindow(image) {
         let url = URL.createObjectURL(new Blob([image]));
-        messageWindow.innerHTML += `<img src="${url}"/>`
+        messageWindow.innerHTML += '<img src="' + url + '" alt="Returned image"/>'
     }
 </script>
 <!-- </body> -->

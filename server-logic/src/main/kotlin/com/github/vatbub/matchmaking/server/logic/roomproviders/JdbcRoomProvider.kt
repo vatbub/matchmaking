@@ -25,7 +25,6 @@ import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.*
-import com.github.vatbub.matchmaking.server.logic.roomproviders.database.*
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.OnModificationAction.CASCADE
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.Type.*
 import com.google.gson.Gson
@@ -500,6 +499,7 @@ class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: C
 
     override fun clearRooms() {
         connectionPoolWrapper.getConnectionAndCommit {
+            @Suppress("SqlWithoutWhere")
             it.createStatement().executeUpdate("DELETE FROM ${gameDataTable.name}")
             true
         }

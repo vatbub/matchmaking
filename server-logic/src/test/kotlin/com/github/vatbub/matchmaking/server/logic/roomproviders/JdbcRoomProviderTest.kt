@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
-import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProvider
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 

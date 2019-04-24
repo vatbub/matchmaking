@@ -118,7 +118,7 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
     fun copy(): GameData {
         val result = GameData(createdByConnectionId, HashMap(contents))
         result.createdAtUtc = createdAtUtc
-        return result;
+        return result
     }
 
     override fun equals(other: Any?): Boolean {

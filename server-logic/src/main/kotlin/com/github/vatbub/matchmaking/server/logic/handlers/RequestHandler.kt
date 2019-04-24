@@ -23,6 +23,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.AuthorizationException
 import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
+import com.github.vatbub.matchmaking.server.logic.MessageDispatcher
 import java.net.Inet4Address
 import java.net.Inet6Address
 

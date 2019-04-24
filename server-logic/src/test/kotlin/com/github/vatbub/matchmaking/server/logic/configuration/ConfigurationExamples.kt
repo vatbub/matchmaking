@@ -24,7 +24,7 @@ import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Test
 
 class ConfigurationExamples : KotlinTestSuperclass() {
-    val gson = GsonBuilder().setPrettyPrinting().create()!!
+    private val gson = GsonBuilder().setPrettyPrinting().create()!!
 
     @Test
     fun elephantPostgresExample() {
