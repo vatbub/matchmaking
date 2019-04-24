@@ -26,7 +26,8 @@ import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
-import com.github.vatbub.matchmaking.server.dummies.DynamicRequestHandler
+import com.github.vatbub.matchmaking.server.logic.ServerContext
+import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

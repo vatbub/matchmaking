@@ -21,9 +21,10 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.Request
-import com.github.vatbub.matchmaking.server.configuration.Configuration
-import com.github.vatbub.matchmaking.server.configuration.ConfigurationManager
-import com.google.gson.Gson
+import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
+import com.github.vatbub.matchmaking.server.logic.ServerContext
+import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
+import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -31,7 +32,6 @@ import javax.servlet.http.HttpServletResponse
 class ServerServlet(initialServerContext: ServerContext? = null) :
     HttpServlet() {
 
-    private val gson = Gson()
     private val encoding = "UTF-8"
     var serverContext: ServerContext
         private set

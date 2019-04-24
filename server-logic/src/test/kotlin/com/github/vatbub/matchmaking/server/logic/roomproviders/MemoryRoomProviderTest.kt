@@ -17,18 +17,8 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server
+package com.github.vatbub.matchmaking.server.logic.roomproviders
 
-import com.github.vatbub.matchmaking.server.logic.ServerContext
-import javax.websocket.ContainerProvider
-
-class WebsocketEndpointTest {
-    private val tomcatPort: Int = 9999
-    private val websocketEndpoint: String = "websocket"
-    private val serverContext = ServerContext()
-    // private val tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$websocketEndpoint")
-
-
-    private val container = ContainerProvider.getWebSocketContainer()
-    private val clientEndpoint = container.connectToServer(WebsocketEndpoint::class.java, null)
+class MemoryRoomProviderTest : RoomProviderTest() {
+    override fun newInstance(): RoomProvider = MemoryRoomProvider()
 }

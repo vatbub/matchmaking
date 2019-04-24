@@ -17,18 +17,19 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server
+package com.github.vatbub.matchmaking.server.logic.configuration
 
-import com.github.vatbub.matchmaking.server.logic.ServerContext
-import javax.websocket.ContainerProvider
+import javax.naming.InitialContext
 
-class WebsocketEndpointTest {
-    private val tomcatPort: Int = 9999
-    private val websocketEndpoint: String = "websocket"
-    private val serverContext = ServerContext()
-    // private val tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$websocketEndpoint")
-
-
-    private val container = ContainerProvider.getWebSocketContainer()
-    private val clientEndpoint = container.connectToServer(WebsocketEndpoint::class.java, null)
+object JndiHelper {
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> readJndi(paramName: String): T? {
+        return try {
+            val initialContext = InitialContext()
+            initialContext.lookup("java:comp/env/$paramName") as T?
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }

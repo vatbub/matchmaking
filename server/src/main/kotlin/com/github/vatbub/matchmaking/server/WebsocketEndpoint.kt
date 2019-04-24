@@ -21,8 +21,10 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.Request
-import com.github.vatbub.matchmaking.server.configuration.Configuration
-import com.github.vatbub.matchmaking.server.configuration.ConfigurationManager
+import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
+import com.github.vatbub.matchmaking.server.logic.ServerContext
+import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
+import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import java.net.Inet4Address
 import java.net.Inet6Address
 import javax.servlet.http.HttpSession
