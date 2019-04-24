@@ -21,20 +21,18 @@ package com.github.vatbub.matchmaking.server.logic.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
-import javax.websocket.CloseReason
-import javax.websocket.Session
 
 abstract class RequestHandlerWithWebsocketSupport : RequestHandler {
-    abstract val requiresWebsocket: Boolean
-    // TODO: Replace websocket classes with wrappers
+    abstract val requiresSocket: Boolean
     abstract fun handle(
-        websocketSession: Session,
-        request: Request,
-        sourceIp: Inet4Address?,
-        sourceIpv6: Inet6Address?
+            session: Session,
+            request: Request,
+            sourceIp: Inet4Address?,
+            sourceIpv6: Inet6Address?
     ): Response
 
-    abstract fun onSessionClosed(websocketSession: Session, closeReason:CloseReason)
+    abstract fun onSessionClosed(session: Session)
 }

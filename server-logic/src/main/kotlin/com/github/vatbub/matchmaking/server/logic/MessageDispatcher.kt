@@ -30,10 +30,9 @@ import com.github.vatbub.matchmaking.server.logic.handlers.RequestHandlerWithWeb
 import com.github.vatbub.matchmaking.server.logic.idprovider.AuthorizationResult.*
 import com.github.vatbub.matchmaking.server.logic.idprovider.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.Id
+import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
-import javax.websocket.CloseReason
-import javax.websocket.Session
 
 /**
  * Dispatches received requests among the registered [RequestHandler]s.
@@ -104,10 +103,10 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
         return responseInteraction
     }
 
-    fun dispatchWebsocketSessionClosed(websocketSession: Session, closeReason: CloseReason) {
+    fun dispatchWebsocketSessionClosed(session: Session) {
         handlers.forEach {
             if (it is RequestHandlerWithWebsocketSupport)
-                it.onSessionClosed(websocketSession, closeReason)
+                it.onSessionClosed(session)
         }
     }
 

@@ -38,6 +38,7 @@ const val httpHeadersKey = "httpHeaders"
 @ServerEndpoint("/websocket", configurator = WebSocketSessionConfigurator::class)
 class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
     private var session: Session? = null
+    private var sessionWrapper: WebsocketSessionWrapper? = null
     private var endpointConfig: EndpointConfig? = null
 
     @Suppress("UNCHECKED_CAST")
@@ -106,6 +107,7 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
     fun open(session: Session, endpointConfig: EndpointConfig) {
         println("Session opened")
         this.session = session
+        this.sessionWrapper = WebsocketSessionWrapper(session)
         this.endpointConfig = endpointConfig
     }
 
@@ -116,12 +118,12 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
         session.asyncRemote.sendText(message)
         val request = InteractionConverter.deserializeRequest<Request>(message)
         val responseInteraction =
-            serverContext.messageDispatcher.dispatchOrCreateException(
-                request,
-                remoteInet4Address,
-                remoteInet6Address,
-                session
-            )
+                serverContext.messageDispatcher.dispatchOrCreateException(
+                        request,
+                        remoteInet4Address,
+                        remoteInet6Address,
+                        sessionWrapper!!
+                )
         val responseJson = InteractionConverter.serialize(responseInteraction)
         session.asyncRemote.sendText(responseJson)
     }
@@ -129,15 +131,16 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
         println("Session closed")
-        serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session, closeReason)
+        val sessionWrapperCopy = sessionWrapper ?: return
+        serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }
 }
 
 class WebSocketSessionConfigurator : ServerEndpointConfig.Configurator() {
     override fun modifyHandshake(
-        serverEndpointConfig: ServerEndpointConfig?,
-        request: HandshakeRequest?,
-        response: HandshakeResponse?
+            serverEndpointConfig: ServerEndpointConfig?,
+            request: HandshakeRequest?,
+            response: HandshakeResponse?
     ) {
         if (request == null) return
         if (serverEndpointConfig == null) return

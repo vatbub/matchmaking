@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.logic.handlers
 
-import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.data.Room
@@ -28,15 +27,14 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.SubscribeToRoomResponse
 import com.github.vatbub.matchmaking.server.logic.roomproviders.OnCommitRoomTransactionListener
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
+import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
-import javax.websocket.CloseReason
-import javax.websocket.Session
 
 class SubscribeToRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandlerWithWebsocketSupport() {
     private val roomListeners = mutableMapOf<Session, RoomListener>()
 
-    override val requiresWebsocket = true
+    override val requiresSocket = true
 
     override fun canHandle(request: Request): Boolean {
         return request is SubscribeToRoomRequest
@@ -51,31 +49,31 @@ class SubscribeToRoomRequestHandler(private val roomProvider: RoomProvider) : Re
     }
 
     override fun handle(
-        websocketSession: Session,
-        request: Request,
-        sourceIp: Inet4Address?,
-        sourceIpv6: Inet6Address?
+            session: Session,
+            request: Request,
+            sourceIp: Inet4Address?,
+            sourceIpv6: Inet6Address?
     ): Response {
         request as SubscribeToRoomRequest
-        val roomListener = RoomListener(request.connectionId, request.roomId, websocketSession)
-        roomListeners[websocketSession] = roomListener
+        val roomListener = RoomListener(request.connectionId, request.roomId, session)
+        roomListeners[session] = roomListener
         roomProvider.onCommitRoomTransactionListeners.add(roomListener)
         return SubscribeToRoomResponse(request.connectionId)
     }
 
-    override fun onSessionClosed(websocketSession: Session, closeReason: CloseReason) {
-        val listener = roomListeners[websocketSession] ?: return
+    override fun onSessionClosed(session: Session) {
+        val listener = roomListeners[session] ?: return
         roomProvider.onCommitRoomTransactionListeners.remove(listener)
     }
 
-    private class RoomListener(val connectionId: String?, val roomId: String, val websocketSession: Session) :
-        OnCommitRoomTransactionListener {
+    private class RoomListener(val connectionId: String?, val roomId: String, val session: Session) :
+            OnCommitRoomTransactionListener {
         override fun onCommit(room: Room) {
             if (room.id != roomId)
                 return
 
             val roomResponse = GetRoomDataResponse(connectionId, room)
-            websocketSession.asyncRemote.sendText(InteractionConverter.serialize(roomResponse))
+            session.sendObjectAsync(roomResponse)
         }
     }
 }

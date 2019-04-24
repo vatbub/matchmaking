@@ -19,13 +19,15 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests
 
+import com.esotericsoftware.kryo.Kryo
+import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
-    KotlinTestSuperclass() {
+        KotlinTestSuperclass() {
     abstract fun newObjectUnderTest(): T
 
     @Test
@@ -36,5 +38,13 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         val deserializedObject: T = gson.fromJson<T>(json, clazz)
         Assertions.assertEquals(originalObject, deserializedObject)
         Assertions.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
+    }
+
+    @Test
+    fun isClassRegisteredInKryo() {
+        val kryo = Kryo()
+        KryoCommon.registerClasses(kryo)
+        kryo.isRegistrationRequired = true
+        Assertions.assertDoesNotThrow { kryo.getRegistration(clazz) }
     }
 }
