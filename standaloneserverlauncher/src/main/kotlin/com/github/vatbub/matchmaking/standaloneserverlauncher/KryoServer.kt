@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.standaloneserverlauncher
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
+import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
@@ -50,6 +51,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         else
             server.bind(tcpPort, udpPort)
 
+        KryoCommon.registerClasses(server.kryo)
         server.addListener(KryoListener())
         server.start()
     }
