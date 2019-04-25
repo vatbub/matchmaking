@@ -31,30 +31,25 @@ import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class SubscribeToRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandlerWithWebsocketSupport() {
+class SubscribeToRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandlerWithWebsocketSupport<SubscribeToRoomRequest>() {
     private val roomListeners = mutableMapOf<Session, RoomListener>()
 
     override val requiresSocket = true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is SubscribeToRoomRequest
-    }
+    override fun canHandle(request: Request) = request is SubscribeToRoomRequest
 
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+    override fun needsAuthentication(request: SubscribeToRoomRequest) = true
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+    override fun handle(request: SubscribeToRoomRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         throw IllegalStateException("Cannot handle non-websocket requests")
     }
 
     override fun handle(
             session: Session,
-            request: Request,
+            request: SubscribeToRoomRequest,
             sourceIp: Inet4Address?,
             sourceIpv6: Inet6Address?
     ): Response {
-        request as SubscribeToRoomRequest
         val roomListener = RoomListener(request.connectionId, request.roomId, session)
         roomListeners[session] = roomListener
         roomProvider.onCommitRoomTransactionListeners.add(roomListener)

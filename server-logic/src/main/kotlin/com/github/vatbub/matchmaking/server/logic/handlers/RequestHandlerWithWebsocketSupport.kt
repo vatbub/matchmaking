@@ -25,11 +25,11 @@ import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-abstract class RequestHandlerWithWebsocketSupport : RequestHandler {
+abstract class RequestHandlerWithWebsocketSupport<T : Request> : RequestHandler<T> {
     abstract val requiresSocket: Boolean
     abstract fun handle(
             session: Session,
-            request: Request,
+            request: T,
             sourceIp: Inet4Address?,
             sourceIpv6: Inet6Address?
     ): Response

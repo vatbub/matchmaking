@@ -28,28 +28,22 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<UpdateGameStateRequest> {
+    override fun needsAuthentication(request: UpdateGameStateRequest) = true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is UpdateGameStateRequest
-    }
+    override fun canHandle(request: Request) = request is UpdateGameStateRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as UpdateGameStateRequest
-
+    override fun handle(request: UpdateGameStateRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val roomTransaction = roomProvider.beginTransactionWithRoom(request.roomId) ?: return GetRoomDataResponse(
-            request.connectionId,
-            null
+                request.connectionId,
+                null
         )
 
         if (roomTransaction.room.hostUserConnectionId != request.connectionId) {
             roomTransaction.abort()
             return NotAllowedException(
-                "Unable to set the game state: The sending client is not the host, only a game host can start the game",
-                request.connectionId
+                    "Unable to set the game state: The sending client is not the host, only a game host can start the game",
+                    request.connectionId
             )
         }
 

@@ -27,20 +27,15 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class SendDataToHostRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+class SendDataToHostRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<SendDataToHostRequest> {
+    override fun needsAuthentication(request: SendDataToHostRequest) = true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is SendDataToHostRequest
-    }
+    override fun canHandle(request: Request) = request is SendDataToHostRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as SendDataToHostRequest
+    override fun handle(request: SendDataToHostRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val roomTransaction = roomProvider.beginTransactionWithRoom(request.roomId) ?: return GetRoomDataResponse(
-            request.connectionId,
-            null
+                request.connectionId,
+                null
         )
         roomTransaction.room.dataToBeSentToTheHost.addAll(request.dataToHost)
         roomTransaction.commit()

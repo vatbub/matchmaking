@@ -28,17 +28,12 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class DisconnectRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+class DisconnectRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<DisconnectRequest> {
+    override fun needsAuthentication(request: DisconnectRequest) =  true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is DisconnectRequest
-    }
+    override fun canHandle(request: Request) = request is DisconnectRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as DisconnectRequest
+    override fun handle(request: DisconnectRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val roomIdsToDelete = mutableListOf<String>()
         val disconnectedRoomIds = mutableListOf<String>()
         roomProvider.beginTransactionForAllRooms { roomTransaction ->

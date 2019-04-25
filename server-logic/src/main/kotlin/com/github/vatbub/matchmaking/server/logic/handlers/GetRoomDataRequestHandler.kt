@@ -20,15 +20,14 @@
 package com.github.vatbub.matchmaking.server.logic.handlers
 
 import com.github.vatbub.matchmaking.common.Request
-import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class GetRoomDataRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
+class GetRoomDataRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<GetRoomDataRequest> {
+    override fun needsAuthentication(request: GetRoomDataRequest): Boolean {
         return true
     }
 
@@ -36,8 +35,6 @@ class GetRoomDataRequestHandler(private val roomProvider: RoomProvider) : Reques
         return request is GetRoomDataRequest
     }
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as GetRoomDataRequest
-        return GetRoomDataResponse(request.connectionId, roomProvider[request.roomId])
-    }
+    override fun handle(request: GetRoomDataRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) =
+            GetRoomDataResponse(request.connectionId, roomProvider[request.roomId])
 }

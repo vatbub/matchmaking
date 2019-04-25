@@ -21,24 +21,21 @@ package com.github.vatbub.matchmaking.server.logic.testing.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.server.logic.handlers.RequestHandler
 import java.net.Inet4Address
 import java.net.Inet6Address
 
 
-class DummyRequestHandler(private val needsAuthentication: Boolean = false) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return needsAuthentication
-    }
+class DummyRequestHandler(private val needsAuthentication: Boolean = false) : RequestHandler<DummyRequest> {
+    override fun needsAuthentication(request: DummyRequest) = needsAuthentication
 
-    override fun canHandle(request: Request): Boolean {
-        return true
-    }
+    override fun canHandle(request: Request) = true
 
     val handledRequests = mutableMapOf<Request, DummyResponse>()
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+    override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val response = DummyResponse(request.connectionId)
         handledRequests[request] = response
         return response

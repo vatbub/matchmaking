@@ -28,17 +28,12 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class DestroyRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+class DestroyRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<DestroyRoomRequest> {
+    override fun needsAuthentication(request: DestroyRoomRequest) = true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is DestroyRoomRequest
-    }
+    override fun canHandle(request: Request) = request is DestroyRoomRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as DestroyRoomRequest
+    override fun handle(request: DestroyRoomRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val roomToDelete = roomProvider[request.roomId] ?: return DestroyRoomResponse(request.connectionId, false)
         if (roomToDelete.hostUserConnectionId != request.connectionId)
             return NotAllowedException("The sender's connection id does not equal the room's host connection id. Only the host can destroy a room.")

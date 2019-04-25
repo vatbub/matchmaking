@@ -31,16 +31,12 @@ import java.net.Inet6Address
  * Handles [GetConnectionIdRequest]s
  */
 class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) :
-        RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return false
-    }
+        RequestHandler<GetConnectionIdRequest> {
+    override fun needsAuthentication(request: GetConnectionIdRequest) = false
 
-    override fun canHandle(request: Request): Boolean {
-        return request is GetConnectionIdRequest
-    }
+    override fun canHandle(request: Request) = request is GetConnectionIdRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+    override fun handle(request: GetConnectionIdRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val id = connectionIdProvider.getNewId()
         return GetConnectionIdResponse(id.connectionId!!, id.password!!)
     }

@@ -38,7 +38,7 @@ import java.net.Inet6Address
  * Dispatches received requests among the registered [RequestHandler]s.
  */
 class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
-    internal val handlers: MutableList<RequestHandler> = mutableListOf()
+    internal val handlers: MutableList<RequestHandler<*>> = mutableListOf()
 
     /**
      * Iterates through all registered [RequestHandler]s and dispatches the request to the first handler which
@@ -53,6 +53,7 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
     ): Response? {
         for (handler in handlers) {
             if (!handler.canHandle(request)) continue
+            handler as RequestHandler<Request>
             if (!handler.needsAuthentication(request))
                 return invokeHandler(handler, request, sourceIp, sourceIpv6, websocketSession)
 
@@ -66,9 +67,9 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
         return null
     }
 
-    private fun invokeHandler(
-            handler: RequestHandler,
-            request: Request,
+    private fun <T:Request>invokeHandler(
+            handler: RequestHandler<T>,
+            request: T,
             sourceIp: Inet4Address?,
             sourceIpv6: Inet6Address?,
             websocketSession: Session?
@@ -110,16 +111,16 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
         }
     }
 
-    fun registerHandler(handler: RequestHandler) {
+    fun registerHandler(handler: RequestHandler<*>) {
         if (!isHandlerRegistered(handler))
             handlers.add(handler)
     }
 
-    fun isHandlerRegistered(handler: RequestHandler): Boolean {
+    fun isHandlerRegistered(handler: RequestHandler<*>): Boolean {
         return handlers.contains(handler)
     }
 
-    fun removeHandler(handler: RequestHandler): Boolean {
+    fun removeHandler(handler: RequestHandler<*>): Boolean {
         return handlers.remove(handler)
     }
 

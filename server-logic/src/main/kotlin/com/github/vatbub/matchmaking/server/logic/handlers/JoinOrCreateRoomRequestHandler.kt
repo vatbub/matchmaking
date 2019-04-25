@@ -30,52 +30,47 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return true
-    }
+class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<JoinOrCreateRoomRequest> {
+    override fun needsAuthentication(request: JoinOrCreateRoomRequest) = true
 
-    override fun canHandle(request: Request): Boolean {
-        return request is JoinOrCreateRoomRequest
-    }
+    override fun canHandle(request: Request) = request is JoinOrCreateRoomRequest
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        request as JoinOrCreateRoomRequest
+    override fun handle(request: JoinOrCreateRoomRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val connectionId = request.connectionId
-            ?: throw IllegalArgumentException("Connection id must not be null when sending a JoinOrCreateRoomRequest")
+                ?: throw IllegalArgumentException("Connection id must not be null when sending a JoinOrCreateRoomRequest")
 
         val user = User(connectionId, request.userName, sourceIp, sourceIpv6)
 
         if (request.operation == Operation.JoinRoom || request.operation == Operation.JoinOrCreateRoom) {
             val applicableRoomTransaction = roomProvider.hasApplicableRoom(
-                request.userName,
-                request.whitelist,
-                request.blacklist,
-                request.minRoomSize,
-                request.maxRoomSize
+                    request.userName,
+                    request.whitelist,
+                    request.blacklist,
+                    request.minRoomSize,
+                    request.maxRoomSize
             )
             if (applicableRoomTransaction != null) {
                 applicableRoomTransaction.room.connectedUsers.add(user)
                 val applicableRoomId = applicableRoomTransaction.room.id
                 applicableRoomTransaction.commit()
                 return JoinOrCreateRoomResponse(
-                    connectionId,
-                    Result.RoomJoined,
-                    applicableRoomId
+                        connectionId,
+                        Result.RoomJoined,
+                        applicableRoomId
                 )
             }
         }
 
         if (request.operation == Operation.CreateRoom || request.operation == Operation.JoinOrCreateRoom) {
             val room = roomProvider.createNewRoom(
-                connectionId,
-                request.whitelist,
-                request.blacklist,
-                request.minRoomSize,
-                request.maxRoomSize
+                    connectionId,
+                    request.whitelist,
+                    request.blacklist,
+                    request.minRoomSize,
+                    request.maxRoomSize
             )
             val transaction = roomProvider.beginTransactionWithRoom(room.id)
-                ?: throw IllegalStateException("Unable to create a room transaction for the newly created room. Please try again.")
+                    ?: throw IllegalStateException("Unable to create a room transaction for the newly created room. Please try again.")
             transaction.room.connectedUsers.add(user)
             transaction.commit()
             return JoinOrCreateRoomResponse(connectionId, Result.RoomCreated, room.id)

@@ -25,20 +25,14 @@ import com.github.vatbub.matchmaking.server.logic.handlers.RequestHandler
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class DynamicRequestHandler(
-    val canHandleFun: (request: Request) -> Boolean,
-    val needsAuthenticationFun: (request: Request) -> Boolean,
-    val handleFun: (request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) -> Response
-) : RequestHandler {
-    override fun needsAuthentication(request: Request): Boolean {
-        return needsAuthenticationFun(request)
-    }
+class DynamicRequestHandler<T : Request>(
+        val canHandleFun: (request: Request) -> Boolean,
+        val needsAuthenticationFun: (request: T) -> Boolean,
+        val handleFun: (request: T, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) -> Response
+) : RequestHandler<T> {
+    override fun needsAuthentication(request: T) = needsAuthenticationFun(request)
 
-    override fun handle(request: Request, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        return handleFun(request, sourceIp, sourceIpv6)
-    }
+    override fun handle(request: T, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) = handleFun(request, sourceIp, sourceIpv6)
 
-    override fun canHandle(request: Request): Boolean {
-        return canHandleFun(request)
-    }
+    override fun canHandle(request: Request) = canHandleFun(request)
 }
