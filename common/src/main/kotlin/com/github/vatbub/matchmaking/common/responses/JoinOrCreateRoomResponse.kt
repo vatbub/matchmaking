@@ -29,6 +29,7 @@ import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
  */
 class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val roomId: String?, responseTo: String? = null) :
     ResponseImpl(connectionId, JoinOrCreateRoomResponse::class.qualifiedName!!, responseTo) {
+    private constructor():this(null, Result.Nothing, null)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

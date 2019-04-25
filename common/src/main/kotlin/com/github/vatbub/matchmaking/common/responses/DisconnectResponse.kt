@@ -31,6 +31,7 @@ import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
  */
 class DisconnectResponse(connectionId: String?, val disconnectedRooms: List<Room>, val destroyedRooms: List<Room>, responseTo: String? = null) :
     ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!, responseTo) {
+    private constructor():this(null, listOf(), listOf())
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

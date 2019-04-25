@@ -45,6 +45,7 @@ class SendDataToHostRequest(
         requestId: String? = null
 ) :
         Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!, requestId) {
+    private constructor():this("", "", "", listOf())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -51,7 +51,7 @@ class ClientTest : KotlinTestSuperclass() {
         println("Is client 1 host?: ${client1.currentRoom?.amITheHost}")
         println("Is client 2 host?: ${client1.currentRoom?.amITheHost}")
 
-        if (client1.currentRoom?.amITheHost==true)
+        if (client1.currentRoom?.amITheHost == true)
             client1.startGame()
         else
             client2.startGame()

@@ -47,6 +47,7 @@ class JoinOrCreateRoomRequest(
     val maxRoomSize: Int = 2,
     requestId:String?=null
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
+    private constructor():this("", "", Operation.JoinOrCreateRoom, "")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

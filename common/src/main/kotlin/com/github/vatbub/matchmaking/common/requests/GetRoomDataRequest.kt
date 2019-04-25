@@ -30,8 +30,10 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * @param roomId The id of the room to get the data of
  * @see GetRoomDataResponse
  */
-class GetRoomDataRequest(connectionId: String, password: String, val roomId: String, requestId:String?=null) :
-    Request(connectionId, password, GetRoomDataRequest::class.qualifiedName!!, requestId) {
+class GetRoomDataRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
+        Request(connectionId, password, GetRoomDataRequest::class.qualifiedName!!, requestId) {
+    private constructor():this("", "", "")
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

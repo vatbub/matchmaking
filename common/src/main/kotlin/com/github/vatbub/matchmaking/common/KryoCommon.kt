@@ -62,6 +62,9 @@ object KryoCommon {
         kryo.register(SubscribeToRoomResponse::class.java)
         kryo.register(UnknownConnectionIdException::class.java)
 
+        // other
+        kryo.register(Operation::class.java)
+
         // testing.dummies
         kryo.register(DummyRequest::class.java)
         kryo.register(DummyResponse::class.java)

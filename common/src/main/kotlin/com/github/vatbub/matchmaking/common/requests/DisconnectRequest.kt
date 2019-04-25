@@ -31,4 +31,6 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  * @see DisconnectResponse
  */
 class DisconnectRequest(connectionId: String, password: String, requestId:String?=null) :
-    Request(connectionId, password, DisconnectRequest::class.qualifiedName!!, requestId)
+    Request(connectionId, password, DisconnectRequest::class.qualifiedName!!, requestId){
+    private constructor():this("", "")
+}
