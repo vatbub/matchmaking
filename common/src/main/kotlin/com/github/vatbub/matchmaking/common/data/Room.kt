@@ -30,7 +30,7 @@ import com.github.vatbub.matchmaking.common.requests.StartGameRequest
  * @param minRoomSize The minimum amount of players required for a game. Important: It is up to the game host to verify whether the current amount of connected users lies within the boundaries. If so, the host must start the game by sending a [StartGameRequest]
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
  */
-class Room(
+open class Room(
     val id: String,
     val hostUserConnectionId: String,
     val whitelist: List<String>? = null,

@@ -64,6 +64,7 @@
         <module>testutils</module>
         <module>standaloneserverlauncher</module>
         <module>server-logic</module>
+        <module>jvm-client</module>
     </modules>
 
     <properties>
