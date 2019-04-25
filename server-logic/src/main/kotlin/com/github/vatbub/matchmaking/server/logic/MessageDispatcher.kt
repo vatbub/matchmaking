@@ -53,6 +53,7 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
     ): Response? {
         for (handler in handlers) {
             if (!handler.canHandle(request)) continue
+            @Suppress("UNCHECKED_CAST")
             handler as RequestHandler<Request>
             if (!handler.needsAuthentication(request))
                 return invokeHandler(handler, request, sourceIp, sourceIpv6, websocketSession)

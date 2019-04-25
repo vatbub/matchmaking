@@ -31,14 +31,44 @@ import java.io.File
 import java.io.FileReader
 import kotlin.properties.Delegates
 
-object ConfigurationManager {
+class ConfigurationManager {
+    companion object {
+        private var instance: ConfigurationManager? = null
+        @JvmStatic
+        fun getInstance(): ConfigurationManager {
+            var instanceCopy = instance
+            if (instanceCopy == null) {
+                instanceCopy = ConfigurationManager()
+                instance = instanceCopy
+            }
+            return instanceCopy
+        }
+
+        @JvmStatic
+        fun resetInstance() {
+            instance = null
+        }
+
+        var currentConfiguration: Configuration
+            get() = getInstance().currentConfiguration
+            set(value) {
+                getInstance().currentConfiguration = value
+            }
+
+        val onChangeListeners
+            get() = getInstance().onChangeListeners
+
+        fun readConfigurationFile(fileToRead: File) =
+                getInstance().readConfigurationFile(fileToRead)
+    }
+
     var currentConfiguration by Delegates.observable(initializeConfig()) { _, oldValue, newValue ->
         onChangeListeners.forEach {
             it.invoke(oldValue, newValue)
         }
     }
     val onChangeListeners =
-        mutableListOf<((oldValue: Configuration, newValue: Configuration) -> Unit)>()
+            mutableListOf<((oldValue: Configuration, newValue: Configuration) -> Unit)>()
 
     private fun initializeConfig(): Configuration {
         val configFromFile = readDefaultConfigurationFileIfExists()
@@ -46,11 +76,7 @@ object ConfigurationManager {
     }
 
     private fun readDefaultConfigurationFileIfExists(): Configuration? {
-        val configFile = JndiHelper.readJndi<File>("configFile")
-        if (configFile == null) {
-            println("default config file is null")
-            return null
-        }
+        val configFile = JndiHelper.readJndi("configFile") ?: File("matchmakingConfig.json")
 
         println("Looking for the default configuration file at: ${configFile.absoluteFile}")
         return readConfigurationFile(configFile)
@@ -68,7 +94,9 @@ object ConfigurationManager {
         }
 
         println("File found, reading config file... ")
-        return Gson().fromJson(FileReader(fileToRead), Configuration::class.java)
+        var result: Configuration? = null
+        FileReader(fileToRead).use { result = Gson().fromJson(it, Configuration::class.java) }
+        return result!!
     }
 }
 
@@ -81,7 +109,7 @@ data class Configuration(
             Memory -> MemoryIdProvider()
             Jdbc -> {
                 val jdbcConfig = idProviderConfig.jdbcConfig
-                    ?: throw IllegalArgumentException("Jdbc config must not be null when using a JdbcIdProvider")
+                        ?: throw IllegalArgumentException("Jdbc config must not be null when using a JdbcIdProvider")
                 JdbcIdProvider(jdbcConfig.connectionString, jdbcConfig.dbUser, jdbcConfig.dbPassword)
             }
         }
@@ -90,7 +118,7 @@ data class Configuration(
             Memory -> MemoryRoomProvider()
             Jdbc -> {
                 val jdbcConfig = roomProviderConfig.jdbcConfig
-                    ?: throw IllegalArgumentException("Jdbc config must not be null when using a JdbcRoomProvider")
+                        ?: throw IllegalArgumentException("Jdbc config must not be null when using a JdbcRoomProvider")
                 JdbcRoomProvider(jdbcConfig.connectionString, jdbcConfig.dbUser, jdbcConfig.dbPassword)
             }
         }

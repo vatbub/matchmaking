@@ -25,148 +25,69 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GameDataTest : KotlinTestSuperclass() {
-    @Test
-    fun byteTest() {
-        val key = "sampleByte"
-        val sampleByte: Byte = 5
+    private fun <T : Any> testGameData(key: String, value: T) {
         val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleByte
+        gameData[key] = value
 
         Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleByte, gameData[key]!!)
+        Assertions.assertEquals(value, gameData[key]!!)
         Assertions.assertEquals(1, gameData.size)
+        Assertions.assertTrue(gameData.keys.contains(key))
+        Assertions.assertTrue(gameData.values.contains(value))
+
+        val stringConversion = gameData.toString()
+        Assertions.assertTrue(stringConversion.contains(key), "String '$stringConversion' does not contain $key")
     }
 
     @Test
-    fun byteArrayTest() {
-        val key = "sampleByteArray"
-        val sampleByteArray = ByteArray(3) { i -> i.toByte() }
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleByteArray
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleByteArray, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun byteTest() =
+        testGameData("sampleByte", 5)
 
     @Test
-    fun charTest() {
-        val key = "sampleChar"
-        val sampleChar = 'a'
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleChar
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleChar, gameData[key]!!)
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun byteArrayTest() =
+        testGameData("sampleByteArray", ByteArray(3) { i -> i.toByte() })
 
     @Test
-    fun charArrayTest() {
-        val key = "sampleCharArray"
-        val sampleCharArray = CharArray(3) { i -> i.toChar() }
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleCharArray
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleCharArray, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun charTest() =
+        testGameData("sampleChar", 'a')
 
     @Test
-    fun stringTest() {
-        val key = "sampleString"
-        val sampleString = "Hello"
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleString
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleString, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun charArrayTest() =
+        testGameData("sampleCharArray", CharArray(3) { i -> i.toChar() })
 
     @Test
-    fun stringArrayTest() {
-        val key = "sampleStringArray"
-        val sampleStringArray = arrayOf("Hello", "Test")
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleStringArray
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertArrayEquals(sampleStringArray, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun stringTest() =
+        testGameData("sampleString", "Hello")
 
     @Test
-    fun stringListTest() {
-        val key = "sampleStringList"
-        val sampleStringList = listOf("Hello", "Test")
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleStringList
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleStringList, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun stringArrayTest() =
+        testGameData("sampleStringArray", arrayOf("Hello", "Test"))
 
     @Test
-    fun floatTest() {
-        val key = "sampleFloat"
-        val sampleFloat = 5.0f
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleFloat
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleFloat, gameData[key]!!)
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun stringListTest() =
+        testGameData("sampleStringList", listOf("Hello", "Test"))
 
     @Test
-    fun floatArrayTest() {
-        val key = "sampleFloatArray"
-        val sampleFloatArray = FloatArray(3) { i -> i.toFloat() }
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleFloatArray
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleFloatArray, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    fun floatTest() =
+        testGameData("sampleFloat", 5.0f)
 
     @Test
-    fun integerListTest() {
-        val key = "sampleIntegerList"
-        val sampleIntegerList = IntArray(3) { i -> i }
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleIntegerList
+    fun floatArrayTest() =
+        testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() })
 
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleIntegerList, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
-    }
+    @Test
+    fun integerListTest() =
+        testGameData("sampleIntegerList", IntArray(3) { i -> i })
 
     @Test
     fun shortTest() {
-        val key = "sampleShort"
         val sampleShort: Short = 5
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleShort
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleShort, gameData[key]!!)
-        Assertions.assertEquals(1, gameData.size)
+        testGameData("sampleShort", sampleShort)
     }
 
     @Test
     fun shortArrayTest() {
-        val key = "sampleShortArray"
-        val sampleShortArray = ShortArray(3) { i -> i.toShort() }
-        val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleShortArray
-
-        Assertions.assertTrue(gameData.contains(key))
-        Assertions.assertEquals(sampleShortArray, gameData[key])
-        Assertions.assertEquals(1, gameData.size)
+        testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() })
     }
 
     @Test

@@ -37,11 +37,11 @@ abstract class RoomProvider {
      * @return The new [Room]
      */
     abstract fun createNewRoom(
-        hostUserConnectionId: String,
-        whitelist: List<String>? = null,
-        blacklist: List<String>? = null,
-        minRoomSize: Int = 1,
-        maxRoomSize: Int = 2
+            hostUserConnectionId: String,
+            whitelist: List<String>? = null,
+            blacklist: List<String>? = null,
+            minRoomSize: Int = 1,
+            maxRoomSize: Int = 2
     ): Room
 
     /**
@@ -72,8 +72,8 @@ abstract class RoomProvider {
     }
 
     fun beginTransactionsForRoomsWithFilter(
-        filter: ((Room) -> Boolean),
-        onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit)
+            filter: ((Room) -> Boolean),
+            onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit)
     ) {
         forEachTransaction { transaction ->
             if (filter(transaction.room.toRoom()))
@@ -84,7 +84,7 @@ abstract class RoomProvider {
     }
 
     fun beginTransactionForAllRooms(onTransactionAvailable: ((roomTransaction: RoomTransaction) -> Unit)) =
-        beginTransactionsForRoomsWithFilter({ true }, onTransactionAvailable)
+            beginTransactionsForRoomsWithFilter({ true }, onTransactionAvailable)
 
     /**
      * Makes sure that changes to the supplied rooms are saved in the room provider
@@ -127,80 +127,80 @@ abstract class RoomProvider {
      * @return The room that was found to be applicable
      */
     open fun hasApplicableRoom(
-        userName: String,
-        whitelist: List<String>? = null,
-        blacklist: List<String>? = null,
-        minRoomSize: Int = 1,
-        maxRoomSize: Int = 2
+            userName: String,
+            whitelist: List<String>? = null,
+            blacklist: List<String>? = null,
+            minRoomSize: Int = 1,
+            maxRoomSize: Int = 2
     ): RoomTransaction? {
         var result: RoomTransaction? = null
 
         beginTransactionsForRoomsWithFilter({ room -> !room.gameStarted && result == null },
-            fun(roomTransaction: RoomTransaction) {
-                /*
-                           * We have to check again even though we have the filter in place
-                           * because room.gameStarted might have changed between the call to
-                           * the filter and the beginning of the transaction (multithreading magic :/ )
-                           */
-                if (roomTransaction.room.gameStarted) {
-                    roomTransaction.abort()
-                    return
-                }
+                fun(roomTransaction: RoomTransaction) {
+                    /*
+                     * We have to check again even though we have the filter in place
+                     * because room.gameStarted might have changed between the call to
+                     * the filter and the beginning of the transaction (multithreading magic :/ )
+                     */
+                    if (roomTransaction.room.gameStarted) {
+                        roomTransaction.abort()
+                        return
+                    }
 
-                if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
-                    roomTransaction.abort()
-                    return
-                }
-                if (roomTransaction.room.minRoomSize < minRoomSize) {
-                    roomTransaction.abort()
-                    return
-                }
-                if (roomTransaction.room.maxRoomSize > maxRoomSize) {
-                    roomTransaction.abort()
-                    return
-                }
+                    if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
+                        roomTransaction.abort()
+                        return
+                    }
+                    if (roomTransaction.room.minRoomSize < minRoomSize) {
+                        roomTransaction.abort()
+                        return
+                    }
+                    if (roomTransaction.room.maxRoomSize > maxRoomSize) {
+                        roomTransaction.abort()
+                        return
+                    }
 
-                // check the supplied user list
-                if (whitelist != null) {
-                    for (user in roomTransaction.room.connectedUsers) {
-                        if (!whitelist.contains(user.userName)) {
-                            roomTransaction.abort()
-                            return
+                    // check the supplied user list
+                    if (whitelist != null) {
+                        for (user in roomTransaction.room.connectedUsers) {
+                            if (!whitelist.contains(user.userName)) {
+                                roomTransaction.abort()
+                                return
+                            }
                         }
                     }
-                }
-                if (blacklist != null) {
-                    for (user in roomTransaction.room.connectedUsers) {
-                        if (blacklist.contains(user.userName)) {
-                            roomTransaction.abort()
-                            return
+                    if (blacklist != null) {
+                        for (user in roomTransaction.room.connectedUsers) {
+                            if (blacklist.contains(user.userName)) {
+                                roomTransaction.abort()
+                                return
+                            }
                         }
                     }
-                }
 
-                // check the room's user list
-                val configuredWhitelist = roomTransaction.room.whitelist
-                val configuredBlacklist = roomTransaction.room.blacklist
+                    // check the room's user list
+                    val configuredWhitelist = roomTransaction.room.whitelist
+                    val configuredBlacklist = roomTransaction.room.blacklist
 
-                if (configuredWhitelist != null) {
-                    for (user in configuredWhitelist) {
-                        if (!configuredWhitelist.contains(userName)) {
-                            roomTransaction.abort()
-                            return
+                    if (configuredWhitelist != null) {
+                        for (user in configuredWhitelist) {
+                            if (!configuredWhitelist.contains(userName)) {
+                                roomTransaction.abort()
+                                return
+                            }
                         }
                     }
-                }
-                if (configuredBlacklist != null) {
-                    for (user in configuredBlacklist) {
-                        if (configuredBlacklist.contains(userName)) {
-                            roomTransaction.abort()
-                            return
+                    if (configuredBlacklist != null) {
+                        for (user in configuredBlacklist) {
+                            if (configuredBlacklist.contains(userName)) {
+                                roomTransaction.abort()
+                                return
+                            }
                         }
                     }
-                }
 
-                result = roomTransaction
-            })
+                    result = roomTransaction
+                })
 
         return result
     }
