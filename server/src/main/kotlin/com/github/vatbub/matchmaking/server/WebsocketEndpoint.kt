@@ -27,7 +27,6 @@ import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
 import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import java.net.Inet4Address
 import java.net.Inet6Address
-import javax.servlet.http.HttpSession
 import javax.websocket.*
 import javax.websocket.server.HandshakeRequest
 import javax.websocket.server.ServerEndpoint
@@ -37,15 +36,14 @@ const val httpHeadersKey = "httpHeaders"
 
 @ServerEndpoint("/websocket", configurator = WebSocketSessionConfigurator::class)
 class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
-    private var session: Session? = null
     private var sessionWrapper: WebsocketSessionWrapper? = null
     private var endpointConfig: EndpointConfig? = null
 
     @Suppress("UNCHECKED_CAST")
-    val httpHeaders: Map<String, List<String>>?
+    private val httpHeaders: Map<String, List<String>>?
         get() {
             val endpointConfigCopy = endpointConfig ?: return null
-            return endpointConfigCopy.userProperties[HttpSession::class.java.name] as Map<String, List<String>>
+            return endpointConfigCopy.userProperties[httpHeadersKey] as Map<String, List<String>>?
         }
 
     private val remoteIpString: String?
@@ -85,7 +83,8 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
         return result[0]
     }
 
-    private var serverContext: ServerContext
+    var serverContext: ServerContext
+        private set
 
     init {
         serverContext = if (initialServerContext != null)
@@ -105,17 +104,12 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @OnOpen
     fun open(session: Session, endpointConfig: EndpointConfig) {
-        println("Session opened")
-        this.session = session
         this.sessionWrapper = WebsocketSessionWrapper(session)
         this.endpointConfig = endpointConfig
     }
 
     @OnMessage
     fun onTextMessage(session: Session, message: String) {
-        println("Received message:")
-        println(message)
-        session.asyncRemote.sendText(message)
         val request = InteractionConverter.deserializeRequest<Request>(message)
         val responseInteraction =
                 serverContext.messageDispatcher.dispatchOrCreateException(
@@ -130,7 +124,6 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
-        println("Session closed")
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }
