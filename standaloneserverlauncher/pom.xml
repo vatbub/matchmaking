@@ -73,9 +73,15 @@
         </dependency>
         <dependency>
             <groupId>com.github.vatbub</groupId>
-            <artifactId>matchmaking.server</artifactId>
-            <classifier>classes</classifier>
+            <artifactId>matchmaking.server-logic</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.vatbub</groupId>
+            <artifactId>matchmaking.server</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
