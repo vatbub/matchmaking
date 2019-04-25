@@ -32,7 +32,7 @@ import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationMan
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 
 class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContext? = null) {
-    private val server = Server()
+    val server = Server()
     private var serverContext: ServerContext
     private val sessions = mutableMapOf<Connection, KryoSessionWrapper>()
 
@@ -50,7 +50,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         else
             server.bind(tcpPort, udpPort)
 
-        server.addListener(KryoListener(this))
+        server.addListener(KryoListener())
         server.start()
     }
 
@@ -60,19 +60,19 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         serverContext.resetMessageHandlers()
     }
 
-    class KryoListener(private val server: KryoServer) : Listener() {
+    inner class KryoListener() : Listener() {
 
         override fun connected(connection: Connection) {
-            server.sessions[connection] = KryoSessionWrapper(connection)
+            this@KryoServer.sessions[connection] = KryoSessionWrapper(connection)
         }
 
         override fun disconnected(connection: Connection?) {
-            val session = server.sessions.remove(connection)?:return
-            server.serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session)
+            val session = this@KryoServer.sessions.remove(connection)?:return
+            this@KryoServer.serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session)
         }
 
         override fun received(connection: Connection, receivedObject: Any) {
-            val session = server.sessions[connection] ?: throw IllegalStateException("Unknown connection object")
+            val session = this@KryoServer.sessions[connection] ?: throw IllegalStateException("Unknown connection object")
             val response = handleReceivedObject(connection, session, receivedObject)
             session.sendObjectAsync(response)
         }
@@ -80,7 +80,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         private fun handleReceivedObject(connection: Connection, session: Session, receivedObject: Any): Response {
             if (receivedObject !is Request) return BadRequestException("Object class not recognized, object must be a subclass of com.github.vatbub.matchmaking.common.Request")
             val inetAddress = connection.remoteAddressTCP.address
-            return server.serverContext.messageDispatcher.dispatchOrCreateException(
+            return this@KryoServer.serverContext.messageDispatcher.dispatchOrCreateException(
                     receivedObject,
                     IpAddressHelper.castToIpv4OrNull(inetAddress),
                     IpAddressHelper.castToIpv6OrNull(inetAddress),

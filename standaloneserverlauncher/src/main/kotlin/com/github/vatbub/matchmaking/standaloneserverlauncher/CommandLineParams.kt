@@ -21,13 +21,27 @@ package com.github.vatbub.matchmaking.standaloneserverlauncher
 
 import com.beust.jcommander.DynamicParameter
 import com.beust.jcommander.Parameter
+import com.github.vatbub.matchmaking.common.KryoCommon
+import java.io.File
 import java.util.*
 
 
 class CommandLineParams {
+    @Parameter(names = ["--configurationFile"])
+    var configurationFile: File? = null
+
+    @Parameter(names = ["--launchKryo"], description = "If set to true, a kryo net server will be launched to listen on tcp or udp.")
+    var launchKryo = false
+
+    @Parameter(names = ["--kryoTcpPort"])
+    var kryoTcpPort = KryoCommon.defaultTcpPort
+
+    @Parameter(names = ["--kryoUdpPort"])
+    var kryoUdpPort: Int? = null
+
     @Parameter(
-        names = ["--session-timeout"],
-        description = "The number of minutes of inactivity before a user's session is timed out."
+            names = ["--session-timeout"],
+            description = "The number of minutes of inactivity before a user's session is timed out."
     )
     var sessionTimeout: Int? = null
 
@@ -41,8 +55,8 @@ class CommandLineParams {
     var contextPath = ""
 
     @Parameter(
-        names = ["--shutdown-override"],
-        description = "Overrides the default behavior and causes Tomcat to ignore lifecycle failure events rather than shutting down when they occur."
+            names = ["--shutdown-override"],
+            description = "Overrides the default behavior and causes Tomcat to ignore lifecycle failure events rather than shutting down when they occur."
     )
     var shutdownOverride = false
 
@@ -53,45 +67,45 @@ class CommandLineParams {
     var enableCompression: Boolean = false
 
     @Parameter(
-        names = ["--compressable-mime-types"],
-        description = "Comma delimited list of mime types that will be compressed when using GZIP compression."
+            names = ["--compressable-mime-types"],
+            description = "Comma delimited list of mime types that will be compressed when using GZIP compression."
     )
     var compressableMimeTypes =
-        "text/html,text/xml,text/plain,text/css,application/json,application/xml,text/javascript,application/javascript"
+            "text/html,text/xml,text/plain,text/css,application/json,application/xml,text/javascript,application/javascript"
 
     @Parameter(
-        names = ["--enable-ssl"],
-        description = "Specify -Djavax.net.ssl.keyStore, -Djavax.net.ssl.keystoreStorePassword, -Djavax.net.ssl.trustStore and -Djavax.net.ssl.trustStorePassword in JAVA_OPTS. Note: should not be used if a reverse proxy is terminating SSL for you (such as on Heroku)"
+            names = ["--enable-ssl"],
+            description = "Specify -Djavax.net.ssl.keyStore, -Djavax.net.ssl.keystoreStorePassword, -Djavax.net.ssl.trustStore and -Djavax.net.ssl.trustStorePassword in JAVA_OPTS. Note: should not be used if a reverse proxy is terminating SSL for you (such as on Heroku)"
     )
     var enableSSL: Boolean = false
 
     @Parameter(
-        names = ["--enable-client-auth"],
-        description = "Specify -Djavax.net.ssl.keyStore and -Djavax.net.ssl.keyStorePassword in JAVA_OPTS"
+            names = ["--enable-client-auth"],
+            description = "Specify -Djavax.net.ssl.keyStore and -Djavax.net.ssl.keyStorePassword in JAVA_OPTS"
     )
     var enableClientAuth: Boolean = false
 
     @Parameter(
-        names = ["--enable-basic-auth"],
-        description = "Secure the app with basic auth. Use with --basic-auth-user and --basic-auth-pw or --tomcat-users-location"
+            names = ["--enable-basic-auth"],
+            description = "Secure the app with basic auth. Use with --basic-auth-user and --basic-auth-pw or --tomcat-users-location"
     )
     var enableBasicAuth = false
 
     @Parameter(
-        names = ["--basic-auth-user"],
-        description = "Username to be used with basic auth. Defaults to BASIC_AUTH_USER env variable."
+            names = ["--basic-auth-user"],
+            description = "Username to be used with basic auth. Defaults to BASIC_AUTH_USER env variable."
     )
     var basicAuthUser: String? = null
 
     @Parameter(
-        names = ["--basic-auth-pw"],
-        description = "Password to be used with basic auth. Defaults to BASIC_AUTH_PW env variable."
+            names = ["--basic-auth-pw"],
+            description = "Password to be used with basic auth. Defaults to BASIC_AUTH_PW env variable."
     )
     var basicAuthPw: String? = null
 
     @Parameter(
-        names = ["--tomcat-users-location"],
-        description = "Location of the tomcat-users.xml file. (relative to the location of the webapp-runner jar file)"
+            names = ["--tomcat-users-location"],
+            description = "Location of the tomcat-users.xml file. (relative to the location of the webapp-runner jar file)"
     )
     var tomcatUsersLocation: String? = null
 
@@ -99,8 +113,8 @@ class CommandLineParams {
     var uriEncoding: String? = null
 
     @Parameter(
-        names = ["--use-body-encoding-for-uri"],
-        description = "Set if the entity body encoding should be used for the URI."
+            names = ["--use-body-encoding-for-uri"],
+            description = "Set if the entity body encoding should be used for the URI."
     )
     var useBodyEncodingForURI = false
 
@@ -108,15 +122,15 @@ class CommandLineParams {
     var scanBootstrapClassPath = false
 
     @Parameter(
-        names = ["--temp-directory"],
-        description = "Define the temp directory, default value: ./target/tomcat.PORT"
+            names = ["--temp-directory"],
+            description = "Define the temp directory, default value: ./target/tomcat.PORT"
     )
     var tempDirectory: String? = null
 
     @Parameter(
-        names = ["--bind-on-init"],
-        description = "Controls when the socket used by the connector is bound. By default it is bound when the connector is initiated and unbound when the connector is destroyed., default value: true",
-        arity = 1
+            names = ["--bind-on-init"],
+            description = "Controls when the socket used by the connector is bound. By default it is bound when the connector is initiated and unbound when the connector is destroyed., default value: true",
+            arity = 1
     )
     var bindOnInit = true
 
@@ -127,8 +141,8 @@ class CommandLineParams {
     var maxThreads: Int? = 0
 
     @DynamicParameter(
-        names = ["-A"],
-        description = "Allows setting HTTP connector attributes. For example: -Acompression=on"
+            names = ["-A"],
+            description = "Allows setting HTTP connector attributes. For example: -Acompression=on"
     )
     var attributes: Map<String, String> = HashMap()
 

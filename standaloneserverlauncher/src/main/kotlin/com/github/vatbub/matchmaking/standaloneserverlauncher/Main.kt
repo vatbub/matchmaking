@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
 import com.beust.jcommander.JCommander
+import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import org.apache.catalina.Context
 import org.apache.catalina.LifecycleException
 import org.apache.catalina.LifecycleState
@@ -76,10 +77,21 @@ class Main {
                 return
             }
 
+            val configurationFileCopy = commandLineParams.configurationFile
+            if (configurationFileCopy != null) {
+                ConfigurationManager.readConfigurationFile(configurationFileCopy)
+            }
+
+            var kryoServer: KryoServer? = null
+            if (commandLineParams.launchKryo) {
+                kryoServer = KryoServer(commandLineParams.kryoTcpPort, commandLineParams.kryoUdpPort)
+                addShutdownHook(kryoServer)
+            }
+
             val nioConnector = Connector("org.apache.coyote.http11.Http11NioProtocol")
             nioConnector.port = port
 
-            if (!commandLineParams.attributes.isEmpty()) {
+            if (commandLineParams.attributes.isNotEmpty()) {
                 println("Connector attributes")
                 for (entry in commandLineParams.attributes) {
                     val key = entry.key
@@ -100,8 +112,8 @@ class Main {
                     nioConnector.setAttribute("truststoreFile", truststoreFile.absolutePath)
                     println(truststoreFile.absolutePath)
                     nioConnector.setAttribute(
-                        "trustStorePassword",
-                        System.getProperty("javax.net.ssl.trustStorePassword")
+                            "trustStorePassword",
+                            System.getProperty("javax.net.ssl.trustStorePassword")
                     )
                 }
                 val pathToKeystore = System.getProperty("javax.net.ssl.keyStore")
@@ -210,8 +222,8 @@ class Main {
             addShutdownHook(tomcat)
 
             if (commandLineParams.enableNaming ||
-                commandLineParams.enableBasicAuth ||
-                commandLineParams.tomcatUsersLocation != null
+                    commandLineParams.enableBasicAuth ||
+                    commandLineParams.tomcatUsersLocation != null
             ) {
                 tomcat.enableNaming()
             }
@@ -246,6 +258,7 @@ class Main {
             }
 
             tomcat.server.await()
+            kryoServer?.server?.stop()
         }
 
         private fun resolveTomcatBaseDir(port: Int?, tempDirectory: String?): String? {
@@ -285,7 +298,7 @@ class Main {
         private fun configureUserStore(tomcat: Tomcat, commandLineParams: CommandLineParams) {
             var tomcatUsersLocation = commandLineParams.tomcatUsersLocation
             if (tomcatUsersLocation ==
-                null
+                    null
             ) {
                 tomcatUsersLocation = "../../tomcat-users.xml"
             }
@@ -293,8 +306,8 @@ class Main {
             val ref = javax.naming.Reference("org.apache.catalina.UserDatabase")
             ref.add(StringRefAddr("pathname", tomcatUsersLocation))
             val memoryUserDatabase = MemoryUserDatabaseFactory().getObjectInstance(
-                ref,
-                CompositeName("UserDatabase"), null, null
+                    ref,
+                    CompositeName("UserDatabase"), null, null
             ) as MemoryUserDatabase
 
             // Add basic auth user
@@ -303,9 +316,9 @@ class Main {
                 memoryUserDatabase.readonly = false
                 val user = memoryUserDatabase.createRole(authRole, authRole)
                 memoryUserDatabase.createUser(
-                    commandLineParams.basicAuthUser,
-                    commandLineParams.basicAuthPw,
-                    commandLineParams.basicAuthUser
+                        commandLineParams.basicAuthUser,
+                        commandLineParams.basicAuthPw,
+                        commandLineParams.basicAuthUser
                 ).addRole(user)
                 memoryUserDatabase.save()
 
@@ -314,9 +327,9 @@ class Main {
                 memoryUserDatabase.readonly = false
                 val user = memoryUserDatabase.createRole(authRole, authRole)
                 memoryUserDatabase.createUser(
-                    System.getenv("BASIC_AUTH_USER"),
-                    System.getenv("BASIC_AUTH_PW"),
-                    System.getenv("BASIC_AUTH_USER")
+                        System.getenv("BASIC_AUTH_USER"),
+                        System.getenv("BASIC_AUTH_PW"),
+                        System.getenv("BASIC_AUTH_USER")
                 ).addRole(user)
                 memoryUserDatabase.save()
             }
@@ -337,11 +350,21 @@ class Main {
         }
 
         private fun addShutdownHook(tomcat: Tomcat?) {
-
             // add shutdown hook to stop server
             Runtime.getRuntime().addShutdownHook(Thread {
                 try {
                     tomcat?.server?.stop()
+                } catch (exception: LifecycleException) {
+                    throw RuntimeException("WARNING: Cannot Stop Tomcat " + exception.message, exception)
+                }
+            })
+        }
+
+        private fun addShutdownHook(kryoServer: KryoServer?) {
+            // add shutdown hook to stop server
+            Runtime.getRuntime().addShutdownHook(Thread {
+                try {
+                    kryoServer?.server?.stop()
                 } catch (exception: LifecycleException) {
                     throw RuntimeException("WARNING: Cannot Stop Tomcat " + exception.message, exception)
                 }
@@ -357,11 +380,11 @@ class Main {
          */
         private fun exportResource(resourceName: String): File {
             val jarFolder: String = File(Main::class.java.protectionDomain.codeSource.location.toURI().path).parentFile
-                .path.replace('\\', '/')
+                    .path.replace('\\', '/')
 
 
             val stream = Main::class.java.getResourceAsStream(resourceName)
-                ?: throw Exception("Cannot get resource \"$resourceName\" from Jar file.")
+                    ?: throw Exception("Cannot get resource \"$resourceName\" from Jar file.")
 
             stream.use { resourceInputStream ->
                 val finalName = jarFolder + resourceName
