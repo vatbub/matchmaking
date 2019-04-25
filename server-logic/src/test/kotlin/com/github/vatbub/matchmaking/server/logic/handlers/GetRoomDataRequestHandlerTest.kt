@@ -20,7 +20,6 @@
 package com.github.vatbub.matchmaking.server.logic.handlers
 
 import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
-import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
@@ -45,8 +44,6 @@ class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
         val request = GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, room.id)
         val response = handler.handle(request, null, null)
 
-        Assertions.assertTrue(response is GetRoomDataResponse)
-        response as GetRoomDataResponse
         Assertions.assertNotNull(response.room)
         Assertions.assertEquals(room, response.room)
     }
@@ -57,8 +54,6 @@ class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
             GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         val response = handler.handle(request, null, null)
 
-        Assertions.assertTrue(response is GetRoomDataResponse)
-        response as GetRoomDataResponse
         Assertions.assertNull(response.room)
     }
 

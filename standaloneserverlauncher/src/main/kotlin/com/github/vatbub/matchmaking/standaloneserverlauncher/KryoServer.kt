@@ -25,12 +25,11 @@ import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
+import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
 import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
 import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
-import java.net.Inet4Address
-import java.net.Inet6Address
 
 class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContext? = null) {
     private val server = Server()
@@ -81,12 +80,10 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         private fun handleReceivedObject(connection: Connection, session: Session, receivedObject: Any): Response {
             if (receivedObject !is Request) return BadRequestException("Object class not recognized, object must be a subclass of com.github.vatbub.matchmaking.common.Request")
             val inetAddress = connection.remoteAddressTCP.address
-            val inet4Address = if (inetAddress is Inet4Address) inetAddress else null
-            val inet6Address = if (inetAddress is Inet6Address) inetAddress else null
             return server.serverContext.messageDispatcher.dispatchOrCreateException(
                     receivedObject,
-                    inet4Address,
-                    inet6Address,
+                    IpAddressHelper.castToIpv4OrNull(inetAddress),
+                    IpAddressHelper.castToIpv6OrNull(inetAddress),
                     session
             )
         }

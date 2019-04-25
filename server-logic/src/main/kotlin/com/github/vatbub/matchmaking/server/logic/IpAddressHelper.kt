@@ -26,19 +26,23 @@ import java.net.InetAddress
 object IpAddressHelper {
     fun convertToIpv4(ipAddress: String?): Inet4Address? {
         if (ipAddress == null) return null
-        val inetAddress = InetAddress.getByName(ipAddress)
-        return if (inetAddress is Inet4Address)
-            inetAddress
-        else
-            null
+        return castToIpv4OrNull(InetAddress.getByName(ipAddress))
     }
 
     fun convertToIpv6(ipAddress: String?): Inet6Address? {
         if (ipAddress == null) return null
-        val inetAddress = InetAddress.getByName(ipAddress)
-        return if (inetAddress is Inet6Address)
-            inetAddress
-        else
-            null
+        return castToIpv6OrNull(InetAddress.getByName(ipAddress))
     }
+
+    fun castToIpv4OrNull(inetAddress: InetAddress): Inet4Address? =
+            if (inetAddress is Inet4Address)
+                inetAddress
+            else
+                null
+
+    fun castToIpv6OrNull(inetAddress: InetAddress): Inet6Address? =
+            if (inetAddress is Inet6Address)
+                inetAddress
+            else
+                null
 }
