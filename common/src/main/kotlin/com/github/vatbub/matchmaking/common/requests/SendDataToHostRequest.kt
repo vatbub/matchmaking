@@ -38,12 +38,13 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * @see GetRoomDataResponse
  */
 class SendDataToHostRequest(
-    connectionId: String,
-    password: String,
-    val roomId: String,
-    val dataToHost: List<GameData>
+        connectionId: String,
+        password: String,
+        val roomId: String,
+        val dataToHost: List<GameData>,
+        requestId: String? = null
 ) :
-    Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!) {
+        Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!, requestId) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

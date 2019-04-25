@@ -24,5 +24,5 @@ package com.github.vatbub.matchmaking.common.responses
  * @param message The error/exception message
  * @param connectionId The connection id of the requesting client
  */
-class BadRequestException(message: String? = null, connectionId: String? = null) :
-    ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!)
+class BadRequestException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
+    ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!, responseTo)

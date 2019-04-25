@@ -21,4 +21,4 @@ package com.github.vatbub.matchmaking.common.testing.dummies
 
 import com.github.vatbub.matchmaking.common.ResponseImpl
 
-class DummyResponse(connectionId: String?) : ResponseImpl(connectionId, DummyResponse::class.qualifiedName!!)
+class DummyResponse(connectionId: String?, responseTo: String? = null) : ResponseImpl(connectionId, DummyResponse::class.qualifiedName!!, responseTo)

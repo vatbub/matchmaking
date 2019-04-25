@@ -44,8 +44,9 @@ class JoinOrCreateRoomRequest(
     val whitelist: List<String>? = null,
     val blacklist: List<String>? = null,
     val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 2
-) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!) {
+    val maxRoomSize: Int = 2,
+    requestId:String?=null
+) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

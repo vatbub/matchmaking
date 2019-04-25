@@ -32,8 +32,8 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param roomId The id of the room to destroy
  * @see DestroyRoomResponse
  */
-class DestroyRoomRequest(connectionId: String, password: String, val roomId: String) :
-    Request(connectionId, password, DestroyRoomRequest::class.qualifiedName!!) {
+class DestroyRoomRequest(connectionId: String, password: String, val roomId: String, requestId:String?=null) :
+    Request(connectionId, password, DestroyRoomRequest::class.qualifiedName!!, requestId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

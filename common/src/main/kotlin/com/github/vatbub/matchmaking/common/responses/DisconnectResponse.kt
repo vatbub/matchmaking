@@ -29,8 +29,8 @@ import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
  * @param disconnectedRooms A list of rooms the user was connected to. The rooms still exist as the user was not the host.
  * @param destroyedRooms A list of rooms the user was connected to. The rooms were destroyed as the user was the host in them.
  */
-class DisconnectResponse(connectionId: String?, val disconnectedRooms: List<Room>, val destroyedRooms: List<Room>) :
-    ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!) {
+class DisconnectResponse(connectionId: String?, val disconnectedRooms: List<Room>, val destroyedRooms: List<Room>, responseTo: String? = null) :
+    ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!, responseTo) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

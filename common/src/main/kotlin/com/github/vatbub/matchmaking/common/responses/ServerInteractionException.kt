@@ -27,9 +27,11 @@ import com.github.vatbub.matchmaking.common.ServerInteraction
  * @param message The error/exception message
  */
 abstract class ServerInteractionException(
-    message: String?,
-    override var httpStatusCode: Int,
-    override val connectionId: String?, override val className: String
+        message: String?,
+        override var httpStatusCode: Int,
+        override val connectionId: String?,
+        override val className: String,
+        override var responseTo: String?
 ) : RuntimeException(message), Response {
     override val protocolVersion = ServerInteraction.defaultProtocolVersion
 

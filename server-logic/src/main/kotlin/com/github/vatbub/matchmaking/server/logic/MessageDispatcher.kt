@@ -102,6 +102,8 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
             responseInteraction = InternalServerErrorException(e.javaClass.name + ", " + e.message)
         }
 
+        responseInteraction.responseTo = request.requestId
+
         return responseInteraction
     }
 

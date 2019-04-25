@@ -41,9 +41,10 @@ class UpdateGameStateRequest(
     password: String,
     val roomId: String,
     val gameData: GameData,
-    val processedData: List<GameData>
+    val processedData: List<GameData>,
+    requestId:String?=null
 ) :
-    Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!) {
+    Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!, requestId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -29,6 +29,8 @@ import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 
 object KryoCommon {
+    const val defaultTcpPort = 872
+
     fun registerClasses(kryo: Kryo){
         // data
         kryo.register(GameData::class.java)

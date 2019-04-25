@@ -27,8 +27,8 @@ import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
  * @param result Information about what operation was performed on the server
  * @param roomId The id of the room that was created or that the user was assigned to.
  */
-class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val roomId: String?) :
-    ResponseImpl(connectionId, JoinOrCreateRoomResponse::class.qualifiedName!!) {
+class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val roomId: String?, responseTo: String? = null) :
+    ResponseImpl(connectionId, JoinOrCreateRoomResponse::class.qualifiedName!!, responseTo) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -21,8 +21,8 @@ package com.github.vatbub.matchmaking.common.requests
 
 import com.github.vatbub.matchmaking.common.Request
 
-class SubscribeToRoomRequest(connectionId: String, password: String, val roomId: String) :
-    Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!) {
+class SubscribeToRoomRequest(connectionId: String, password: String, val roomId: String, requestId:String?=null) :
+    Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!, requestId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

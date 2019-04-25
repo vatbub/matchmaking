@@ -24,5 +24,5 @@ package com.github.vatbub.matchmaking.common.responses
  * @param connectionId The connection id of the requesting client
  * @param message The error/exception message
  */
-class NotAllowedException(message: String? = null, connectionId: String? = null) :
-    ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!)
+class NotAllowedException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
+    ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!, responseTo)

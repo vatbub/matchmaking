@@ -28,4 +28,5 @@ interface Response : ServerInteraction {
      * The http status code to be returned
      */
     var httpStatusCode: Int
+    var responseTo: String?
 }

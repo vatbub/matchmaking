@@ -30,5 +30,5 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @see DisconnectResponse
  */
-class DisconnectRequest(connectionId: String, password: String) :
-    Request(connectionId, password, DisconnectRequest::class.qualifiedName!!)
+class DisconnectRequest(connectionId: String, password: String, requestId:String?=null) :
+    Request(connectionId, password, DisconnectRequest::class.qualifiedName!!, requestId)

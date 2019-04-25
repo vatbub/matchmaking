@@ -27,5 +27,5 @@ import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
  * @param connectionId The connection id of the requesting client
  * @param roomDestroyed `true` if the specified room was found and destroyed, `false` otherwise
  */
-class DestroyRoomResponse(connectionId: String?, val roomDestroyed: Boolean) :
-    ResponseImpl(connectionId, DestroyRoomResponse::class.qualifiedName!!)
+class DestroyRoomResponse(connectionId: String?, val roomDestroyed: Boolean, responseTo: String? = null) :
+    ResponseImpl(connectionId, DestroyRoomResponse::class.qualifiedName!!, responseTo)

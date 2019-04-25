@@ -22,8 +22,8 @@ package com.github.vatbub.matchmaking.common
 /**
  * Superclass for all requests that can be sent over the network
  */
-open class Request(override val connectionId: String?, val password: String?, override val className: String) :
-    ServerInteraction {
+open class Request(override val connectionId: String?, val password: String?, override val className: String, var requestId: String?) :
+        ServerInteraction {
     override val protocolVersion = ServerInteraction.defaultProtocolVersion
 
     override fun equals(other: Any?): Boolean {
