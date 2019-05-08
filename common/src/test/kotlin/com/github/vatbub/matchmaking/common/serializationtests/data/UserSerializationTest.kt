@@ -23,10 +23,7 @@ import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.github.vatbub.matchmaking.common.KryoCommon
-import com.github.vatbub.matchmaking.common.data.GameData
-import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.kryoSafeListOf
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
 import com.github.vatbub.matchmaking.common.serializationtests.nextObjectPath
@@ -40,29 +37,15 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.nio.file.Path
 
-class RoomSerializationTest :
-        SerializationTestSuperclass<Room>(Room::class.java) {
-    override fun newObjectUnderTest(): Room {
-        val room = Room(
+class UserSerializationTest :
+        SerializationTestSuperclass<User>(User::class.java) {
+    override fun newObjectUnderTest(): User {
+        return User(
                 TestUtils.getRandomHexString(),
-                TestUtils.defaultConnectionId,
-                kryoSafeListOf(TestUtils.getRandomHexString(), TestUtils.getRandomHexString()),
-                kryoSafeListOf(TestUtils.getRandomHexString(), TestUtils.getRandomHexString()),
-                2,
-                2
+                "vatbub",
+                Inet4Address.getByName("129.187.211.162") as Inet4Address?,
+                Inet6Address.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address?
         )
-        val userConnectionId = TestUtils.getRandomHexString()
-        room.connectedUsers.add(
-                User(
-                        userConnectionId,
-                        "vatbub",
-                        Inet4Address.getByName("129.187.211.162") as Inet4Address?,
-                        Inet6Address.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address?
-                )
-        )
-        room.dataToBeSentToTheHost.add(GameData(userConnectionId))
-        room.gameStarted = true
-        return room
     }
 
     @Test
@@ -76,9 +59,9 @@ class RoomSerializationTest :
         }
 
         Input(FileInputStream(outputFile)).use {
-            val deserializedObject = kryo.readObject(it, Room::class.java)
-            Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.id)
-            Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.hostUserConnectionId)
+            val deserializedObject = kryo.readObject(it, User::class.java)
+            Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.connectionId)
+            Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.userName)
         }
     }
 }

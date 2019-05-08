@@ -22,9 +22,9 @@ package com.github.vatbub.matchmaking.jvmclient
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
-import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
@@ -96,7 +96,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
         private object Lock
 
         init {
-            KryoCommon.registerClasses(client.kryo)
+            client.kryo.registerClasses()
             client.start()
             if (configuration.udpPort == null)
                 client.connect(configuration.timeout, configuration.host, configuration.tcpPort)

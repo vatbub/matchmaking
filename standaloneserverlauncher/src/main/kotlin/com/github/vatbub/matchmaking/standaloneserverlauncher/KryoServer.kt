@@ -22,9 +22,9 @@ package com.github.vatbub.matchmaking.standaloneserverlauncher
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
-import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
 import com.github.vatbub.matchmaking.server.logic.ServerContext
@@ -51,7 +51,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         else
             server.bind(tcpPort, udpPort)
 
-        KryoCommon.registerClasses(server.kryo)
+        server.kryo.registerClasses()
         server.addListener(KryoListener())
         server.start()
     }
@@ -69,12 +69,13 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         }
 
         override fun disconnected(connection: Connection?) {
-            val session = this@KryoServer.sessions.remove(connection)?:return
+            val session = this@KryoServer.sessions.remove(connection) ?: return
             this@KryoServer.serverContext.messageDispatcher.dispatchWebsocketSessionClosed(session)
         }
 
         override fun received(connection: Connection, receivedObject: Any) {
-            val session = this@KryoServer.sessions[connection] ?: throw IllegalStateException("Unknown connection object")
+            val session = this@KryoServer.sessions[connection]
+                    ?: throw IllegalStateException("Unknown connection object")
             val response = handleReceivedObject(connection, session, receivedObject)
             session.sendObjectAsync(response)
         }

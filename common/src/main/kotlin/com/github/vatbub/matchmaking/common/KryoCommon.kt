@@ -27,46 +27,69 @@ import com.github.vatbub.matchmaking.common.requests.*
 import com.github.vatbub.matchmaking.common.responses.*
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetAddress
+import java.time.Instant
+import java.util.*
+import kotlin.collections.ArrayList
 
 object KryoCommon {
     const val defaultTcpPort = 872
+    const val defaultStringValueForInstantiation = "hgvjzftr7i680zogh__kryoDefaultValue__hgcfdtzre657t8zui"
+}
 
-    fun registerClasses(kryo: Kryo){
-        // data
-        kryo.register(GameData::class.java)
-        kryo.register(Room::class.java)
-        kryo.register(User::class.java)
+inline fun <reified T> kryoSafeListOf(vararg elements: T): List<T> = List(elements.size) { elements[it] }
 
-        // requests
-        kryo.register(DestroyRoomRequest::class.java)
-        kryo.register(DisconnectRequest::class.java)
-        kryo.register(GetConnectionIdRequest::class.java)
-        kryo.register(GetRoomDataRequest::class.java)
-        kryo.register(JoinOrCreateRoomRequest::class.java)
-        kryo.register(SendDataToHostRequest::class.java)
-        kryo.register(StartGameRequest::class.java)
-        kryo.register(SubscribeToRoomRequest::class.java)
-        kryo.register(UpdateGameStateRequest::class.java)
+fun Kryo.registerClasses() {
+    // data
+    val instantRegistration = this.register(Instant::class.java)!!
+    instantRegistration.setInstantiator { Instant.now() }
+    this.register(GameData::class.java)
+    val roomRegistration = this.register(Room::class.java)
+    roomRegistration.setInstantiator { Room(KryoCommon.defaultStringValueForInstantiation, KryoCommon.defaultStringValueForInstantiation) }
+    val userRegistration = this.register(User::class.java)
+    userRegistration.setInstantiator { User(KryoCommon.defaultStringValueForInstantiation, KryoCommon.defaultStringValueForInstantiation) }
 
-        // responses
-        kryo.register(AuthorizationException::class.java)
-        kryo.register(BadRequestException::class.java)
-        kryo.register(DestroyRoomResponse::class.java)
-        kryo.register(DisconnectResponse::class.java)
-        kryo.register(GetConnectionIdResponse::class.java)
-        kryo.register(GetRoomDataResponse::class.java)
-        kryo.register(InternalServerErrorException::class.java)
-        kryo.register(JoinOrCreateRoomResponse::class.java)
-        kryo.register(NotAllowedException::class.java)
-        kryo.register(ServerInteractionException::class.java)
-        kryo.register(SubscribeToRoomResponse::class.java)
-        kryo.register(UnknownConnectionIdException::class.java)
+    // requests
+    this.register(DestroyRoomRequest::class.java)
+    this.register(DisconnectRequest::class.java)
+    this.register(GetConnectionIdRequest::class.java)
+    this.register(GetRoomDataRequest::class.java)
+    this.register(JoinOrCreateRoomRequest::class.java)
+    this.register(SendDataToHostRequest::class.java)
+    this.register(StartGameRequest::class.java)
+    this.register(SubscribeToRoomRequest::class.java)
+    this.register(UpdateGameStateRequest::class.java)
 
-        // other
-        kryo.register(Operation::class.java)
+    // responses
+    this.register(AuthorizationException::class.java)
+    this.register(BadRequestException::class.java)
+    this.register(DestroyRoomResponse::class.java)
+    this.register(DisconnectResponse::class.java)
+    this.register(GetConnectionIdResponse::class.java)
+    this.register(GetRoomDataResponse::class.java)
+    this.register(InternalServerErrorException::class.java)
+    this.register(JoinOrCreateRoomResponse::class.java)
+    this.register(NotAllowedException::class.java)
+    this.register(ServerInteractionException::class.java)
+    this.register(SubscribeToRoomResponse::class.java)
+    this.register(UnknownConnectionIdException::class.java)
 
-        // testing.dummies
-        kryo.register(DummyRequest::class.java)
-        kryo.register(DummyResponse::class.java)
-    }
+    // other
+    this.register(Operation::class.java)
+    val listRegistration = this.register(ArrayList::class.java)
+    listRegistration.setInstantiator { ArrayList<Any>() }
+    val inet4AddressRegistration = this.register(Inet4Address::class.java)
+    inet4AddressRegistration.setInstantiator { InetAddress.getByName("129.187.211.162") }
+    val inet6AddressRegistration = this.register(Inet6Address::class.java)
+    inet6AddressRegistration.setInstantiator { InetAddress.getByName("2001:4ca0:2fff:11:0:0:0:25") }
+    // inner class Collections$UnmodifiableRandomAccessList is not public. We therefore need to get an instance of that
+    // class and get its javaClass-object
+    val unmodifiableRandomAccessListRegistration = this.register(Collections.unmodifiableList(listOf<Any>()).javaClass)
+    unmodifiableRandomAccessListRegistration.setInstantiator { Collections.unmodifiableList(listOf<Any>()) }
+
+    // testing.dummies
+    this.register(DummyRequest::class.java)
+    this.register(DummyResponse::class.java)
 }
