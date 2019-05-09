@@ -22,15 +22,20 @@ package com.github.vatbub.matchmaking.common.serializationtests
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
+import com.esotericsoftware.kryonet.Connection
+import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
+import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 
 private var lastFileCounter = -1
 internal val nextFileCounter: Int
@@ -45,7 +50,16 @@ internal fun nextObjectPath(root: Path) = root.resolve(nextObjectFileName)
 
 abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
         KotlinTestSuperclass() {
+    var kryoServer: KryoTestServer? = null
+    var kryoClient: KryoTestClient? = null
+
     abstract fun newObjectUnderTest(): T
+
+    @AfterEach
+    fun stopKryo() {
+        kryoClient?.client?.stop()
+        kryoServer?.server?.stop()
+    }
 
     @Test
     fun serializationTest() {
@@ -72,6 +86,33 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
             Assertions.assertEquals(originalObject, deserializedObject)
             Assertions.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
         }
+    }
+
+    @Test
+    fun kryoNetSerializationTest() {
+        val originalObject1 = newObjectUnderTest()
+        val originalObject2 = newObjectUnderTest()
+        var listener1Called = false
+        var listener2Called = false
+        kryoServer = KryoTestServer(object : Listener() {
+            override fun received(connection: Connection?, receivedObject: Any?) {
+                listener1Called = true
+                Assertions.assertEquals(originalObject1, receivedObject)
+                Assertions.assertEquals(originalObject1.hashCode(), receivedObject.hashCode())
+                connection?.sendTCP(originalObject2)
+            }
+        })
+        kryoClient = KryoTestClient(kryoTestServer = kryoServer!!, listener = object : Listener() {
+            override fun received(connection: Connection?, receivedObject: Any?) {
+                listener2Called = true
+                Assertions.assertEquals(originalObject2, receivedObject)
+                Assertions.assertEquals(originalObject2.hashCode(), receivedObject.hashCode())
+            }
+        })
+
+        kryoClient?.client?.sendTCP(originalObject1)
+        await().atMost(5, TimeUnit.SECONDS).until { listener1Called }
+        await().atMost(5, TimeUnit.SECONDS).until { listener2Called }
     }
 
     @Test

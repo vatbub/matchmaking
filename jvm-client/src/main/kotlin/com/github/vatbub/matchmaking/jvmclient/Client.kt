@@ -70,7 +70,7 @@ class Client(
         get() = connectionId
                 ?: throw IllegalStateException("ConnectionId unknown, use requestConnectionId() to request a new connection id and password from the server")
     private val safePassword: String
-        get() = connectionId
+        get() = password
                 ?: throw IllegalStateException("Password unknown, use requestConnectionId() to request a new connection id and password from the server")
     private var currentRoomId: String? = null
     private val safeCurrentRoomId: String

@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
 import com.esotericsoftware.kryonet.Connection
+import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.Request
@@ -62,7 +63,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         serverContext.resetMessageHandlers()
     }
 
-    inner class KryoListener() : Listener() {
+    inner class KryoListener : Listener() {
 
         override fun connected(connection: Connection) {
             this@KryoServer.sessions[connection] = KryoSessionWrapper(connection)
@@ -76,6 +77,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         override fun received(connection: Connection, receivedObject: Any) {
             val session = this@KryoServer.sessions[connection]
                     ?: throw IllegalStateException("Unknown connection object")
+            if (receivedObject is FrameworkMessage.KeepAlive) return
             val response = handleReceivedObject(connection, session, receivedObject)
             session.sendObjectAsync(response)
         }

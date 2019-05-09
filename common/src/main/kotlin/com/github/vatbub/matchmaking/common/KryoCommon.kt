@@ -78,6 +78,7 @@ fun Kryo.registerClasses() {
 
     // other
     this.register(Operation::class.java)
+    this.register(Result::class.java)
     val listRegistration = this.register(ArrayList::class.java)
     listRegistration.setInstantiator { ArrayList<Any>() }
     val inet4AddressRegistration = this.register(Inet4Address::class.java)
@@ -88,6 +89,8 @@ fun Kryo.registerClasses() {
     // class and get its javaClass-object
     val unmodifiableRandomAccessListRegistration = this.register(Collections.unmodifiableList(listOf<Any>()).javaClass)
     unmodifiableRandomAccessListRegistration.setInstantiator { Collections.unmodifiableList(listOf<Any>()) }
+    this.register(LinkedHashMap::class.java)
+    this.register(listOf<Any>().javaClass)
 
     // testing.dummies
     this.register(DummyRequest::class.java)

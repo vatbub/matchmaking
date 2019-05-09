@@ -20,8 +20,10 @@
 package com.github.vatbub.matchmaking.jvmclient
 
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.util.concurrent.TimeUnit
 
 class ClientTest : KotlinTestSuperclass() {
     @Test
@@ -41,12 +43,14 @@ class ClientTest : KotlinTestSuperclass() {
         client1.requestConnectionId()
         client2.requestConnectionId()
 
-        Thread.sleep(1000)
+        await().atMost(20, TimeUnit.SECONDS).until { client1.connected }
+        await().atMost(20, TimeUnit.SECONDS).until { client2.connected }
 
         client1.joinOrCreateRoom("vatbub")
         client2.joinOrCreateRoom("heykey")
 
-        Thread.sleep(1000)
+        await().atMost(20, TimeUnit.SECONDS).until { client1.roomConnected }
+        await().atMost(20, TimeUnit.SECONDS).until { client2.roomConnected }
 
         println("Is client 1 host?: ${client1.currentRoom?.amITheHost}")
         println("Is client 2 host?: ${client1.currentRoom?.amITheHost}")

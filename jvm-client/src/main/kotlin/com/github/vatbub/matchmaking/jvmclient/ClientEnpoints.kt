@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.jvmclient
 
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
+import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
@@ -42,11 +43,11 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
 
     internal fun verifyResponseIsNotAnException(response: Response) {
         when (response) {
-            is AuthorizationException -> throw response
-            is BadRequestException -> throw response
-            is InternalServerErrorException -> throw response
-            is NotAllowedException -> throw response
-            is UnknownConnectionIdException -> throw response
+            is AuthorizationException -> throw AuthorizationExceptionWrapper(response)
+            is BadRequestException -> throw BadRequestExceptionWrapper(response)
+            is InternalServerErrorException -> InternalServerErrorExceptionWrapper(response)
+            is NotAllowedException -> throw NotAllowedExceptionWrapper(response)
+            is UnknownConnectionIdException -> throw UnknownConnectionIdExceptionWrapper(response)
         }
     }
 
@@ -113,6 +114,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
 
             override fun received(connection: Connection, obj: Any) {
                 synchronized(Lock) {
+                    if (obj is FrameworkMessage.KeepAlive) return
                     if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
                     this@KryoEndpoint.verifyResponseIsNotAnException(obj)
 
@@ -152,7 +154,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
 
         override fun subscribeToRoom(connectionId: String, password: String, roomId: String, newRoomDataHandler: (DataRoom) -> Unit) {
             newRoomDataHandlers[roomId] = newRoomDataHandler
-            sendRequest<SubscribeToRoomResponse>(SubscribeToRoomRequest(connectionId, password, roomId)){}
+            sendRequest<SubscribeToRoomResponse>(SubscribeToRoomRequest(connectionId, password, roomId)) {}
         }
 
         override fun terminateConnection() {
