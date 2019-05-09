@@ -35,7 +35,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 object KryoCommon {
-    const val defaultTcpPort = 872
+    const val defaultTcpPort = 23500
     const val defaultStringValueForInstantiation = "hgvjzftr7i680zogh__kryoDefaultValue__hgcfdtzre657t8zui"
 }
 

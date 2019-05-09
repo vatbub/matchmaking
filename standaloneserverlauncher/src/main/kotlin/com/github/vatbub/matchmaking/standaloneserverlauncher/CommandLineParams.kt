@@ -33,10 +33,10 @@ class CommandLineParams {
     @Parameter(names = ["--launchKryo"], description = "If set to true, a kryo net server will be launched to listen on tcp or udp.")
     var launchKryo = false
 
-    @Parameter(names = ["--kryoTcpPort"])
+    @Parameter(names = ["--kryoTcpPort"], description = "The tcp port used by the kryo server. If this option is not specified, but --launchKryo is, port ${KryoCommon.defaultTcpPort} will be used.")
     var kryoTcpPort = KryoCommon.defaultTcpPort
 
-    @Parameter(names = ["--kryoUdpPort"])
+    @Parameter(names = ["--kryoUdpPort"], description = "The udp port used by the kryo server. If this option is not specified, but --launchKryo is, UDP will not be available.")
     var kryoUdpPort: Int? = null
 
     @Parameter(
