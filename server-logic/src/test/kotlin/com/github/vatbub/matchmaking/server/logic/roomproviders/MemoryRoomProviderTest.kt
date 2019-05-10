@@ -19,6 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
-class MemoryRoomProviderTest : RoomProviderTest() {
-    override fun newInstance(): RoomProvider = MemoryRoomProvider()
+class MemoryRoomProviderTest : RoomProviderTest<MemoryRoomProvider>() {
+    override fun newObjectUnderTest() = MemoryRoomProvider()
 }

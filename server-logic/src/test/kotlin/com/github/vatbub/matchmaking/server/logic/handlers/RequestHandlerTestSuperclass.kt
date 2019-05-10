@@ -22,7 +22,7 @@ package com.github.vatbub.matchmaking.server.logic.handlers
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.jupiter.api.Test
 
-abstract class RequestHandlerTestSuperclass: KotlinTestSuperclass() {
+abstract class RequestHandlerTestSuperclass<T : RequestHandler<*>> : KotlinTestSuperclass<T>() {
     @Test
     abstract fun handleTest()
 

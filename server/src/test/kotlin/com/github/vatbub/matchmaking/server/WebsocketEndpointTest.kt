@@ -25,6 +25,7 @@ import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DummyRequestHandler
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
@@ -39,14 +40,16 @@ import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import javax.websocket.*
 
-class WebsocketEndpointTest {
+class WebsocketEndpointTest : KotlinTestSuperclass<WebsocketEndpoint>() {
+    override fun newObjectUnderTest() = WebsocketEndpoint()
+
     private lateinit var websocketEndpoint: WebsocketEndpoint
     private lateinit var websocketSession: MockSession
     private lateinit var websocketEndpointConfig: EndpointConfig
 
     @BeforeEach
     fun instantiateAndCallOpen() {
-        websocketEndpoint = WebsocketEndpoint()
+        websocketEndpoint = newObjectUnderTest()
         websocketSession = MockSession()
         websocketEndpointConfig = MockEndpointConfig()
         websocketEndpoint.open(websocketSession, websocketEndpointConfig)
@@ -206,7 +209,7 @@ class WebsocketEndpointTest {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
-        override fun getUserProperties()=mutableMapOf<String, Any>()
+        override fun getUserProperties() = mutableMapOf<String, Any>()
     }
 
     private class MockBasicEndpoint : RemoteEndpoint.Basic {

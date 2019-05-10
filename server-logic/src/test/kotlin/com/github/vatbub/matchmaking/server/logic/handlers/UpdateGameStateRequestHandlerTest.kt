@@ -29,7 +29,9 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
+class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass<UpdateGameStateRequestHandler>() {
+    override fun newObjectUnderTest() = UpdateGameStateRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
@@ -53,13 +55,13 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
         newGameState["newKey"] = "newValue"
 
         val request =
-            UpdateGameStateRequest(
-                TestUtils.defaultConnectionId,
-                TestUtils.defaultPassword,
-                room.id,
-                newGameState,
-                listOf(dataToHost1)
-            )
+                UpdateGameStateRequest(
+                        TestUtils.defaultConnectionId,
+                        TestUtils.defaultPassword,
+                        room.id,
+                        newGameState,
+                        listOf(dataToHost1)
+                )
         val response = handler.handle(request, null, null)
 
         response as GetRoomDataResponse
@@ -74,11 +76,11 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
         val handler = UpdateGameStateRequestHandler(roomProvider)
 
         val request = UpdateGameStateRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(),
-            GameData(TestUtils.defaultConnectionId),
-            listOf()
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(),
+                GameData(TestUtils.defaultConnectionId),
+                listOf()
         )
         val response = handler.handle(request, null, null)
 
@@ -96,18 +98,18 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
 
         val connectionId = TestUtils.getRandomHexString(TestUtils.defaultConnectionId)
         val request = UpdateGameStateRequest(
-            connectionId,
-            TestUtils.defaultPassword,
-            room.id,
-            GameData(room.hostUserConnectionId),
-            listOf()
+                connectionId,
+                TestUtils.defaultPassword,
+                room.id,
+                GameData(room.hostUserConnectionId),
+                listOf()
         )
         val response = handler.handle(request, null, null)
 
         response as NotAllowedException
         Assertions.assertEquals(
-            "Unable to set the game state: The sending client is not the host, only a game host can start the game",
-            response.message
+                "Unable to set the game state: The sending client is not the host, only a game host can start the game",
+                response.message
         )
         Assertions.assertEquals(connectionId, response.connectionId)
     }
@@ -116,11 +118,11 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun positiveCanHandleTest() {
         val handler = UpdateGameStateRequestHandler(MemoryRoomProvider())
         val request = UpdateGameStateRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(),
-            GameData(TestUtils.defaultConnectionId),
-            listOf()
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(),
+                GameData(TestUtils.defaultConnectionId),
+                listOf()
         )
         Assertions.assertTrue(handler.canHandle(request))
     }
@@ -136,11 +138,11 @@ class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun needsAuthenticationTest() {
         val handler = UpdateGameStateRequestHandler(MemoryRoomProvider())
         val request = UpdateGameStateRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(),
-            GameData(TestUtils.defaultConnectionId),
-            listOf()
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(),
+                GameData(TestUtils.defaultConnectionId),
+                listOf()
         )
         Assertions.assertTrue(handler.needsAuthentication(request))
     }

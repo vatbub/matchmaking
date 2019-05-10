@@ -30,7 +30,9 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
+class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass<SubscribeToRoomRequestHandler>() {
+    override fun newObjectUnderTest() = SubscribeToRoomRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val handler = SubscribeToRoomRequestHandler(MemoryRoomProvider())

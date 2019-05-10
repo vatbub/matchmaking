@@ -26,15 +26,13 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
-    KotlinTestSuperclass() {
-
-    abstract fun newInstance(): T
+        KotlinTestSuperclass<T>() {
 
     @Test
     fun createIdTest() {
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         for (i in 1..numberOfIdsToCreate) {
             val newId = connectionIdProvider.getNewId()
             Assertions.assertNotNull(newId.connectionId)
@@ -47,19 +45,19 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
     @Test
     fun negativeContainsIdTest() {
         val testValue = (4567876543).toString(16)
-        Assertions.assertFalse(newInstance().containsId(testValue))
+        Assertions.assertFalse(newObjectUnderTest().containsId(testValue))
     }
 
     @Test
     fun positiveContainsIdTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertTrue(connectionIdProvider.containsId(id.connectionId))
     }
 
     @Test
     fun resetTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
@@ -73,7 +71,7 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
 
     @Test
     fun positiveDeleteIdTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val numberOfIdsToCreate = 10
         val createdIds = mutableListOf<Id>()
         for (i in 1..numberOfIdsToCreate)
@@ -90,29 +88,29 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
     @Test
     fun negativeDeleteIdTest() {
         val testValue = (4567876543).toString(16)
-        Assertions.assertNull(newInstance().deleteId(testValue))
+        Assertions.assertNull(newObjectUnderTest().deleteId(testValue))
     }
 
     @Test
     fun deleteIdConnectionIdNullTest() {
-        Assertions.assertNull(newInstance().deleteId(Id(null, null)))
+        Assertions.assertNull(newObjectUnderTest().deleteId(Id(null, null)))
     }
 
     @Test
     fun isAuthorizedConnectionIdNullTest() {
-        Assertions.assertEquals(NotAuthorized, newInstance().isAuthorized(Id(null, null)))
+        Assertions.assertEquals(NotAuthorized, newObjectUnderTest().isAuthorized(Id(null, null)))
     }
 
     @Test
     fun isAuthorizedPasswordNullTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(NotAuthorized, connectionIdProvider.isAuthorized(Id(id.connectionId, null)))
     }
 
     @Test
     fun negativeIsAuthorizedTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
             NotAuthorized,
@@ -122,7 +120,7 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
 
     @Test
     fun isAuthorizedConnectionIdNotFoundTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
             NotFound,
@@ -132,7 +130,7 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
 
     @Test
     fun positiveIsAuthorizedTest() {
-        val connectionIdProvider = newInstance()
+        val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(Authorized, connectionIdProvider.isAuthorized(id))
     }

@@ -23,6 +23,7 @@ import com.github.vatbub.matchmaking.server.logic.idprovider.JdbcIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -31,7 +32,9 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.FileWriter
 import java.nio.file.Path
 
-class ConfigurationTest {
+class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
+    override fun newObjectUnderTest() = ConfigurationManager.getInstance()
+
     @BeforeEach
     fun beforeEachTest() {
         ConfigurationManager.resetInstance()

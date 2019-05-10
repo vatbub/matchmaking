@@ -19,11 +19,10 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Test
 
-class ConfigurationExamples : KotlinTestSuperclass() {
+class ConfigurationExamples {
     private val gson = GsonBuilder().setPrettyPrinting().create()!!
 
     @Test

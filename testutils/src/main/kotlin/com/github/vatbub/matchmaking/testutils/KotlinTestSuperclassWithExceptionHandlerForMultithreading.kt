@@ -22,7 +22,7 @@ package com.github.vatbub.matchmaking.testutils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-open class KotlinTestSuperclassWithExceptionHandlerForMultithreading: KotlinTestSuperclass() {
+abstract class KotlinTestSuperclassWithExceptionHandlerForMultithreading<T> : KotlinTestSuperclass<T>() {
     private var previousExceptionHandler: Thread.UncaughtExceptionHandler? = null
     private var mainThread: Thread? = null
     private val uncaughtExceptions = mutableListOf<Throwable>()

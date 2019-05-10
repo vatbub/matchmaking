@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class MemoryIdProviderTest : ConnectionIdProviderTest<MemoryIdProvider>() {
-    override fun newInstance(): MemoryIdProvider = MemoryIdProvider()
+    override fun newObjectUnderTest(): MemoryIdProvider = MemoryIdProvider()
 
     @Test
     fun unmodifiableConnectionIdsInUseList() {
-        val connectionIds = newInstance().connectionIdsInUse as MutableMap
+        val connectionIds = newObjectUnderTest().connectionIdsInUse as MutableMap
         Assertions.assertThrows(UnsupportedOperationException::class.java) {
             connectionIds["id"] = Id("id", "password")
         }

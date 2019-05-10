@@ -29,21 +29,23 @@ import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DisconnectRequestHandlerTest : RequestHandlerTestSuperclass() {
+class DisconnectRequestHandlerTest : RequestHandlerTestSuperclass<DisconnectRequestHandler>() {
+    override fun newObjectUnderTest() = DisconnectRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
 
         val hostedRooms = listOf(
-            roomProvider.createNewRoom(TestUtils.defaultConnectionId),
-            roomProvider.createNewRoom(TestUtils.defaultConnectionId),
-            roomProvider.createNewRoom(TestUtils.defaultConnectionId)
+                roomProvider.createNewRoom(TestUtils.defaultConnectionId),
+                roomProvider.createNewRoom(TestUtils.defaultConnectionId),
+                roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         )
 
         val connectedRooms = listOf(
-            roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)),
-            roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)),
-            roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId))
+                roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)),
+                roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId)),
+                roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId))
         )
 
         for (room in connectedRooms) {

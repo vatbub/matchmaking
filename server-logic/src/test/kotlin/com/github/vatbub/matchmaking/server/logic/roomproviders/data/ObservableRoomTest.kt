@@ -27,18 +27,20 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class ObservableRoomTest : KotlinTestSuperclass() {
+class ObservableRoomTest : KotlinTestSuperclass<ObservableRoom>() {
+    override fun newObjectUnderTest() = ObservableRoom(Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId))
+
     @Test
     fun copyTest() {
         val room =
-            Room(
-                TestUtils.getRandomHexString(),
-                TestUtils.defaultConnectionId,
-                listOf("vatbub", "heykey"),
-                listOf("leoll"),
-                2,
-                5
-            )
+                Room(
+                        TestUtils.getRandomHexString(),
+                        TestUtils.defaultConnectionId,
+                        listOf("vatbub", "heykey"),
+                        listOf("leoll"),
+                        2,
+                        5
+                )
         room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         room.gameState["someKey"] = "someValue"
         room.gameStarted = true
@@ -63,14 +65,14 @@ class ObservableRoomTest : KotlinTestSuperclass() {
     @Test
     fun toRoomTest() {
         val room =
-            Room(
-                TestUtils.getRandomHexString(),
-                TestUtils.defaultConnectionId,
-                listOf("vatbub", "heykey"),
-                listOf("leoll"),
-                2,
-                5
-            )
+                Room(
+                        TestUtils.getRandomHexString(),
+                        TestUtils.defaultConnectionId,
+                        listOf("vatbub", "heykey"),
+                        listOf("leoll"),
+                        2,
+                        5
+                )
         room.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         room.gameState["someKey"] = "someValue"
         room.gameStarted = true

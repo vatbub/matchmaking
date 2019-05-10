@@ -19,10 +19,13 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class ObservableMutableListTest {
+class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>() {
+    override fun newObjectUnderTest() = ObservableMutableList<Any>(0)
+
     @Test
     fun onAddTest() {
         var listenerCalled = false

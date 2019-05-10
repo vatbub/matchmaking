@@ -29,7 +29,9 @@ import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
+class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass<DestroyRoomRequestHandler>() {
+    override fun newObjectUnderTest() = DestroyRoomRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
@@ -57,8 +59,8 @@ class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
         Assertions.assertTrue(response is NotAllowedException)
         response as NotAllowedException
         Assertions.assertEquals(
-            response.message,
-            "The sender's connection id does not equal the room's host connection id. Only the host can destroy a room."
+                response.message,
+                "The sender's connection id does not equal the room's host connection id. Only the host can destroy a room."
         )
     }
 
@@ -69,9 +71,9 @@ class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
 
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val request = DestroyRoomRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(room.id)
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(room.id)
         )
         val response = handler.handle(request, null, null)
 
@@ -83,7 +85,7 @@ class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun positiveCanHandleTest() {
         val request =
-            DestroyRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                DestroyRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         val handler = DestroyRoomRequestHandler(MemoryRoomProvider())
         Assertions.assertTrue(handler.canHandle(request))
     }
@@ -98,7 +100,7 @@ class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun needsAuthenticationTest() {
         val request =
-            DestroyRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                DestroyRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         val handler = DestroyRoomRequestHandler(MemoryRoomProvider())
         Assertions.assertTrue(handler.needsAuthentication(request))
     }

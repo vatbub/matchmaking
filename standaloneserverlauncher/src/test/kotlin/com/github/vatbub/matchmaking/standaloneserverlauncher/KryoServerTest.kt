@@ -21,7 +21,13 @@ import org.junit.jupiter.api.Test
 import java.net.InetAddress
 import kotlin.random.Random
 
-open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading() {
+open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoServer>() {
+    override fun newObjectUnderTest(): KryoServer {
+        if (server == null)
+            server = KryoServer(KryoCommon.defaultTcpPort, udpPort)
+        return server!!
+    }
+
     private val serverContext = ServerContext()
     private var server: KryoServer? = null
     private var client: KryoTestClient? = null

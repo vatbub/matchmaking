@@ -51,11 +51,9 @@ internal val nextObjectFileName: String
 internal fun nextObjectPath(root: Path) = root.resolve(nextObjectFileName)
 
 abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>) :
-        KotlinTestSuperclass() {
-    var kryoServer: KryoTestServer? = null
-    var kryoClient: KryoTestClient? = null
-
-    abstract fun newObjectUnderTest(): T
+        KotlinTestSuperclass<T>() {
+    private var kryoServer: KryoTestServer? = null
+    private var kryoClient: KryoTestClient? = null
 
     @AfterEach
     fun stopKryo() {

@@ -24,7 +24,9 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class GameDataTest : KotlinTestSuperclass() {
+class GameDataTest : KotlinTestSuperclass<GameData>() {
+    override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
+
     private fun <T : Any> testGameData(key: String, value: T) {
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
@@ -41,43 +43,43 @@ class GameDataTest : KotlinTestSuperclass() {
 
     @Test
     fun byteTest() =
-        testGameData("sampleByte", 5)
+            testGameData("sampleByte", 5)
 
     @Test
     fun byteArrayTest() =
-        testGameData("sampleByteArray", ByteArray(3) { i -> i.toByte() })
+            testGameData("sampleByteArray", ByteArray(3) { i -> i.toByte() })
 
     @Test
     fun charTest() =
-        testGameData("sampleChar", 'a')
+            testGameData("sampleChar", 'a')
 
     @Test
     fun charArrayTest() =
-        testGameData("sampleCharArray", CharArray(3) { i -> i.toChar() })
+            testGameData("sampleCharArray", CharArray(3) { i -> i.toChar() })
 
     @Test
     fun stringTest() =
-        testGameData("sampleString", "Hello")
+            testGameData("sampleString", "Hello")
 
     @Test
     fun stringArrayTest() =
-        testGameData("sampleStringArray", arrayOf("Hello", "Test"))
+            testGameData("sampleStringArray", arrayOf("Hello", "Test"))
 
     @Test
     fun stringListTest() =
-        testGameData("sampleStringList", listOf("Hello", "Test"))
+            testGameData("sampleStringList", listOf("Hello", "Test"))
 
     @Test
     fun floatTest() =
-        testGameData("sampleFloat", 5.0f)
+            testGameData("sampleFloat", 5.0f)
 
     @Test
     fun floatArrayTest() =
-        testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() })
+            testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() })
 
     @Test
     fun integerListTest() =
-        testGameData("sampleIntegerList", IntArray(3) { i -> i })
+            testGameData("sampleIntegerList", IntArray(3) { i -> i })
 
     @Test
     fun shortTest() {

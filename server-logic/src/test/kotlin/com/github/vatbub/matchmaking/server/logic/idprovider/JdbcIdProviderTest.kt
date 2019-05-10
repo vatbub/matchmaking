@@ -31,7 +31,7 @@ class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
         var dbCounter = 0
     }
 
-    override fun newInstance(): JdbcIdProvider {
+    override fun newObjectUnderTest(): JdbcIdProvider {
         val useMemDb = true
         @Suppress("ConstantConditionIf")
         val provider = if (useMemDb)

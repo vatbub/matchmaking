@@ -28,17 +28,15 @@ import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-abstract class RoomProviderTest : KotlinTestSuperclass() {
-    abstract fun newInstance(): RoomProvider
-
+abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     @Test
     fun negativeContainsTest() {
-        Assertions.assertFalse(newInstance().containsRoom("khczufgijkln"))
+        Assertions.assertFalse(newObjectUnderTest().containsRoom("khczufgijkln"))
     }
 
     @Test
     fun positiveContainsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom("1d6aa98d")
         Assertions.assertTrue(roomProvider.containsRoom(room.id))
     }
@@ -54,7 +52,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
         val roomIds = mutableListOf<String>()
         for (expectedRoom in expectedRooms) {
-            val room = newInstance().createNewRoom(
+            val room = newObjectUnderTest().createNewRoom(
                 expectedRoom.hostUserConnectionId,
                 expectedRoom.whitelist,
                 expectedRoom.blacklist,
@@ -73,7 +71,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun getRoomTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoom1 = roomProvider.createNewRoom("29c806f4")
         val createdRoom2 = roomProvider.createNewRoom("325f6f32")
         val retrievedRoom1 = roomProvider[createdRoom1.id]
@@ -86,7 +84,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun createRoomImmutabilityTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoom = roomProvider.createNewRoom("29c806f4")
         val retrievedRoom1 = roomProvider[createdRoom.id]!!
         retrievedRoom1.gameStarted = true
@@ -102,7 +100,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun getRoomImmutabilityTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoom = roomProvider.createNewRoom("29c806f4")
         val retrievedRoom1 = roomProvider[createdRoom.id]!!
         retrievedRoom1.gameStarted = true
@@ -120,7 +118,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun getRoomsByIdTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
         val hostConnectionIds = listOf(
             "250b7528",
@@ -155,7 +153,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun getRoomsByIdImmutabilityTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
         val hostConnectionIds = listOf(
             "250b7528",
@@ -199,7 +197,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun deleteRoomTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom("1ffbec47")
         Assertions.assertTrue(roomProvider.containsRoom(room.id))
         Assertions.assertNotNull(roomProvider[room.id])
@@ -212,7 +210,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun deleteRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -251,13 +249,13 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun deleteNonExistingRoomTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         Assertions.assertNull(roomProvider.deleteRoom(TestUtils.getRandomHexString()))
     }
 
     @Test
     fun deleteNonExistingRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
 
         val roomIds = mutableListOf<String>()
 
@@ -272,7 +270,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun clearRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -299,7 +297,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun getAllRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -325,7 +323,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun atomicityOfTransactionsAbortTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -346,7 +344,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun atomicityOfTransactionsCommitTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -369,7 +367,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun isolationOfParallelTransactionsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         if (!roomProvider.supportsConcurrentTransactionsOnSameRoom)
             return
 
@@ -395,7 +393,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun schedulingOfParallelTransactionsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         if (roomProvider.supportsConcurrentTransactionsOnSameRoom)
             return
 
@@ -421,7 +419,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val roomTransaction = roomProvider.beginTransactionWithRoom(room.id)
         Assert.assertNotNull(roomTransaction)
@@ -432,7 +430,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionForAllRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -459,7 +457,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionForRoomsWithFilterTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val targetConnectionId = "250b7528"
         val hostConnectionIds = listOf(
             targetConnectionId,
@@ -491,14 +489,14 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionRoomNotFoundTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val roomTransaction = roomProvider.beginTransactionWithRoom(TestUtils.getRandomHexString())
         Assert.assertNull(roomTransaction)
     }
 
     @Test
     fun beginTransactionsWithRoomsVarargTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoomIds = Array(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
 
         var callCount = 0
@@ -513,7 +511,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionsWithRoomsListTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoomIds = List(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
 
         var callCount = 0
@@ -528,7 +526,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionsWithRoomsVarargUnknownIdTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
         createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
 
@@ -546,7 +544,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun beginTransactionsWithRoomsListUnknownIdTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val createdRoomIds = MutableList(5) { roomProvider.createNewRoom(TestUtils.defaultConnectionId).id }
         createdRoomIds.add(TestUtils.getRandomHexString(*createdRoomIds.toTypedArray()))
 
@@ -562,12 +560,12 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun hasApplicableRoomEmptyProviderTest() {
-        Assertions.assertNull(newInstance().hasApplicableRoom("vatbub"))
+        Assertions.assertNull(newObjectUnderTest().hasApplicableRoom("vatbub"))
     }
 
     @Test
     fun hasApplicableRoomLobbyFullTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
 
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -580,21 +578,21 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun hasApplicableRoomNonMatchingMinRoomSizeTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         roomProvider.createNewRoom(TestUtils.defaultConnectionId, minRoomSize = 0)
         Assertions.assertNull(roomProvider.hasApplicableRoom("mo-mar"))
     }
 
     @Test
     fun hasApplicableRoomNonMatchingMaxRoomSizeTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         roomProvider.createNewRoom(TestUtils.defaultConnectionId, maxRoomSize = 5)
         Assertions.assertNull(roomProvider.hasApplicableRoom("mo-mar"))
     }
 
     @Test
     fun hasApplicableRoomNonMatchingRoomBlacklistTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val userName = "mo-mar"
         roomProvider.createNewRoom(TestUtils.defaultConnectionId, blacklist = listOf(userName))
         Assertions.assertNull(roomProvider.hasApplicableRoom(userName))
@@ -602,14 +600,14 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun hasApplicableRoomNonMatchingRoomWhitelistTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         roomProvider.createNewRoom(TestUtils.defaultConnectionId, whitelist = listOf("mo-mar"))
         Assertions.assertNull(roomProvider.hasApplicableRoom("vatbub"))
     }
 
     @Test
     fun hasApplicableRoomNonMatchingRequestBlacklistTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val userName = "mo-mar"
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
@@ -620,7 +618,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun hasApplicableRoomNonMatchingRequestWhitelistTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
         transaction.room.connectedUsers.add(User(TestUtils.defaultConnectionId, "mo-mar"))
@@ -630,7 +628,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun positiveHasApplicableRoomTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val applicableRoomTransaction = roomProvider.hasApplicableRoom("mo-mar")
         Assertions.assertNotNull(applicableRoomTransaction)
@@ -641,7 +639,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun positiveHasApplicableRoomWithMultipleApplicableRoomsTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room1 = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         roomProvider.createNewRoom(TestUtils.getRandomHexString(TestUtils.defaultConnectionId))
         val applicableRoomTransaction = roomProvider.hasApplicableRoom("mo-mar")
@@ -653,7 +651,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun filterTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val targetConnectionId = "250b7528"
         val hostConnectionIds = listOf(
             targetConnectionId,
@@ -679,7 +677,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun forEachTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
             "250b7528",
             "2ac2ed78",
@@ -705,7 +703,7 @@ abstract class RoomProviderTest : KotlinTestSuperclass() {
 
     @Test
     fun dataToBeSentToHostTest() {
-        val roomProvider = newInstance()
+        val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val transaction = roomProvider.beginTransactionWithRoom(room.id)!!
 

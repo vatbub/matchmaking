@@ -29,7 +29,6 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Test
@@ -37,7 +36,7 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 
-class DocumentationSamples : KotlinTestSuperclass() {
+class DocumentationSamples {
     companion object {
         private var backingGson: Gson? = null
         private val gson: Gson
@@ -69,14 +68,14 @@ class DocumentationSamples : KotlinTestSuperclass() {
     @Test
     fun joinOrCreateRoomRequest() {
         serializeAndPrint(
-            JoinOrCreateRoomRequest(
-                connectionId,
-                password,
-                Operation.JoinOrCreateRoom,
-                "vatbub",
-                listOf("heykey", "mo-mar"),
-                listOf("leoll")
-            )
+                JoinOrCreateRoomRequest(
+                        connectionId,
+                        password,
+                        Operation.JoinOrCreateRoom,
+                        "vatbub",
+                        listOf("heykey", "mo-mar"),
+                        listOf("leoll")
+                )
         )
     }
 
@@ -94,12 +93,12 @@ class DocumentationSamples : KotlinTestSuperclass() {
     fun getRoomDataResponse() {
         val roomCopy = room.copy()
         roomCopy.connectedUsers.add(
-            User(
-                "13527189",
-                "vatbub",
-                InetAddress.getByName("192.168.5.0") as Inet4Address,
-                InetAddress.getByName("684D:1111:222:3333:4444:5555:6:77") as Inet6Address
-            )
+                User(
+                        "13527189",
+                        "vatbub",
+                        InetAddress.getByName("192.168.5.0") as Inet4Address,
+                        InetAddress.getByName("684D:1111:222:3333:4444:5555:6:77") as Inet6Address
+                )
         )
         serializeAndPrint(GetRoomDataResponse(connectionId, roomCopy))
     }

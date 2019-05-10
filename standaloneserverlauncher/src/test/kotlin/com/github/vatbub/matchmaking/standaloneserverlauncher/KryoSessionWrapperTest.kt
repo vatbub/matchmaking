@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
-class KryoSessionWrapperTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading() {
+class KryoSessionWrapperTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoSessionWrapper>() {
+    override fun newObjectUnderTest() = KryoSessionWrapper(object : Connection() {})
+
     @Test
     fun sendObjectTcpSyncTest() {
         val tcpObject = GetConnectionIdResponse(TestUtils.defaultConnectionId, TestUtils.defaultPassword)

@@ -31,7 +31,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
+class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass<JoinOrCreateRoomRequestHandler>() {
+    override fun newObjectUnderTest() = JoinOrCreateRoomRequestHandler(MemoryRoomProvider())
+
     private lateinit var handler: JoinOrCreateRoomRequestHandler
     private lateinit var roomProvider: RoomProvider
 
@@ -44,10 +46,10 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun handleTest() {
         val request1 = JoinOrCreateRoomRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            Operation.JoinOrCreateRoom,
-            "vatbub"
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                Operation.JoinOrCreateRoom,
+                "vatbub"
         )
 
         val response1 = handler.handle(request1, null, null)
@@ -63,10 +65,10 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
         Assertions.assertEquals(request1.userName, roomProvider[roomId]!!.connectedUsers[0].userName)
 
         val request2 = JoinOrCreateRoomRequest(
-            TestUtils.getRandomHexString(TestUtils.defaultConnectionId),
-            TestUtils.getRandomHexString(TestUtils.defaultPassword),
-            Operation.JoinOrCreateRoom,
-            "heykey"
+                TestUtils.getRandomHexString(TestUtils.defaultConnectionId),
+                TestUtils.getRandomHexString(TestUtils.defaultPassword),
+                Operation.JoinOrCreateRoom,
+                "heykey"
         )
 
         val response2 = handler.handle(request2, null, null)
@@ -85,11 +87,11 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     fun handleRequestWithResultNothingTest() {
         val request = JoinOrCreateRoomRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            Operation.JoinRoom,
-            "vatbub",
-            maxRoomSize = 2
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                Operation.JoinRoom,
+                "vatbub",
+                maxRoomSize = 2
         )
 
         val response = handler.handle(request, null, null)
@@ -104,12 +106,12 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun positiveCanHandleTest() {
         val request =
-            JoinOrCreateRoomRequest(
-                TestUtils.defaultConnectionId,
-                TestUtils.defaultPassword,
-                Operation.JoinOrCreateRoom,
-                "vatbub"
-            )
+                JoinOrCreateRoomRequest(
+                        TestUtils.defaultConnectionId,
+                        TestUtils.defaultPassword,
+                        Operation.JoinOrCreateRoom,
+                        "vatbub"
+                )
         Assertions.assertTrue(handler.canHandle(request))
     }
 
@@ -122,12 +124,12 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun needsAuthenticationTest() {
         val request =
-            JoinOrCreateRoomRequest(
-                TestUtils.defaultConnectionId,
-                TestUtils.defaultPassword,
-                Operation.JoinOrCreateRoom,
-                "vatbub"
-            )
+                JoinOrCreateRoomRequest(
+                        TestUtils.defaultConnectionId,
+                        TestUtils.defaultPassword,
+                        Operation.JoinOrCreateRoom,
+                        "vatbub"
+                )
         Assertions.assertTrue(handler.needsAuthentication(request))
     }
 }

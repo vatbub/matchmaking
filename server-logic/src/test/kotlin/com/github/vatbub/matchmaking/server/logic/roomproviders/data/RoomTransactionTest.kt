@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 
+import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
@@ -26,7 +27,9 @@ import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class RoomTransactionTest : KotlinTestSuperclass() {
+class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
+    override fun newObjectUnderTest() = RoomTransaction(ObservableRoom(Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId)), MemoryRoomProvider())
+
     @Test
     fun equalityTest() {
         val roomProvider = DummyRoomProvider()

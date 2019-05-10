@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
+class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass<GetRoomDataRequestHandler>() {
+    override fun newObjectUnderTest() = GetRoomDataRequestHandler(MemoryRoomProvider())
+
     private lateinit var handler: GetRoomDataRequestHandler
     private lateinit var roomProvider: RoomProvider
 
@@ -51,7 +53,7 @@ class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     fun handleRoomNotFoundTest() {
         val request =
-            GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         val response = handler.handle(request, null, null)
 
         Assertions.assertNull(response.room)
@@ -60,7 +62,7 @@ class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun positiveCanHandleTest() {
         val request =
-            GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         Assertions.assertTrue(handler.canHandle(request))
     }
 
@@ -73,7 +75,7 @@ class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass() {
     @Test
     override fun needsAuthenticationTest() {
         val request =
-            GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                GetRoomDataRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         Assertions.assertTrue(handler.needsAuthentication(request))
     }
 

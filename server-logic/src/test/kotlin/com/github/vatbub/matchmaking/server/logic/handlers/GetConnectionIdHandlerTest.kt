@@ -27,7 +27,9 @@ import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass() {
+class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass<GetConnectionIdHandler>() {
+    override fun newObjectUnderTest() = GetConnectionIdHandler(MemoryIdProvider())
+
     @Test
     override fun needsAuthenticationTest() {
         val request = GetConnectionIdRequest()

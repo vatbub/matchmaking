@@ -39,7 +39,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.net.URL
 
-class ServerServletTest : KotlinTestSuperclass() {
+class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
+    override fun newObjectUnderTest() = ServerServlet()
 
     private val tomcatPort: Int = 9999
     private val apiSuffix: String = "matchmaking"

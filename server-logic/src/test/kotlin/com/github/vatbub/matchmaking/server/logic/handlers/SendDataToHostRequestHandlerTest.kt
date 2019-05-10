@@ -28,7 +28,9 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
+class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass<SendDataToHostRequestHandler>() {
+    override fun newObjectUnderTest() = SendDataToHostRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
@@ -36,7 +38,7 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val gameDataToBeSent = listOf(GameData(TestUtils.defaultConnectionId))
         val request =
-            SendDataToHostRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, room.id, gameDataToBeSent)
+                SendDataToHostRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, room.id, gameDataToBeSent)
         val response = handler.handle(request, null, null)
 
         Assertions.assertTrue(response is GetRoomDataResponse)
@@ -44,8 +46,8 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
         val modifiedRoom = response.room!!
 
         Assertions.assertEquals(
-            room.dataToBeSentToTheHost.size + gameDataToBeSent.size,
-            modifiedRoom.dataToBeSentToTheHost.size
+                room.dataToBeSentToTheHost.size + gameDataToBeSent.size,
+                modifiedRoom.dataToBeSentToTheHost.size
         )
         Assertions.assertEquals(gameDataToBeSent, modifiedRoom.dataToBeSentToTheHost)
     }
@@ -55,12 +57,12 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
         val handler = SendDataToHostRequestHandler(MemoryRoomProvider())
         val gameDataToBeSent = listOf(GameData(TestUtils.defaultConnectionId))
         val request =
-            SendDataToHostRequest(
-                TestUtils.defaultConnectionId,
-                TestUtils.defaultPassword,
-                TestUtils.getRandomHexString(),
-                gameDataToBeSent
-            )
+                SendDataToHostRequest(
+                        TestUtils.defaultConnectionId,
+                        TestUtils.defaultPassword,
+                        TestUtils.getRandomHexString(),
+                        gameDataToBeSent
+                )
         val response = handler.handle(request, null, null)
 
         Assertions.assertTrue(response is GetRoomDataResponse)
@@ -72,10 +74,10 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun positiveCanHandleTest() {
         val handler = SendDataToHostRequestHandler(MemoryRoomProvider())
         val request = SendDataToHostRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(),
-            listOf()
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(),
+                listOf()
         )
         Assertions.assertTrue(handler.canHandle(request))
     }
@@ -90,10 +92,10 @@ class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun needsAuthenticationTest() {
         val handler = SendDataToHostRequestHandler(MemoryRoomProvider())
         val request = SendDataToHostRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString(),
-            listOf()
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                TestUtils.getRandomHexString(),
+                listOf()
         )
         Assertions.assertTrue(handler.needsAuthentication(request))
     }

@@ -22,14 +22,14 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 
-class JdbcRoomProviderTest : RoomProviderTest() {
+class JdbcRoomProviderTest : RoomProviderTest<JdbcRoomProvider>() {
     private var lastProviderInstance: JdbcRoomProvider? = null
 
     companion object {
         var dbCounter = 0
     }
 
-    override fun newInstance(): JdbcRoomProvider {
+    override fun newObjectUnderTest(): JdbcRoomProvider {
         val useMemDb = true
         @Suppress("ConstantConditionIf")
         val provider = if (useMemDb)

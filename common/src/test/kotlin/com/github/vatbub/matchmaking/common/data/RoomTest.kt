@@ -24,18 +24,20 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class RoomTest : KotlinTestSuperclass() {
+class RoomTest : KotlinTestSuperclass<Room>() {
+    override fun newObjectUnderTest() = Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId)
+
     @Test
     fun copyTest() {
         val original =
-            Room(
-                TestUtils.getRandomHexString(),
-                TestUtils.defaultConnectionId,
-                listOf("vatbub", "heykey"),
-                listOf("leoll"),
-                2,
-                5
-            )
+                Room(
+                        TestUtils.getRandomHexString(),
+                        TestUtils.defaultConnectionId,
+                        listOf("vatbub", "heykey"),
+                        listOf("leoll"),
+                        2,
+                        5
+                )
         original.connectedUsers.add(User(TestUtils.defaultConnectionId, "vatbub"))
         original.gameState["someKey"] = "someValue"
         original.gameStarted = true
@@ -60,12 +62,12 @@ class RoomTest : KotlinTestSuperclass() {
     @Test
     fun equalsTest() {
         val original = Room(
-            TestUtils.getRandomHexString(),
-            TestUtils.defaultConnectionId,
-            listOf("vatbub", "heykey"),
-            listOf("leoll"),
-            2,
-            5
+                TestUtils.getRandomHexString(),
+                TestUtils.defaultConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
         )
 
         val copy = original.copy()
@@ -77,12 +79,12 @@ class RoomTest : KotlinTestSuperclass() {
     @Test
     fun hashCodeTest() {
         val original = Room(
-            TestUtils.getRandomHexString(),
-            TestUtils.defaultConnectionId,
-            listOf("vatbub", "heykey"),
-            listOf("leoll"),
-            2,
-            5
+                TestUtils.getRandomHexString(),
+                TestUtils.defaultConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
         )
 
         val copy = original.copy()

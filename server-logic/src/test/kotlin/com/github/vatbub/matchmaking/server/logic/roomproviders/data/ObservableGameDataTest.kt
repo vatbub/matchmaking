@@ -20,13 +20,16 @@
 package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 
 import com.github.vatbub.matchmaking.common.data.GameData
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class ObservableGameDataTest {
+class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
+    override fun newObjectUnderTest() = ObservableGameData(GameData(TestUtils.defaultConnectionId))
+
     @Test
     fun immutabilityTest() {
         val originalGameData = GameData(TestUtils.defaultConnectionId)

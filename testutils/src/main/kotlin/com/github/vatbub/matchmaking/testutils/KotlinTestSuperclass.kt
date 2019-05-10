@@ -19,7 +19,24 @@
  */
 package com.github.vatbub.matchmaking.testutils
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-open class KotlinTestSuperclass
+abstract class KotlinTestSuperclass<T> {
+    abstract fun newObjectUnderTest(): T
+    @Test
+    fun equalsSameInstanceTest() {
+        val instance = newObjectUnderTest()
+        Assertions.assertEquals(instance, instance)
+    }
+
+    @Test
+    fun notEqualsOtherClassTest() {
+        val instance = newObjectUnderTest()
+        Assertions.assertNotEquals(DummyClass(), instance)
+    }
+}
+
+class DummyClass

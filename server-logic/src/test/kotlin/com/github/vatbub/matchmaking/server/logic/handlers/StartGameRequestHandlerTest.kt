@@ -28,7 +28,9 @@ import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class StartGameRequestHandlerTest : RequestHandlerTestSuperclass() {
+class StartGameRequestHandlerTest : RequestHandlerTestSuperclass<StartGameRequestHandler>() {
+    override fun newObjectUnderTest() = StartGameRequestHandler(MemoryRoomProvider())
+
     @Test
     override fun handleTest() {
         val roomProvider = MemoryRoomProvider()
@@ -50,7 +52,7 @@ class StartGameRequestHandlerTest : RequestHandlerTestSuperclass() {
         val handler = StartGameRequestHandler(roomProvider)
 
         val request =
-            StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         val response = handler.handle(request, null, null)
 
         response as GetRoomDataResponse
@@ -71,8 +73,8 @@ class StartGameRequestHandlerTest : RequestHandlerTestSuperclass() {
 
         response as NotAllowedException
         Assertions.assertEquals(
-            "Unable to start the game: The sending client is not the host, only a game host can start the game",
-            response.message
+                "Unable to start the game: The sending client is not the host, only a game host can start the game",
+                response.message
         )
         Assertions.assertEquals(connectionId, response.connectionId)
     }
@@ -81,7 +83,7 @@ class StartGameRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun positiveCanHandleTest() {
         val handler = StartGameRequestHandler(MemoryRoomProvider())
         val request =
-            StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         Assertions.assertTrue(handler.canHandle(request))
     }
 
@@ -96,7 +98,7 @@ class StartGameRequestHandlerTest : RequestHandlerTestSuperclass() {
     override fun needsAuthenticationTest() {
         val handler = StartGameRequestHandler(MemoryRoomProvider())
         val request =
-            StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+                StartGameRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
         Assertions.assertTrue(handler.needsAuthentication(request))
     }
 }

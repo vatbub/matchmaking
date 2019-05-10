@@ -19,13 +19,12 @@
  */
 package com.github.vatbub.matchmaking.jvmclient
 
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
-class ClientTest : KotlinTestSuperclass() {
+class ClientTest {
     @Test
     @Disabled
     fun dummyTest() {

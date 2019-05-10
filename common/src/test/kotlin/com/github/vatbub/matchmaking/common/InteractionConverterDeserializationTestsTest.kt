@@ -21,14 +21,13 @@ package com.github.vatbub.matchmaking.common
 
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
-import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class InteractionConverterDeserializationTestsTest : KotlinTestSuperclass() {
+class InteractionConverterDeserializationTestsTest {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     @Test
     fun requestCastTest() {
