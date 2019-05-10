@@ -83,6 +83,12 @@
             <type>war</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.vatbub</groupId>
+            <artifactId>matchmaking.test-utils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
