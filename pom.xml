@@ -74,6 +74,8 @@
         <jupiter.version>5.4.2</jupiter.version>
         <kotlin.version>1.3.11</kotlin.version>
 		<tomcat.version>8.5.40</tomcat.version>
+        <sonar.links.homepage>https://github.com/vatbub/${gitRepoName}/</sonar.links.homepage>
+        <sonar.links.scm>https://github.com/vatbub/${gitRepoName}/</sonar.links.scm>
     </properties>
 
     <dependencies>
