@@ -15,10 +15,12 @@ import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoServer>() {
@@ -33,14 +35,15 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
     private var client: KryoTestClient? = null
     private val udpPort: Int?
         get() = if (useUdp()) KryoCommon.defaultTcpPort + 1 else null
+    private val requestResponseSetups = mutableListOf<RequestResponseSetup>()
 
     open fun useUdp(): Boolean = false
 
     @AfterEach
     fun shutServerAndClientDown() {
+        requestResponseSetups.forEach { await().atMost(10, TimeUnit.SECONDS).until { it.allRequestsProcessed } }
         client?.client?.stop()
         server?.server?.stop()
-        Thread.sleep(2000)
     }
 
     private fun setServerAndClientUp(clientListener: Listener, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort) {
@@ -49,11 +52,17 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
         client = KryoTestClient(clientListener, InetAddress.getLocalHost(), tcpPort, udpPort)
     }
 
-    private fun setServerAndClientForRequestResponseTrafficUp(onUnexpectedObjectReceived: (Any) -> Unit = { Assertions.fail("Unexpected object received: $it") }, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort) =
-            RequestResponseSetup(tcpPort, udpPort, onUnexpectedObjectReceived)
+    private fun setServerAndClientForRequestResponseTrafficUp(onUnexpectedObjectReceived: (Any) -> Unit = { Assertions.fail("Unexpected object received: $it") },
+                                                              tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort): RequestResponseSetup {
+        val setup = RequestResponseSetup(tcpPort, udpPort, onUnexpectedObjectReceived)
+        requestResponseSetups.add(setup)
+        return setup
+    }
 
     inner class RequestResponseSetup(tcpPort: Int = KryoCommon.defaultTcpPort, private val udpPort: Int?, private val onUnexpectedObjectReceived: (Any) -> Unit) {
         private val pendingResponses = mutableMapOf<String, (Response) -> Unit>()
+        val allRequestsProcessed: Boolean
+            get() = pendingResponses.isEmpty()
 
         init {
             setServerAndClientUp(tcpPort = tcpPort, udpPort = udpPort, clientListener = object : Listener() {
