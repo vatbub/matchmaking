@@ -102,12 +102,13 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
         val handler = DynamicRequestHandler<DummyRequest>({ true }, { false }, { _, _, _ ->
             throw expectedInnerException
         })
+
+        val setup = setServerAndClientForRequestResponseTrafficUp()
         serverContext.messageDispatcher.registerHandler(handler)
 
-        setServerAndClientForRequestResponseTrafficUp()
-                .doRequest(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)) {
-                    assertExceptionResponse(BadRequestException(), expectedInnerException, 400, it)
-                }
+        setup.doRequest(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)) {
+            assertExceptionResponse(BadRequestException(), expectedInnerException, 400, it)
+        }
     }
 
     @Test
@@ -116,10 +117,11 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
         val handler = DynamicRequestHandler<DummyRequest>({ true }, { false }, { _, _, _ ->
             throw expectedInnerException
         })
+
+        val setup = setServerAndClientForRequestResponseTrafficUp()
         serverContext.messageDispatcher.registerHandler(handler)
 
-        setServerAndClientForRequestResponseTrafficUp()
-                .doRequest(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)) {
+        setup.doRequest(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)) {
                     assertExceptionResponse(InternalServerErrorException(), expectedInnerException, 500, it)
                 }
     }
