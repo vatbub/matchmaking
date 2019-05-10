@@ -27,6 +27,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
+import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
 import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
@@ -76,7 +77,16 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
 
         override fun received(connection: Connection, receivedObject: Any) {
             val session = this@KryoServer.sessions[connection]
-                    ?: throw IllegalStateException("Unknown connection object")
+            if (session == null) {
+                val exceptionMessage = "Unknown connection object"
+                val responseException = InternalServerErrorException(exceptionMessage)
+                try {
+                    connection.sendUDP(responseException)
+                } catch (e: IllegalStateException) {
+                    connection.sendTCP(responseException)
+                }
+                throw IllegalStateException(exceptionMessage)
+            }
             if (receivedObject is FrameworkMessage.KeepAlive) return
             val response = handleReceivedObject(connection, session, receivedObject)
             session.sendObjectAsync(response)

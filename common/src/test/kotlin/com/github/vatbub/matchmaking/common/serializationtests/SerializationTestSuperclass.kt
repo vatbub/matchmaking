@@ -25,6 +25,8 @@ import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.registerClasses
+import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
+import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.GsonBuilder
 import org.awaitility.Awaitility.await

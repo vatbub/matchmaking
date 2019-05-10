@@ -17,25 +17,26 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.common.serializationtests
+package com.github.vatbub.matchmaking.common.testing.kryo
 
+import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Listener
-import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.registerClasses
 import java.net.InetAddress
 
-class KryoTestServer(val listener:Listener, val tcpPort:Int = KryoCommon.defaultTcpPort, val udpPort:Int?=null) {
-    val server = Server()
-    val ipAddress = InetAddress.getLocalHost()
+class KryoTestClient(listener: Listener, host: InetAddress, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = null, timeout: Int = 5000) {
+    constructor(listener: Listener, kryoTestServer: KryoTestServer) : this(listener, kryoTestServer.ipAddress, kryoTestServer.tcpPort, kryoTestServer.udpPort)
+
+    val client = Client()
 
     init {
+        client.kryo.registerClasses()
+        client.start()
+        client.addListener(listener)
         if (udpPort == null)
-            server.bind(tcpPort)
+            client.connect(timeout, host, tcpPort)
         else
-            server.bind(tcpPort, udpPort)
-        server.kryo.registerClasses()
-        server.addListener(listener)
-        server.start()
+            client.connect(timeout, host, tcpPort, udpPort)
     }
 }
