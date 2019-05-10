@@ -42,6 +42,7 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
     @AfterEach
     fun shutServerAndClientDown() {
         requestResponseSetups.forEach { await().atMost(10, TimeUnit.SECONDS).until { it.allRequestsProcessed } }
+        requestResponseSetups.clear()
         client?.client?.stop()
         server?.server?.stop()
     }
