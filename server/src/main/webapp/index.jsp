@@ -19,6 +19,7 @@
   limitations under the License.
   #L%
   --%>
+<!DOCTYPE html>
 <html>
 <head>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
