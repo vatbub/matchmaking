@@ -15,12 +15,10 @@ import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoServer>() {
@@ -42,7 +40,7 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
     fun shutServerAndClientDown() {
         client?.client?.stop()
         server?.server?.stop()
-        await().atLeast(2, TimeUnit.SECONDS).atMost(3, TimeUnit.SECONDS).until { true }
+        Thread.sleep(2000)
     }
 
     private fun setServerAndClientUp(clientListener: Listener, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort) {
