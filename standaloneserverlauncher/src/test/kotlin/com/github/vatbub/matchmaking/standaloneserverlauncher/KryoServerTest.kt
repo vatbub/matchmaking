@@ -35,6 +35,7 @@ import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequest
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.awaitility.Awaitility.await
+import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -57,6 +58,15 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
     private val requestResponseSetups = mutableListOf<RequestResponseSetup>()
 
     open fun useUdp(): Boolean = false
+    /**
+     * Number of times a request is retried when the timeout is reached before throwing an exception
+     */
+    open val maxRequestRetryCount = 0
+    /**
+     * Time in milliseconds at which a request times out. If [maxRequestRetryCount] is `>0`, the request will be resent [maxRequestRetryCount] times.
+     * A value of null is equal to infinity
+     */
+    open val requestTimeOut: Long? = 5000
 
     @AfterEach
     fun shutServerAndClientDown() {
@@ -79,8 +89,19 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
         return setup
     }
 
+    private data class OnResponseHandlerWrapper(val onResponse: (Response) -> Unit) {
+        var isHandled = false
+            private set
+
+        fun invoke(response: Response) {
+            isHandled = true
+            onResponse(response)
+        }
+    }
+
     inner class RequestResponseSetup(tcpPort: Int = KryoCommon.defaultTcpPort, private val udpPort: Int?, private val onUnexpectedObjectReceived: (Any) -> Unit) {
-        private val pendingResponses = mutableMapOf<String, (Response) -> Unit>()
+        private var receivedObjectsCount = 0
+        private val pendingResponses = mutableMapOf<String, OnResponseHandlerWrapper>()
         val allRequestsProcessed: Boolean
             get() = pendingResponses.isEmpty()
 
@@ -89,22 +110,38 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
                 override fun received(connection: Connection?, receivedObject: Any?) {
                     if (receivedObject == null) return
                     if (receivedObject is FrameworkMessage.KeepAlive) return
-                    if (receivedObject !is Response) onUnexpectedObjectReceived(receivedObject)
-                    receivedObject as Response
+                    receivedObjectsCount++
+                    println("[Test Client] receivedObjectsCount = $receivedObjectsCount") // TODO: Logging framework
+                    println("[Test Client] Received: $receivedObject") // TODO: Logging framework
+                    if (receivedObject !is Response) return onUnexpectedObjectReceived(receivedObject)
                     val handler = pendingResponses.remove(receivedObject.responseTo)
                             ?: return onUnexpectedObjectReceived(receivedObject)
-                    handler(receivedObject)
+                    handler.invoke(receivedObject)
                 }
             })
         }
 
         fun doRequest(request: Request, onResponse: (Response) -> Unit) {
             request.requestId = RequestIdGenerator.getNewId()
-            pendingResponses[request.requestId!!] = onResponse
-            if (udpPort != null)
-                client!!.client.sendUDP(request)
-            else
-                client!!.client.sendTCP(request)
+            val wrapper = OnResponseHandlerWrapper(onResponse)
+            pendingResponses[request.requestId!!] = wrapper
+            var retryCount = 0
+            while (true) {
+                if (udpPort != null)
+                    client!!.client.sendUDP(request)
+                else
+                    client!!.client.sendTCP(request)
+                val requestTimeOutCopy = requestTimeOut ?: return
+                try {
+                    await().atMost(requestTimeOutCopy, TimeUnit.MILLISECONDS).until { wrapper.isHandled }
+                    break
+                } catch (timeoutException: ConditionTimeoutException) {
+                    retryCount++
+                    if (retryCount > maxRequestRetryCount)
+                        throw timeoutException
+                    println("Resending request...") // TODO: Logging framework
+                }
+            }
         }
     }
 
