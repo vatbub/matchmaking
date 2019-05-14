@@ -37,6 +37,12 @@ abstract class KotlinTestSuperclass<T> {
         val instance = newObjectUnderTest()
         Assertions.assertNotEquals(DummyClass(), instance)
     }
+
+    @Test
+    fun notEqualsToNullTest() {
+        val instance = newObjectUnderTest()
+        Assertions.assertNotEquals(null, instance)
+    }
 }
 
 class DummyClass
