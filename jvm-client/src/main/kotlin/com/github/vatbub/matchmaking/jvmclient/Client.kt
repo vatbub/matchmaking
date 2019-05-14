@@ -139,7 +139,7 @@ class Client(
                         currentRoomId = it.roomId!!
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
                     }
-                    Nothing -> println("Result of JoinOrCreateRoomRequest: Nothing")
+                    Nothing -> println("Result of JoinOrCreateRoomRequest: Nothing") // TODO: Logging framework
                 }
             }
         }

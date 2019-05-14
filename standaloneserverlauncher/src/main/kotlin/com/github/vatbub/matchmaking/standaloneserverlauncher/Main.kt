@@ -65,13 +65,13 @@ class Main {
 
             val tomcat = Tomcat()
             val baseDir = resolveTomcatBaseDir(commandLineParams.port, commandLineParams.tempDirectory)
-            println("Tomcat base dir: $baseDir")
+            println("Tomcat base dir: $baseDir") // TODO: Logging framework
             tomcat.setBaseDir(baseDir)
 
             val port = commandLineParams.port
 
             if (port == null) {
-                println("Port not specified")
+                println("Port not specified") // TODO: Logging framework
                 jCommander.usage()
                 System.exit(1)
                 return
@@ -92,11 +92,11 @@ class Main {
             nioConnector.port = port
 
             if (commandLineParams.attributes.isNotEmpty()) {
-                println("Connector attributes")
+                println("Connector attributes") // TODO: Logging framework
                 for (entry in commandLineParams.attributes) {
                     val key = entry.key
                     val value = entry.value
-                    println("property: $key - $value")
+                    println("property: $key - $value") // TODO: Logging framework
                     nioConnector.setProperty(entry.key, entry.value)
                 }
             }
@@ -110,7 +110,7 @@ class Main {
                     nioConnector.setProperty("sslProtocol", "tls")
                     val truststoreFile = File(pathToTrustStore)
                     nioConnector.setAttribute("truststoreFile", truststoreFile.absolutePath)
-                    println(truststoreFile.absolutePath)
+                    println(truststoreFile.absolutePath) // TODO: Logging framework
                     nioConnector.setAttribute(
                             "trustStorePassword",
                             System.getProperty("javax.net.ssl.trustStorePassword")
@@ -120,7 +120,7 @@ class Main {
                 if (pathToKeystore != null) {
                     val keystoreFile = File(pathToKeystore)
                     nioConnector.setAttribute("keystoreFile", keystoreFile.absolutePath)
-                    println(keystoreFile.absolutePath)
+                    println(keystoreFile.absolutePath) // TODO: Logging framework
                     nioConnector.setAttribute("keystorePass", System.getProperty("javax.net.ssl.keyStorePassword"))
                 }
                 if (commandLineParams.enableClientAuth) {
@@ -163,7 +163,7 @@ class Main {
                 if (handler is AbstractProtocol<*>) {
                     handler.setMaxThreads(maxThreads)
                 } else {
-                    println("WARNING: Could not set maxThreads!")
+                    println("WARNING: Could not set maxThreads!") // TODO: Logging framework
                 }
             }
 
@@ -183,7 +183,7 @@ class Main {
             val war = exportResource(warName)
             war.deleteOnExit()
 
-            println("Adding Context " + contextPath + " for " + war.path)
+            println("Adding Context " + contextPath + " for " + war.path) // TODO: Logging framework
             context = tomcat.addWebapp(contextPath, war.absolutePath)
 
             context as StandardContext
@@ -335,7 +335,7 @@ class Main {
             }
 
             // Register memoryUserDatabase with GlobalNamingContext
-            println("MemoryUserDatabase: $memoryUserDatabase")
+            println("MemoryUserDatabase: $memoryUserDatabase") // TODO: Logging framework
             tomcat.server.globalNamingContext.addToEnvironment("UserDatabase", memoryUserDatabase)
 
             val ctxRes = org.apache.tomcat.util.descriptor.web.ContextResource()
@@ -388,7 +388,7 @@ class Main {
 
             stream.use { resourceInputStream ->
                 val finalName = jarFolder + resourceName
-                println("Extracting resource '$resourceName' to '$finalName'")
+                println("Extracting resource '$resourceName' to '$finalName'") // TODO: Logging framework
                 FileOutputStream(finalName).use { resourceOutputStream ->
                     IOUtils.copy(resourceInputStream, resourceOutputStream)
                 }

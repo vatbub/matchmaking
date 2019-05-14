@@ -77,6 +77,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
 
         override fun received(connection: Connection, receivedObject: Any) {
             val session = this@KryoServer.sessions[connection]
+            println("[SERVER] Received object: $receivedObject") // TODO: Logging framework
             if (session == null) {
                 val exceptionMessage = "Unknown connection object"
                 val responseException = InternalServerErrorException(exceptionMessage)
