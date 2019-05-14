@@ -86,8 +86,8 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
         if (!contains(key))
             return defaultValue
 
-        val result = contents[key]
-        if (typeClass != null && result != null && !typeClass.isAssignableFrom(result.javaClass))
+        val result = contents[key] ?: return null
+        if (typeClass?.isAssignableFrom(result.javaClass) == false)
             return defaultValue
 
         @Suppress("UNCHECKED_CAST")
