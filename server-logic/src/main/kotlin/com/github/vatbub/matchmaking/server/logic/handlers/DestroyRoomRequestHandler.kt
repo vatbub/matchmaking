@@ -28,7 +28,9 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class DestroyRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<DestroyRoomRequest> {
+@Suppress("EqualsOrHashCode")
+class DestroyRoomRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<DestroyRoomRequest>(roomProvider) {
+    override fun equals(other: Any?) = super.equals(other) && (other is DestroyRoomRequestHandler)
     override fun needsAuthentication(request: DestroyRoomRequest) = true
 
     override fun canHandle(request: Request) = request is DestroyRoomRequest
@@ -41,4 +43,5 @@ class DestroyRoomRequestHandler(private val roomProvider: RoomProvider) : Reques
         roomProvider.deleteRoom(request.roomId)
         return DestroyRoomResponse(request.connectionId, true)
     }
+
 }

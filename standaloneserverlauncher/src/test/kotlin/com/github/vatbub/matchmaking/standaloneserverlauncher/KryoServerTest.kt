@@ -44,6 +44,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoServer>() {
+    override val skipEqualsOtherInstanceTests = true
+
+    override fun getCloneOf(instance: KryoServer): KryoServer {
+        throw IllegalStateException("KryoServer instances should not be cloned")
+    }
+
     override fun newObjectUnderTest(): KryoServer {
         if (server == null)
             server = KryoServer(KryoCommon.defaultTcpPort, udpPort)

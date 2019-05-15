@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
+    override fun getCloneOf(instance: ObservableGameData) = ObservableGameData(instance.backingGameData, instance.onSet, instance.onRemove, instance.onTimestampChanged)
+
     override fun newObjectUnderTest() = ObservableGameData(GameData(TestUtils.defaultConnectionId))
 
     @Test

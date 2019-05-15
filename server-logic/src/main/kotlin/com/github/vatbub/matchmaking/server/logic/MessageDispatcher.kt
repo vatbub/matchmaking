@@ -46,10 +46,10 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
      * @return The response returned by the handler or `null` if no suitable handler was found.
      */
     fun dispatch(
-        request: Request,
-        sourceIp: Inet4Address?,
-        sourceIpv6: Inet6Address?,
-        websocketSession: Session? = null
+            request: Request,
+            sourceIp: Inet4Address?,
+            sourceIpv6: Inet6Address?,
+            websocketSession: Session? = null
     ): Response? {
         for (handler in handlers) {
             if (!handler.canHandle(request)) continue
@@ -68,7 +68,7 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
         return null
     }
 
-    private fun <T:Request>invokeHandler(
+    private fun <T : Request> invokeHandler(
             handler: RequestHandler<T>,
             request: T,
             sourceIp: Inet4Address?,
@@ -81,10 +81,10 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
     }
 
     fun dispatchOrCreateException(
-        request: Request,
-        sourceIp: Inet4Address?,
-        sourceIpv6: Inet6Address?,
-        websocketSession: Session? = null
+            request: Request,
+            sourceIp: Inet4Address?,
+            sourceIpv6: Inet6Address?,
+            websocketSession: Session? = null
     ): Response {
         var responseInteraction: Response? = try {
             dispatch(request, sourceIp, sourceIpv6, websocketSession)
@@ -129,5 +129,23 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
 
     fun removeAllHandlers() {
         handlers.clear()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MessageDispatcher
+
+        if (connectionIdProvider != other.connectionIdProvider) return false
+        if (handlers != other.handlers) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = connectionIdProvider.hashCode()
+        result = 31 * result + handlers.hashCode()
+        return result
     }
 }

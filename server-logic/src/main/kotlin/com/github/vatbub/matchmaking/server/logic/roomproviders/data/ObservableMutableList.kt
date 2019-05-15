@@ -23,45 +23,45 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders.data
  * A list which allows other entities to subscribe to changes
  */
 class ObservableMutableList<E> private constructor(
-    var onAdd: ((element: E, index: Int) -> Unit)?,
-    var onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)?,
-    var onRemove: ((element: E, index: Int) -> Unit)?,
-    var onClear: (() -> Unit)?,
-    private val backingList: MutableList<E>
+        var onAdd: ((element: E, index: Int) -> Unit)?,
+        var onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)?,
+        var onRemove: ((element: E, index: Int) -> Unit)?,
+        var onClear: (() -> Unit)?,
+        private val backingList: MutableList<E>
 ) : MutableList<E> {
     constructor(
-        initialCapacity: Int,
-        onAdd: ((element: E, index: Int) -> Unit)? = null,
-        onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
-        onRemove: ((element: E, index: Int) -> Unit)? = null,
-        onClear: (() -> Unit)? = null
+            initialCapacity: Int,
+            onAdd: ((element: E, index: Int) -> Unit)? = null,
+            onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
+            onRemove: ((element: E, index: Int) -> Unit)? = null,
+            onClear: (() -> Unit)? = null
     ) : this(
-        onAdd,
-        onSet,
-        onRemove,
-        onClear,
-        ArrayList(initialCapacity)
+            onAdd,
+            onSet,
+            onRemove,
+            onClear,
+            ArrayList(initialCapacity)
     )
 
     constructor(
-        c: Collection<E>?,
-        onAdd: ((element: E, index: Int) -> Unit)? = null,
-        onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
-        onRemove: ((element: E, index: Int) -> Unit)? = null,
-        onClear: (() -> Unit)? = null
+            c: Collection<E>?,
+            onAdd: ((element: E, index: Int) -> Unit)? = null,
+            onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
+            onRemove: ((element: E, index: Int) -> Unit)? = null,
+            onClear: (() -> Unit)? = null
     ) : this(onAdd, onSet, onRemove, onClear, ArrayList(c))
 
     constructor(
-        onAdd: ((element: E, index: Int) -> Unit)? = null,
-        onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
-        onRemove: ((element: E, index: Int) -> Unit)? = null,
-        onClear: (() -> Unit)? = null
+            onAdd: ((element: E, index: Int) -> Unit)? = null,
+            onSet: ((oldElement: E, newElement: E, index: Int) -> Unit)? = null,
+            onRemove: ((element: E, index: Int) -> Unit)? = null,
+            onClear: (() -> Unit)? = null
     ) : this(
-        onAdd,
-        onSet,
-        onRemove,
-        onClear,
-        ArrayList()
+            onAdd,
+            onSet,
+            onRemove,
+            onClear,
+            ArrayList()
     )
 
     override val size: Int
@@ -202,5 +202,29 @@ class ObservableMutableList<E> private constructor(
                 onClear,
                 backingList.subList(fromIndex, toIndex)
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ObservableMutableList<*>
+
+        if (onAdd != other.onAdd) return false
+        if (onSet != other.onSet) return false
+        if (onRemove != other.onRemove) return false
+        if (onClear != other.onClear) return false
+        if (backingList != other.backingList) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = onAdd?.hashCode() ?: 0
+        result = 31 * result + (onSet?.hashCode() ?: 0)
+        result = 31 * result + (onRemove?.hashCode() ?: 0)
+        result = 31 * result + (onClear?.hashCode() ?: 0)
+        result = 31 * result + backingList.hashCode()
+        return result
     }
 }

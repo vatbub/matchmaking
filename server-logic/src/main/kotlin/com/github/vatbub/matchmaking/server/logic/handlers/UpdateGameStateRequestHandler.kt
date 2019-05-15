@@ -28,7 +28,9 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class UpdateGameStateRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<UpdateGameStateRequest> {
+@Suppress("EqualsOrHashCode")
+class UpdateGameStateRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<UpdateGameStateRequest>(roomProvider) {
+    override fun equals(other: Any?) = super.equals(other) && (other is UpdateGameStateRequestHandler)
     override fun needsAuthentication(request: UpdateGameStateRequest) = true
 
     override fun canHandle(request: Request) = request is UpdateGameStateRequest

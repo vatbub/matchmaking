@@ -20,4 +20,6 @@
 package com.github.vatbub.matchmaking.common.responses
 
 class UnknownConnectionIdException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
-    ServerInteractionException(message, 404, connectionId, UnknownConnectionIdException::class.qualifiedName!!, responseTo)
+        ServerInteractionException(message, 404, connectionId, UnknownConnectionIdException::class.qualifiedName!!, responseTo) {
+    override fun copy() = UnknownConnectionIdException(message, connectionId, responseTo)
+}

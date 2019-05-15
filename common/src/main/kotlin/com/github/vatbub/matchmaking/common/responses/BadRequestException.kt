@@ -25,4 +25,6 @@ package com.github.vatbub.matchmaking.common.responses
  * @param connectionId The connection id of the requesting client
  */
 class BadRequestException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
-    ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!, responseTo)
+        ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!, responseTo) {
+    override fun copy() = BadRequestException(message, connectionId, responseTo)
+}

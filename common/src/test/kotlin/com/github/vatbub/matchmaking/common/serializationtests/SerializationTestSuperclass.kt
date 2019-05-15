@@ -68,7 +68,6 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         val json = gson.toJson(originalObject)
         val deserializedObject: T = gson.fromJson<T>(json, clazz)
         Assertions.assertEquals(originalObject, deserializedObject)
-        Assertions.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
     }
 
     @Test
@@ -84,7 +83,6 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         Input(FileInputStream(outputFile)).use {
             val deserializedObject = kryo.readObject(it, clazz)
             Assertions.assertEquals(originalObject, deserializedObject)
-            Assertions.assertEquals(originalObject.hashCode(), deserializedObject.hashCode())
         }
     }
 
@@ -106,7 +104,6 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
             override fun received(connection: Connection?, receivedObject: Any?) {
                 listener2Called = true
                 Assertions.assertEquals(originalObject2, receivedObject)
-                Assertions.assertEquals(originalObject2.hashCode(), receivedObject.hashCode())
             }
         })
 

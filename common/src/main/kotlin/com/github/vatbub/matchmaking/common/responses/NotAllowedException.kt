@@ -25,4 +25,6 @@ package com.github.vatbub.matchmaking.common.responses
  * @param message The error/exception message
  */
 class NotAllowedException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
-    ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!, responseTo)
+        ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!, responseTo) {
+    override fun copy() = NotAllowedException(message, connectionId, responseTo)
+}

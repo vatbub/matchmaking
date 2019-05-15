@@ -36,7 +36,7 @@ import java.sql.Timestamp
 import java.util.*
 import kotlin.random.Random
 
-class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) : RoomProvider() {
+class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) : RoomProvider() {
     constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
     constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
             ConnectionPoolWrapper(
@@ -538,6 +538,24 @@ class JdbcRoomProvider private constructor(internal val connectionPoolWrapper: C
 
     override fun filter(filter: (room: Room) -> Boolean) =
         getAllRooms().filter(filter)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as JdbcRoomProvider
+
+        if (connectionPoolWrapper != other.connectionPoolWrapper) return false
+        if (supportsConcurrentTransactionsOnSameRoom != other.supportsConcurrentTransactionsOnSameRoom) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = connectionPoolWrapper.hashCode()
+        result = 31 * result + supportsConcurrentTransactionsOnSameRoom.hashCode()
+        return result
+    }
 }
 
 

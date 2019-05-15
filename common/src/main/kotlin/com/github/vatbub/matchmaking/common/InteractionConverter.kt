@@ -27,13 +27,13 @@ object InteractionConverter {
     fun serialize(serverInteraction: ServerInteraction): String = gson.toJson(serverInteraction)
 
     fun <T : Request> deserializeRequest(serializedRequest: String): T {
-        val abstractRequest: Request = gson.fromJson<Request>(serializedRequest, Request::class.java)
+        val abstractRequest = gson.fromJson<Request>(serializedRequest, Request::class.java)
         val requestClass = Class.forName(abstractRequest.className)
         return gson.fromJson<T>(serializedRequest, requestClass)
     }
 
     fun <T : ResponseImpl> deserializeResponse(serializedResponse: String): T {
-        val abstractResponse: ResponseImpl = gson.fromJson<ResponseImpl>(serializedResponse, ResponseImpl::class.java)
+        val abstractResponse = gson.fromJson<ResponseImpl>(serializedResponse, ResponseImpl::class.java)
         val responseClass = Class.forName(abstractResponse.className)
         return gson.fromJson<T>(serializedResponse, responseClass)
     }

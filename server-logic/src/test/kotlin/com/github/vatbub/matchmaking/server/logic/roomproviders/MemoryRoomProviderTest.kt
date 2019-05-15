@@ -20,5 +20,11 @@
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
 class MemoryRoomProviderTest : RoomProviderTest<MemoryRoomProvider>() {
+    override fun getCloneOf(instance: MemoryRoomProvider): MemoryRoomProvider {
+        val result = MemoryRoomProvider()
+        instance.rooms.forEach { (key, value) -> result.rooms[key] = value }
+        return result
+    }
+
     override fun newObjectUnderTest() = MemoryRoomProvider()
 }

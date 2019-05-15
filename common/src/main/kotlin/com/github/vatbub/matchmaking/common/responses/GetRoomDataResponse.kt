@@ -34,6 +34,8 @@ import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
  */
 class GetRoomDataResponse(connectionId: String?, val room: Room?, responseTo: String? = null) :
         ResponseImpl(connectionId, GetRoomDataResponse::class.qualifiedName!!, responseTo) {
+    override fun copy() = GetRoomDataResponse(connectionId, room, responseTo)
+
     private constructor() : this(null, null)
 
     override fun equals(other: Any?): Boolean {

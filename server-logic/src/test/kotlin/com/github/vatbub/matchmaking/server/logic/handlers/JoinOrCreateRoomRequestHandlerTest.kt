@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass<JoinOrCreateRoomRequestHandler>() {
+    override fun getCloneOf(instance: JoinOrCreateRoomRequestHandler) = JoinOrCreateRoomRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = JoinOrCreateRoomRequestHandler(MemoryRoomProvider())
 
     private lateinit var handler: JoinOrCreateRoomRequestHandler

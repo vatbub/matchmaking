@@ -28,4 +28,6 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  *
  * @see GetConnectionIdResponse
  */
-class GetConnectionIdRequest(requestId:String?=null) : Request(null, null, GetConnectionIdRequest::class.qualifiedName!!, requestId)
+class GetConnectionIdRequest(requestId: String? = null) : Request(null, null, GetConnectionIdRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = GetConnectionIdRequest(requestId)
+}

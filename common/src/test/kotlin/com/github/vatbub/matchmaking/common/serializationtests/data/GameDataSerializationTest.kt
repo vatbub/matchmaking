@@ -24,6 +24,8 @@ import com.github.vatbub.matchmaking.common.serializationtests.SerializationTest
 import com.github.vatbub.matchmaking.testutils.TestUtils
 
 class GameDataSerializationTest : SerializationTestSuperclass<GameData>(GameData::class.java) {
+    override fun getCloneOf(instance: GameData) = instance.copy()
+
     override fun newObjectUnderTest(): GameData {
         val gameData = GameData(TestUtils.defaultConnectionId)
         for (i in 1..5) {

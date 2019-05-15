@@ -29,5 +29,7 @@ import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
  */
 class DestroyRoomResponse(connectionId: String?, val roomDestroyed: Boolean, responseTo: String? = null) :
         ResponseImpl(connectionId, DestroyRoomResponse::class.qualifiedName!!, responseTo) {
+    override fun copy() = DestroyRoomResponse(connectionId, roomDestroyed, responseTo)
+
     private constructor() : this(null, false)
 }

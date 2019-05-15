@@ -39,6 +39,8 @@ import java.nio.file.Path
 
 class UserSerializationTest :
         SerializationTestSuperclass<User>(User::class.java) {
+    override fun getCloneOf(instance: User) = instance.copy()
+
     override fun newObjectUnderTest(): User {
         return User(
                 TestUtils.getRandomHexString(),

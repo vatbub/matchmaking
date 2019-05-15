@@ -30,8 +30,11 @@ import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
  * @param destroyedRooms A list of rooms the user was connected to. The rooms were destroyed as the user was the host in them.
  */
 class DisconnectResponse(connectionId: String?, val disconnectedRooms: List<Room>, val destroyedRooms: List<Room>, responseTo: String? = null) :
-    ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!, responseTo) {
-    private constructor():this(null, listOf(), listOf())
+        ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!, responseTo) {
+    override fun copy() = DisconnectResponse(connectionId, disconnectedRooms, destroyedRooms, responseTo)
+
+    private constructor() : this(null, listOf(), listOf())
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

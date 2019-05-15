@@ -42,6 +42,8 @@ import java.nio.file.Path
 
 class RoomSerializationTest :
         SerializationTestSuperclass<Room>(Room::class.java) {
+    override fun getCloneOf(instance: Room) = instance.copy()
+
     override fun newObjectUnderTest(): Room {
         val room = Room(
                 TestUtils.getRandomHexString(),

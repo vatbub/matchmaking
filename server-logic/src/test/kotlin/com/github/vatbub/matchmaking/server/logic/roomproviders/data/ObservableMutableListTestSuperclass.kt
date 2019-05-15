@@ -23,15 +23,17 @@ import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>() {
-    override fun newObjectUnderTest() = ObservableMutableList<Any>(0)
+abstract class ObservableMutableListTestSuperclass<T> : KotlinTestSuperclass<ObservableMutableList<T>>() {
+    override fun getCloneOf(instance: ObservableMutableList<T>) = ObservableMutableList(instance, instance.onAdd, instance.onSet, instance.onRemove, instance.onClear)
+    override fun newObjectUnderTest() = ObservableMutableList<T>(0)
+    abstract fun getNewTestElement(): T
 
     @Test
     fun onAddTest() {
         var listenerCalled = false
-        val expectedElement = "hello world"
+        val expectedElement = getNewTestElement()
         val expectedIndex = 0
-        val observableMutableList = ObservableMutableList<String>(onAdd = { element, index ->
+        val observableMutableList = ObservableMutableList<T>(onAdd = { element, index ->
             Assertions.assertEquals(expectedElement, element)
             Assertions.assertEquals(expectedIndex, index)
             listenerCalled = true
@@ -44,9 +46,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onAddAtIndexTest() {
-        val dummyValues = listOf("first", "second", "third")
+        val dummyValues = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         var listenerCalled = false
-        val expectedElement = "hello world"
+        val expectedElement = getNewTestElement()
         val expectedIndex = 1
         val observableMutableList = ObservableMutableList(dummyValues, onAdd = { element, index ->
             Assertions.assertEquals(expectedElement, element)
@@ -66,9 +68,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
     @Test
     fun onAddAllTest() {
         var listenerCallCount = 0
-        val expectedElements = listOf("first", "second", "third")
+        val expectedElements = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
 
-        val observableMutableList = ObservableMutableList<String>(onAdd = { element, index ->
+        val observableMutableList = ObservableMutableList<T>(onAdd = { element, index ->
             Assertions.assertEquals(expectedElements[index], element)
             Assertions.assertEquals(expectedElements.indexOf(element), index)
             listenerCallCount++
@@ -81,9 +83,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onAddAllAtIndexTest() {
-        val dummyValues = listOf("first", "second", "third")
+        val dummyValues = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         var listenerCallCount = 0
-        val expectedElements = listOf("other first", "other second", "other third")
+        val expectedElements = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         val insertionIndex = 1
 
         val observableMutableList = ObservableMutableList(dummyValues, onAdd = { element, index ->
@@ -105,7 +107,7 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onClearTest() {
-        val values = listOf("first", "second", "third")
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         var listenerCalled = false
 
         val observableMutableList = ObservableMutableList(values, onClear = { listenerCalled = true })
@@ -118,9 +120,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onRemoveTest() {
-        val expectedElement = "second"
+        val expectedElement = getNewTestElement()
         val expectedIndex = 1
-        val values = listOf("first", expectedElement, "third")
+        val values = listOf(getNewTestElement(), expectedElement, getNewTestElement())
         var listenerCalled = false
 
         val observableMutableList =
@@ -137,10 +139,10 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onRemoveNonExistingItemTest() {
-        val expectedElement = "second"
+        val expectedElement = getNewTestElement()
 
         val observableMutableList =
-                ObservableMutableList<String>(onRemove = { _, _ ->
+                ObservableMutableList<T>(onRemove = { _, _ ->
                     Assertions.fail("Listener should not be called")
                 })
 
@@ -149,11 +151,11 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onRemoveAllTest() {
-        val elementsToBeDeleted = listOf("first", "second", "third")
-        val values = mutableListOf<String>()
+        val elementsToBeDeleted = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val values = mutableListOf<T>()
         for (element in elementsToBeDeleted)
             values.add(element)
-        values.add("fourth")
+        values.add(getNewTestElement())
 
         var listenerCallCount = 0
 
@@ -172,9 +174,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onRemoveAtTest() {
-        val expectedElement = "second"
+        val expectedElement = getNewTestElement()
         val expectedIndex = 1
-        val values = listOf("first", expectedElement, "third")
+        val values = listOf(getNewTestElement(), expectedElement, getNewTestElement())
         var listenerCalled = false
 
         val observableMutableList =
@@ -191,12 +193,12 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun retainAllTest() {
-        val elementsToBeRetained = listOf("second", "third")
-        val values = mutableListOf<String>()
-        values.add("first")
+        val elementsToBeRetained = listOf(getNewTestElement(), getNewTestElement())
+        val values = mutableListOf<T>()
+        values.add(getNewTestElement())
         for (element in elementsToBeRetained)
             values.add(element)
-        values.add("fourth")
+        values.add(getNewTestElement())
 
         var listenerCallCount = 0
 
@@ -215,8 +217,8 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun onSetTest() {
-        val expectedOldValue = "old"
-        val expectedNewValue = "new"
+        val expectedOldValue = getNewTestElement()
+        val expectedNewValue = getNewTestElement()
         val expectedIndex = 0
         var listenerCalled = false
         val observableMutableList =
@@ -233,7 +235,7 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun defaultConstructorTest() {
-        val observableMutableList = ObservableMutableList<String>()
+        val observableMutableList = ObservableMutableList<T>()
         assertNoListenersSpecified(observableMutableList)
     }
 
@@ -255,7 +257,7 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun collectionCopyConstructorTest() {
-        val list = listOf("first", "second", "third")
+        val list = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         val observableMutableList = ObservableMutableList(list)
         Assertions.assertEquals(list.size, observableMutableList.size)
         for (i in 0 until list.size)
@@ -266,7 +268,7 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun collectionCopyConstructorWithListenersTest() {
-        val list = listOf("first", "second", "third")
+        val list = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         val observableMutableList =
                 ObservableMutableList(
                         list,
@@ -289,7 +291,7 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
     @Test
     fun initialCapacityConstructorTest() {
         val initialCapacity = 100
-        val observableMutableList = ObservableMutableList<String>(initialCapacity)
+        val observableMutableList = ObservableMutableList<T>(initialCapacity)
 
         assertNoListenersSpecified(observableMutableList)
     }
@@ -313,17 +315,17 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun defaultOnAdd(element: String, index: Int) {
+    private fun defaultOnAdd(element: T, index: Int) {
 
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun defaultOnSet(oldElement: String, newElement: String, index: Int) {
+    private fun defaultOnSet(oldElement: T, newElement: T, index: Int) {
 
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun defaultOnRemove(element: String, index: Int) {
+    private fun defaultOnRemove(element: T, index: Int) {
 
     }
 
@@ -340,46 +342,46 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun positiveContainsTest() {
-        val value = "hello_world"
-        val observableMutableList = ObservableMutableList<String>()
+        val value = getNewTestElement()
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.add(value)
         Assertions.assertTrue(observableMutableList.contains(value))
     }
 
     @Test
     fun negativeContainsTest() {
-        val value = "hello_world"
-        val observableMutableList = ObservableMutableList<String>()
+        val value = getNewTestElement()
+        val observableMutableList = ObservableMutableList<T>()
         Assertions.assertFalse(observableMutableList.contains(value))
     }
 
     @Test
     fun positiveContainsAllTest() {
-        val values = listOf("first", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
         Assertions.assertTrue(observableMutableList.containsAll(values))
     }
 
     @Test
     fun negativeContainsAllTest() {
-        val values = listOf("first", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         Assertions.assertFalse(observableMutableList.containsAll(values))
     }
 
     @Test
     fun getTest() {
-        val value = "hello_world"
-        val observableMutableList = ObservableMutableList<String>()
+        val value = getNewTestElement()
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.add(value)
         Assertions.assertEquals(value, observableMutableList[0])
     }
 
     @Test
     fun positiveIndexOfTest() {
-        val values = listOf("first", "second", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
         Assertions.assertEquals(1, observableMutableList.indexOf(values[1]))
@@ -387,31 +389,31 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun negativeIndexOfTest() {
-        val values = listOf("first", "second", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
-        Assertions.assertEquals(-1, observableMutableList.indexOf("something else"))
+        Assertions.assertEquals(-1, observableMutableList.indexOf(getNewTestElement()))
     }
 
     @Test
     fun positiveIsEmptyTest() {
-        val observableMutableList = ObservableMutableList<String>()
+        val observableMutableList = ObservableMutableList<T>()
         Assertions.assertTrue(observableMutableList.isEmpty())
     }
 
     @Test
     fun negativeIsEmptyTest() {
-        val value = "hello_world"
-        val observableMutableList = ObservableMutableList<String>()
+        val value = getNewTestElement()
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.add(value)
         Assertions.assertFalse(observableMutableList.isEmpty())
     }
 
     @Test
     fun iteratorTest() {
-        val values = listOf("first", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
         val iterator = observableMutableList.iterator()
@@ -427,8 +429,8 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun listIteratorTest() {
-        val values = listOf("first", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
         val iterator = observableMutableList.listIterator()
@@ -445,8 +447,8 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
     @Test
     fun listIteratorWithIndexTest() {
         val iteratorStartIndex = 1
-        val values = listOf("first", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
         val iterator = observableMutableList.listIterator(iteratorStartIndex)
@@ -462,8 +464,9 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun positiveLastIndexOfTest() {
-        val values = listOf("first", "second", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val second = getNewTestElement()
+        val values = listOf(getNewTestElement(), second, second, getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
         Assertions.assertEquals(2, observableMutableList.lastIndexOf(values[2]))
@@ -471,16 +474,17 @@ class ObservableMutableListTest : KotlinTestSuperclass<ObservableMutableList<*>>
 
     @Test
     fun negativeLastIndexOfTest() {
-        val values = listOf("first", "second", "second", "third")
-        val observableMutableList = ObservableMutableList<String>()
+        val second = getNewTestElement()
+        val values = listOf(getNewTestElement(), second, second, getNewTestElement())
+        val observableMutableList = ObservableMutableList<T>()
         observableMutableList.addAll(values)
 
-        Assertions.assertEquals(-1, observableMutableList.lastIndexOf("something else"))
+        Assertions.assertEquals(-1, observableMutableList.lastIndexOf(getNewTestElement()))
     }
 
     @Test
     fun subListTest() {
-        val values = listOf("first", "second", "third", "fourth")
+        val values = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement(), getNewTestElement())
         val subListStart = 1
         val subListEnd = 3
 

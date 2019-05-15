@@ -33,6 +33,13 @@ import java.io.FileWriter
 import java.nio.file.Path
 
 class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
+    override fun getCloneOf(instance: ConfigurationManager): ConfigurationManager {
+        val result = ConfigurationManager()
+        instance.onChangeListeners.forEach { result.onChangeListeners.add(it) }
+        result.currentConfiguration = instance.currentConfiguration
+        return result
+    }
+
     override fun newObjectUnderTest() = ConfigurationManager.getInstance()
 
     @BeforeEach

@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass<UpdateGameStateRequestHandler>() {
+    override fun getCloneOf(instance: UpdateGameStateRequestHandler) = UpdateGameStateRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = UpdateGameStateRequestHandler(MemoryRoomProvider())
 
     @Test

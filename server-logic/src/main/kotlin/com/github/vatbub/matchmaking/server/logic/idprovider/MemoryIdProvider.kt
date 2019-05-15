@@ -32,7 +32,7 @@ open class MemoryIdProvider : ConnectionIdProvider {
         return _connectionIdsInUse[id]
     }
 
-    private val _connectionIdsInUse = mutableMapOf<String, Id>()
+    internal val _connectionIdsInUse = mutableMapOf<String, Id>()
 
     val connectionIdsInUse: Map<String, Id>
         get() {
@@ -68,5 +68,20 @@ open class MemoryIdProvider : ConnectionIdProvider {
 
     override fun reset() {
         _connectionIdsInUse.clear()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MemoryIdProvider
+
+        if (_connectionIdsInUse != other._connectionIdsInUse) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return _connectionIdsInUse.hashCode()
     }
 }

@@ -23,7 +23,7 @@ import com.esotericsoftware.kryonet.Connection
 import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 
-class KryoSessionWrapper(private val connection: Connection) : Session() {
+class KryoSessionWrapper(val connection: Connection) : Session() {
     override fun sendObjectSync(objectToSend: ServerInteraction) {
         try {
             println("Sending object: $objectToSend") // TODO: Logging framework
@@ -35,5 +35,18 @@ class KryoSessionWrapper(private val connection: Connection) : Session() {
 
     override fun sendObjectAsync(objectToSend: ServerInteraction) {
         Thread { sendObjectSync(objectToSend) }.start()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is KryoSessionWrapper) return false
+
+        if (connection != other.connection) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return connection.hashCode()
     }
 }

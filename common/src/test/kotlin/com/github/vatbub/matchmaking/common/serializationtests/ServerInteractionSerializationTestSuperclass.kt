@@ -27,12 +27,15 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteraction>(clazz: Class<T>) :
-    SerializationTestSuperclass<T>(clazz) {
+        SerializationTestSuperclass<T>(clazz) {
 
     @Test
     fun protocolVersionTest() {
         Assertions.assertEquals(ServerInteraction.defaultProtocolVersion, newObjectUnderTest().protocolVersion)
     }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun getCloneOf(instance: T) = instance.copy() as T
 
     @Test
     fun protocolVersionSerializationTest() {

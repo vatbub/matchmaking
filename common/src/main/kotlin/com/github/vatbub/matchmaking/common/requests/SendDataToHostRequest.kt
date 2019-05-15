@@ -45,6 +45,8 @@ class SendDataToHostRequest(
         requestId: String? = null
 ) :
         Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = SendDataToHostRequest(connectionId!!, password!!, roomId, dataToHost, requestId)
+
     private constructor():this("", "", "", listOf())
 
     override fun equals(other: Any?): Boolean {

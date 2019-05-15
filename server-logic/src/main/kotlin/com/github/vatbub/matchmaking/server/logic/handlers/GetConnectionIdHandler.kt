@@ -30,7 +30,7 @@ import java.net.Inet6Address
 /**
  * Handles [GetConnectionIdRequest]s
  */
-class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvider) :
+class GetConnectionIdHandler(val connectionIdProvider: ConnectionIdProvider) :
         RequestHandler<GetConnectionIdRequest> {
     override fun needsAuthentication(request: GetConnectionIdRequest) = false
 
@@ -39,6 +39,21 @@ class GetConnectionIdHandler(private val connectionIdProvider: ConnectionIdProvi
     override fun handle(request: GetConnectionIdRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val id = connectionIdProvider.getNewId()
         return GetConnectionIdResponse(id.connectionId!!, id.password!!)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as GetConnectionIdHandler
+
+        if (connectionIdProvider != other.connectionIdProvider) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return connectionIdProvider.hashCode()
     }
 
 }

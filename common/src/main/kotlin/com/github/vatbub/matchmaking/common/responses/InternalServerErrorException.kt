@@ -25,4 +25,6 @@ package com.github.vatbub.matchmaking.common.responses
  * @param message The error/exception message
  */
 class InternalServerErrorException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
-    ServerInteractionException(message, 500, connectionId, InternalServerErrorException::class.qualifiedName!!, responseTo)
+        ServerInteractionException(message, 500, connectionId, InternalServerErrorException::class.qualifiedName!!, responseTo) {
+    override fun copy() = InternalServerErrorException(message, connectionId, responseTo)
+}

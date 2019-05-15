@@ -41,6 +41,8 @@ import java.util.concurrent.FutureTask
 import javax.websocket.*
 
 class WebsocketEndpointTest : KotlinTestSuperclass<WebsocketEndpoint>() {
+    override fun getCloneOf(instance: WebsocketEndpoint) = WebsocketEndpoint(instance.serverContext)
+
     override fun newObjectUnderTest() = WebsocketEndpoint()
 
     private lateinit var websocketEndpoint: WebsocketEndpoint

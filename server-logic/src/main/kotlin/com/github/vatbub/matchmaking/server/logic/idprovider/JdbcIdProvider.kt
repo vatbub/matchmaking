@@ -24,7 +24,7 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.random.Random
 
-class JdbcIdProvider private constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) :
+class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) :
         ConnectionIdProvider {
     constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
     constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
@@ -154,5 +154,18 @@ class JdbcIdProvider private constructor(internal val connectionPoolWrapper: Con
         if (lookUpResult.password != generateSha251Hash(id.password))
             return AuthorizationResult.NotAuthorized
         return AuthorizationResult.Authorized
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is JdbcIdProvider) return false
+
+        if (connectionPoolWrapper != other.connectionPoolWrapper) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return connectionPoolWrapper.hashCode()
     }
 }

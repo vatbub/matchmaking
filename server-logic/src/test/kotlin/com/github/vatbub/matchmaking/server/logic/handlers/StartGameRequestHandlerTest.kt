@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class StartGameRequestHandlerTest : RequestHandlerTestSuperclass<StartGameRequestHandler>() {
+    override fun getCloneOf(instance: StartGameRequestHandler) = StartGameRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = StartGameRequestHandler(MemoryRoomProvider())
 
     @Test

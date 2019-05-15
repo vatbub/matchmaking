@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 class KryoSessionWrapperTest : KotlinTestSuperclassWithExceptionHandlerForMultithreading<KryoSessionWrapper>() {
+    override fun getCloneOf(instance: KryoSessionWrapper) = KryoSessionWrapper(instance.connection)
+
     override fun newObjectUnderTest() = KryoSessionWrapper(object : Connection() {})
 
     @Test

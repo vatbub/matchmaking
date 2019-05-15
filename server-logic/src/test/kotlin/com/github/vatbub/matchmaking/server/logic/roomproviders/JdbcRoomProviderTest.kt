@@ -23,6 +23,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 
 class JdbcRoomProviderTest : RoomProviderTest<JdbcRoomProvider>() {
+    override fun getCloneOf(instance: JdbcRoomProvider) = JdbcRoomProvider(instance.connectionPoolWrapper)
+
     private var lastProviderInstance: JdbcRoomProvider? = null
 
     companion object {

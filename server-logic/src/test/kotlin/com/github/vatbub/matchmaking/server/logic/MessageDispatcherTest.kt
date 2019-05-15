@@ -21,7 +21,6 @@ package com.github.vatbub.matchmaking.server.logic
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.common.responses.AuthorizationException
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
@@ -42,6 +41,12 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 
 class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
+    override fun getCloneOf(instance: MessageDispatcher): MessageDispatcher {
+        val result = MessageDispatcher(instance.connectionIdProvider)
+        instance.handlers.forEach { result.registerHandler(it) }
+        return result
+    }
+
     override fun newObjectUnderTest() = MessageDispatcher(MemoryIdProvider())
 
     @Test
@@ -241,13 +246,10 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
     fun dispatchWebsocketSessionClosedTest() {
         val messageDispatcher = newObjectUnderTest()
 
-        val expectedSession = object : Session() {
-            override fun sendObjectSync(objectToSend: ServerInteraction) {}
-            override fun sendObjectAsync(objectToSend: ServerInteraction) {}
-        }
+        val expectedSession = NoOpSession()
 
         var onSessionClosedCalled = false
-        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest>() {
+        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
             override val requiresSocket = false
             override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) = DummyResponse(request.connectionId)
             override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) = DummyResponse(request.connectionId)
@@ -269,13 +271,10 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
     fun dispatchToWebsocketHandler() {
         val messageDispatcher = newObjectUnderTest()
 
-        val expectedSession = object : Session() {
-            override fun sendObjectSync(objectToSend: ServerInteraction) {}
-            override fun sendObjectAsync(objectToSend: ServerInteraction) {}
-        }
+        val expectedSession = NoOpSession()
 
         var handlerCalled = false
-        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest>() {
+        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
             override val requiresSocket = false
             override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
                 handlerCalled = true

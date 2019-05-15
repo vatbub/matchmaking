@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class RoomTest : KotlinTestSuperclass<Room>() {
+    override fun getCloneOf(instance: Room) = instance.copy()
+
     override fun newObjectUnderTest() = Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId)
 
     @Test

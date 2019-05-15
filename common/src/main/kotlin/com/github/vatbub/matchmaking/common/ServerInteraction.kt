@@ -34,6 +34,8 @@ interface ServerInteraction {
 
     val protocolVersion: String
 
+    fun copy(): ServerInteraction
+
     companion object {
         const val defaultProtocolVersion = "2.0"
     }

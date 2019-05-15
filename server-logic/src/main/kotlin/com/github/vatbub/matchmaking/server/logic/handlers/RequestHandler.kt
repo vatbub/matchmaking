@@ -30,7 +30,7 @@ import java.net.Inet6Address
 /**
  * Interface for a class which can handle requests sent to the server
  */
-interface RequestHandler<T:Request> {
+interface RequestHandler<TRequest : Request> {
     /**
      * Specifies whether this handler is able to handle the specified request.
      *
@@ -55,12 +55,12 @@ interface RequestHandler<T:Request> {
      * @param request The request to decide on whether it needs authentication or not
      * @return `true` if the request shall be authenticated, `false` if no authentication is required
      */
-    fun needsAuthentication(request: T): Boolean
+    fun needsAuthentication(request: TRequest): Boolean
 
     /**
      * Handles the specified request, acts upon it and generates a response for it.
      * @param request The request to be handled
      * @return The response to that request
      */
-    fun handle(request: T, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response
+    fun handle(request: TRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response
 }

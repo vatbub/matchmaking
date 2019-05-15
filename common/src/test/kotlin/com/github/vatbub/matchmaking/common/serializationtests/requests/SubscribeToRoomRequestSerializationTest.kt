@@ -20,11 +20,11 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
-import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
+import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 
 class SubscribeToRoomRequestSerializationTest :
-    SerializationTestSuperclass<SubscribeToRoomRequest>(SubscribeToRoomRequest::class.java) {
+        ServerInteractionSerializationTestSuperclass<SubscribeToRoomRequest>(SubscribeToRoomRequest::class.java) {
     override fun newObjectUnderTest(): SubscribeToRoomRequest {
         return SubscribeToRoomRequest(
             TestUtils.defaultConnectionId,

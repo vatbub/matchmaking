@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass<SendDataToHostRequestHandler>() {
+    override fun getCloneOf(instance: SendDataToHostRequestHandler) = SendDataToHostRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = SendDataToHostRequestHandler(MemoryRoomProvider())
 
     @Test

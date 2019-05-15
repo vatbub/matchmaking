@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass<DestroyRoomRequestHandler>() {
+    override fun getCloneOf(instance: DestroyRoomRequestHandler) = DestroyRoomRequestHandler(instance.roomProvider)
+
     override fun newObjectUnderTest() = DestroyRoomRequestHandler(MemoryRoomProvider())
 
     @Test

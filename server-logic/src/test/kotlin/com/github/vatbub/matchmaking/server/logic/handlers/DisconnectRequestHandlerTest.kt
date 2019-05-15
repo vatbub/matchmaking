@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class DisconnectRequestHandlerTest : RequestHandlerTestSuperclass<DisconnectRequestHandler>() {
+    override fun getCloneOf(instance: DisconnectRequestHandler) = DisconnectRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = DisconnectRequestHandler(MemoryRoomProvider())
 
     @Test

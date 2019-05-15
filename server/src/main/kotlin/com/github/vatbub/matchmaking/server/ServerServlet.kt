@@ -84,4 +84,17 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
         response.outputStream.flush()
         response.outputStream.close()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ServerServlet) return false
+
+        if (serverContext != other.serverContext) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return serverContext.hashCode()
+    }
 }

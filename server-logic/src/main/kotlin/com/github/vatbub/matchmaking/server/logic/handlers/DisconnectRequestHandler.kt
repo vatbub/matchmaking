@@ -28,8 +28,10 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class DisconnectRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<DisconnectRequest> {
-    override fun needsAuthentication(request: DisconnectRequest) =  true
+@Suppress("EqualsOrHashCode")
+class DisconnectRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<DisconnectRequest>(roomProvider) {
+    override fun equals(other: Any?) = super.equals(other) && (other is DisconnectRequestHandler)
+    override fun needsAuthentication(request: DisconnectRequest) = true
 
     override fun canHandle(request: Request) = request is DisconnectRequest
 

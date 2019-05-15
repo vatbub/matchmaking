@@ -24,6 +24,7 @@ import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.SubscribeToRoomResponse
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
+import com.github.vatbub.matchmaking.server.logic.NoOpSession
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import com.github.vatbub.matchmaking.testutils.TestUtils
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass<SubscribeToRoomRequestHandler>() {
+    override fun getCloneOf(instance: SubscribeToRoomRequestHandler) = SubscribeToRoomRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = SubscribeToRoomRequestHandler(MemoryRoomProvider())
 
     @Test
@@ -66,10 +68,7 @@ class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass<Subscribe
         val roomProvider = MemoryRoomProvider()
         val handler = SubscribeToRoomRequestHandler(roomProvider)
         val request = SubscribeToRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
-        val session = object : Session() {
-            override fun sendObjectSync(objectToSend: ServerInteraction) {}
-            override fun sendObjectAsync(objectToSend: ServerInteraction) {}
-        }
+        val session = NoOpSession()
         val response = handler.handle(session, request, null, null)
 
         Assertions.assertTrue(response is SubscribeToRoomResponse)
@@ -82,10 +81,7 @@ class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass<Subscribe
         val roomProvider = MemoryRoomProvider()
         val handler = SubscribeToRoomRequestHandler(roomProvider)
         val request = SubscribeToRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
-        val session = object : Session() {
-            override fun sendObjectSync(objectToSend: ServerInteraction) {}
-            override fun sendObjectAsync(objectToSend: ServerInteraction) {}
-        }
+        val session = NoOpSession()
         handler.handle(session, request, null, null)
         handler.onSessionClosed(session)
         Assertions.assertEquals(0, roomProvider.onCommitRoomTransactionListeners.size)

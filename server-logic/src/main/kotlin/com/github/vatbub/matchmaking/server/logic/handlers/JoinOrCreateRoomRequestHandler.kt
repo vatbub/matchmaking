@@ -30,7 +30,9 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class JoinOrCreateRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<JoinOrCreateRoomRequest> {
+@Suppress("EqualsOrHashCode")
+class JoinOrCreateRoomRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<JoinOrCreateRoomRequest>(roomProvider) {
+    override fun equals(other: Any?) = super.equals(other) && (other is JoinOrCreateRoomRequestHandler)
     override fun needsAuthentication(request: JoinOrCreateRoomRequest) = true
 
     override fun canHandle(request: Request) = request is JoinOrCreateRoomRequest

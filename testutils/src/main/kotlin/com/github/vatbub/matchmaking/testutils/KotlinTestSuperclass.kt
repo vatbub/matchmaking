@@ -25,7 +25,10 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class KotlinTestSuperclass<T> {
+    open val skipEqualsOtherInstanceTests = false
+
     abstract fun newObjectUnderTest(): T
+    abstract fun getCloneOf(instance: T): T
     @Test
     fun equalsSameInstanceTest() {
         val instance = newObjectUnderTest()
@@ -33,9 +36,37 @@ abstract class KotlinTestSuperclass<T> {
     }
 
     @Test
+    fun equalsOtherInstance() {
+        if (skipEqualsOtherInstanceTests) return
+        val instance1 = newObjectUnderTest()!!
+        val instance2 = getCloneOf(instance1)
+        Assertions.assertEquals(instance1, instance2)
+    }
+
+    @Test
+    fun hashCodeEqualSameInstanceTest() {
+        val instance = newObjectUnderTest()
+        Assertions.assertEquals(instance.hashCode(), instance.hashCode())
+    }
+
+    @Test
+    fun hashCodeEqualsOtherInstance() {
+        if (skipEqualsOtherInstanceTests) return
+        val instance1 = newObjectUnderTest()
+        val instance2 = getCloneOf(instance1)
+        Assertions.assertEquals(instance1.hashCode(), instance2.hashCode())
+    }
+
+    @Test
     fun notEqualsOtherClassTest() {
         val instance = newObjectUnderTest()
         Assertions.assertNotEquals(DummyClass(), instance)
+    }
+
+    @Test
+    fun hashCodeNotEqualOtherClassTest() {
+        val instance = newObjectUnderTest()
+        Assertions.assertNotEquals(DummyClass().hashCode(), instance.hashCode())
     }
 
     @Test

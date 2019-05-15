@@ -34,9 +34,9 @@ import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
 import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 
-class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContext? = null) {
+class KryoServer(internal val tcpPort: Int, internal val udpPort: Int?, initialServerContext: ServerContext? = null) {
     val server = Server()
-    private var serverContext: ServerContext
+    internal var serverContext: ServerContext
     private val sessions = mutableMapOf<Connection, KryoSessionWrapper>()
 
     init {

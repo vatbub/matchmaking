@@ -24,6 +24,9 @@ package com.github.vatbub.matchmaking.common
  */
 open class Request(override val connectionId: String?, val password: String?, override val className: String, var requestId: String?) :
         ServerInteraction {
+    @Suppress("UNCHECKED_CAST")
+    override fun copy() = Request(connectionId, password, className, requestId)
+
     override val protocolVersion = ServerInteraction.defaultProtocolVersion
 
     override fun equals(other: Any?): Boolean {

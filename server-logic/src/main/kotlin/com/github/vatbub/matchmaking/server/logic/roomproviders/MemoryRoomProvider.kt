@@ -32,7 +32,7 @@ import kotlin.random.Random
 open class MemoryRoomProvider : RoomProvider() {
     override val supportsConcurrentTransactionsOnSameRoom = false
 
-    private val rooms = mutableMapOf<String, Room>()
+    internal val rooms = mutableMapOf<String, Room>()
     private val pendingTransactions = mutableMapOf<String, RoomTransaction>()
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
@@ -119,6 +119,26 @@ open class MemoryRoomProvider : RoomProvider() {
         rooms.filter { filter(it.value) }.forEach {
             result.add(it.value.copy())
         }
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MemoryRoomProvider
+
+        if (supportsConcurrentTransactionsOnSameRoom != other.supportsConcurrentTransactionsOnSameRoom) return false
+        if (rooms != other.rooms) return false
+        if (pendingTransactions != other.pendingTransactions) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = supportsConcurrentTransactionsOnSameRoom.hashCode()
+        result = 31 * result + rooms.hashCode()
+        result = 31 * result + pendingTransactions.hashCode()
         return result
     }
 }

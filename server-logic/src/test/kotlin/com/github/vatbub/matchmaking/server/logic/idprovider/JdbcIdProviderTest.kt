@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Assertions
 
 
 class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
+    override fun getCloneOf(instance: JdbcIdProvider) = JdbcIdProvider(instance.connectionPoolWrapper)
+
     private var lastProviderInstance: JdbcIdProvider? = null
 
     companion object {

@@ -37,15 +37,18 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @see GetRoomDataResponse
  */
 class UpdateGameStateRequest(
-    connectionId: String,
-    password: String,
-    val roomId: String,
-    val gameData: GameData,
-    val processedData: List<GameData>,
-    requestId:String?=null
+        connectionId: String,
+        password: String,
+        val roomId: String,
+        val gameData: GameData,
+        val processedData: List<GameData>,
+        requestId: String? = null
 ) :
-    Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!, requestId) {
-    private constructor():this("", "", "", GameData(""), listOf())
+        Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = UpdateGameStateRequest(connectionId!!, password!!, roomId, gameData, processedData, requestId)
+
+    private constructor() : this("", "", "", GameData(""), listOf())
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

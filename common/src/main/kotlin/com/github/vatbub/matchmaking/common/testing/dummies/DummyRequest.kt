@@ -21,7 +21,9 @@ package com.github.vatbub.matchmaking.common.testing.dummies
 
 import com.github.vatbub.matchmaking.common.Request
 
-class DummyRequest(connectionId: String?, password: String?, requestId:String?=null) :
-    Request(connectionId, password, DummyRequest::class.qualifiedName!!, requestId) {
+class DummyRequest(connectionId: String?, password: String?, requestId: String? = null) :
+        Request(connectionId, password, DummyRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = DummyRequest(connectionId, password, requestId)
+
     constructor() : this(null, null)
 }

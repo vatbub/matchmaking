@@ -27,7 +27,9 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class SendDataToHostRequestHandler(private val roomProvider: RoomProvider) : RequestHandler<SendDataToHostRequest> {
+@Suppress("EqualsOrHashCode")
+class SendDataToHostRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<SendDataToHostRequest>(roomProvider) {
+    override fun equals(other: Any?) = super.equals(other) && (other is SendDataToHostRequestHandler)
     override fun needsAuthentication(request: SendDataToHostRequest) = true
 
     override fun canHandle(request: Request) = request is SendDataToHostRequest

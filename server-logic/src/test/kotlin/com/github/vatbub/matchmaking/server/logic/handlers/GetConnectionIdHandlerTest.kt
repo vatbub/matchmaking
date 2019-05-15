@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass<GetConnectionIdHandler>() {
+    override fun getCloneOf(instance: GetConnectionIdHandler) = GetConnectionIdHandler(instance.connectionIdProvider)
     override fun newObjectUnderTest() = GetConnectionIdHandler(MemoryIdProvider())
 
     @Test

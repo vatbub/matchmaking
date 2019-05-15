@@ -28,7 +28,7 @@ import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
  * Therefore, all changes to rooms must be done within one transaction. The changes will not become visible to other threads until
  * [RoomTransaction.commit] is called.
  */
-class RoomTransaction(room: ObservableRoom, private val roomProvider: RoomProvider) {
+class RoomTransaction(room: ObservableRoom, internal val roomProvider: RoomProvider) {
     companion object {
         private val idsInUse = mutableListOf<Int>()
         private val nextId: Int

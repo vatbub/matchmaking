@@ -33,9 +33,12 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param roomId The id of the room to start the game in
  * @see GetRoomDataResponse
  */
-class StartGameRequest(connectionId: String, password: String, val roomId: String, requestId:String?=null) :
-    Request(connectionId, password, StartGameRequest::class.qualifiedName!!, requestId) {
-    private constructor():this("", "", "")
+class StartGameRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
+        Request(connectionId, password, StartGameRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = StartGameRequest(connectionId!!, password!!, roomId, requestId)
+
+    private constructor() : this("", "", "")
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class GetRoomDataRequestHandlerTest : RequestHandlerTestSuperclass<GetRoomDataRequestHandler>() {
+    override fun getCloneOf(instance: GetRoomDataRequestHandler) = GetRoomDataRequestHandler(instance.roomProvider)
     override fun newObjectUnderTest() = GetRoomDataRequestHandler(MemoryRoomProvider())
 
     private lateinit var handler: GetRoomDataRequestHandler

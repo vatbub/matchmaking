@@ -40,6 +40,8 @@ import org.junit.jupiter.api.Test
 import java.net.URL
 
 class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
+    override fun getCloneOf(instance: ServerServlet) = ServerServlet(instance.serverContext)
+
     override fun newObjectUnderTest() = ServerServlet()
 
     private val tomcatPort: Int = 9999

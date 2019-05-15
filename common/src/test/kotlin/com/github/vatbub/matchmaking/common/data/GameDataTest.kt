@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GameDataTest : KotlinTestSuperclass<GameData>() {
+    override fun getCloneOf(instance: GameData) = instance.copy()
+
     override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
 
     private fun <T : Any> testGameData(key: String, value: T) {
@@ -161,5 +163,51 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
         Assertions.assertEquals(original, copy)
         Assertions.assertEquals(original.hashCode(), copy.hashCode())
         Assertions.assertNotSame(original, copy)
+    }
+
+    @Test
+    fun createdByConnectionIdNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        val instance2 = GameData(TestUtils.getRandomHexString(instance1.createdByConnectionId))
+        Assertions.assertNotEquals(instance1, instance2)
+    }
+
+    @Test
+    fun contentsNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        val instance2 = GameData(instance1.createdByConnectionId)
+        instance2["key"] = "value"
+        Assertions.assertNotEquals(instance1, instance2)
+    }
+
+    @Test
+    fun creationTimestampNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        Thread.sleep(1000)
+        val instance2 = GameData(instance1.createdByConnectionId)
+        Assertions.assertNotEquals(instance1, instance2)
+    }
+
+    @Test
+    fun createdByConnectionIdHashCodeNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        val instance2 = GameData(TestUtils.getRandomHexString(instance1.createdByConnectionId))
+        Assertions.assertNotEquals(instance1.hashCode(), instance2.hashCode())
+    }
+
+    @Test
+    fun contentsHashCodeNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        val instance2 = GameData(instance1.createdByConnectionId)
+        instance2["key"] = "value"
+        Assertions.assertNotEquals(instance1.hashCode(), instance2.hashCode())
+    }
+
+    @Test
+    fun creationTimestampHashCodeNotEqualTest() {
+        val instance1 = GameData(TestUtils.defaultConnectionId)
+        Thread.sleep(1000)
+        val instance2 = GameData(instance1.createdByConnectionId)
+        Assertions.assertNotEquals(instance1.hashCode(), instance2.hashCode())
     }
 }

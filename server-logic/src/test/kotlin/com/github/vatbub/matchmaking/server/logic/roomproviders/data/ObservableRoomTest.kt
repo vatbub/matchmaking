@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class ObservableRoomTest : KotlinTestSuperclass<ObservableRoom>() {
+    override fun getCloneOf(instance: ObservableRoom) = ObservableRoom(instance.toRoom(), instance.onGameStartedChange)
+
     override fun newObjectUnderTest() = ObservableRoom(Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId))
 
     @Test

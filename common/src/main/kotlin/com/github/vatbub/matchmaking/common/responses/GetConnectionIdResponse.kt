@@ -28,6 +28,8 @@ import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
  * @param password The assigned password. This password shall be used in all further requests to authenticate the client. Failure to do so will result in an [AuthorizationException]
  */
 class GetConnectionIdResponse(connectionId: String, val password: String, responseTo: String? = null) :
-    ResponseImpl(connectionId, GetConnectionIdResponse::class.qualifiedName!!, responseTo){
-    private constructor():this("", "")
+        ResponseImpl(connectionId, GetConnectionIdResponse::class.qualifiedName!!, responseTo) {
+    override fun copy() = GetConnectionIdResponse(connectionId!!, password, responseTo)
+
+    private constructor() : this("", "")
 }

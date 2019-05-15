@@ -31,7 +31,9 @@ import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-class SubscribeToRoomRequestHandler(private val roomProvider: RoomProvider) : RequestHandlerWithWebsocketSupport<SubscribeToRoomRequest>() {
+@Suppress("EqualsOrHashCode")
+class SubscribeToRoomRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithRoomProviderAccess<SubscribeToRoomRequest>(roomProvider), RequestHandlerWithWebsocketSupport<SubscribeToRoomRequest> {
+    override fun equals(other: Any?) = super.equals(other) && (other is SubscribeToRoomRequestHandler)
     private val roomListeners = mutableMapOf<Session, RoomListener>()
 
     override val requiresSocket = true

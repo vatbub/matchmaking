@@ -28,6 +28,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
+    override fun getCloneOf(instance: RoomTransaction) = RoomTransaction(instance.room, instance.roomProvider)
+    override val skipEqualsOtherInstanceTests = true
+
     override fun newObjectUnderTest() = RoomTransaction(ObservableRoom(Room(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId)), MemoryRoomProvider())
 
     @Test

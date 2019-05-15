@@ -127,6 +127,19 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WebsocketEndpoint) return false
+
+        if (serverContext != other.serverContext) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return serverContext.hashCode()
+    }
 }
 
 class WebSocketSessionConfigurator : ServerEndpointConfig.Configurator() {

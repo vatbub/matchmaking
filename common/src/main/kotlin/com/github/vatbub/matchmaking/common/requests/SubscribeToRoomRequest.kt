@@ -21,9 +21,12 @@ package com.github.vatbub.matchmaking.common.requests
 
 import com.github.vatbub.matchmaking.common.Request
 
-class SubscribeToRoomRequest(connectionId: String, password: String, val roomId: String, requestId:String?=null) :
-    Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!, requestId) {
-    private constructor():this("", "", "")
+class SubscribeToRoomRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
+        Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!, requestId) {
+    override fun copy() = SubscribeToRoomRequest(connectionId!!, password!!, roomId, requestId)
+
+    private constructor() : this("", "", "")
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

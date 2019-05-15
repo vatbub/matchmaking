@@ -37,17 +37,20 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
  * @see JoinOrCreateRoomResponse
  */
 class JoinOrCreateRoomRequest(
-    connectionId: String,
-    password: String,
-    val operation: Operation,
-    val userName: String,
-    val whitelist: List<String>? = null,
-    val blacklist: List<String>? = null,
-    val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 2,
-    requestId:String?=null
+        connectionId: String,
+        password: String,
+        val operation: Operation,
+        val userName: String,
+        val whitelist: List<String>? = null,
+        val blacklist: List<String>? = null,
+        val minRoomSize: Int = 1,
+        val maxRoomSize: Int = 2,
+        requestId: String? = null
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
-    private constructor():this("", "", Operation.JoinOrCreateRoom, "")
+    override fun copy() = JoinOrCreateRoomRequest(connectionId!!, password!!, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize, requestId)
+
+    private constructor() : this("", "", Operation.JoinOrCreateRoom, "")
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
