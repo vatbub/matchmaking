@@ -83,10 +83,7 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
      * the key is not of type [T] (see the note on type safety above) or `null` if [defaultValue] is not specified.
      */
     operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null): T? {
-        if (!contains(key))
-            return defaultValue
-
-        val result = contents[key] ?: return null
+        val result = contents[key] ?: return defaultValue
         if (typeClass?.isAssignableFrom(result.javaClass) == false)
             return defaultValue
 

@@ -120,6 +120,18 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     }
 
     @Test
+    fun typeMismatchNoTypeSpecifiedTest() {
+        val key = "sampleString"
+        val sampleString = "Hello"
+        val defaultValue = 5
+        val gameData = GameData(TestUtils.defaultConnectionId)
+        gameData[key] = sampleString
+
+        Assertions.assertTrue(gameData.contains(key))
+        Assertions.assertThrows(ClassCastException::class.java) { @Suppress("UNUSED_VARIABLE") val returnedObject: Int? = gameData[key, defaultValue] }
+    }
+
+    @Test
     fun notFoundTest() {
         val key = "sampleString"
         val gameData = GameData(TestUtils.defaultConnectionId)
