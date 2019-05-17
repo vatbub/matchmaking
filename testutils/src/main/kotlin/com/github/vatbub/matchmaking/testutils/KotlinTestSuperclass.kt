@@ -17,6 +17,8 @@
  * limitations under the License.
  * #L%
  */
+@file:Suppress("ReplaceCallWithBinaryOperator")
+
 package com.github.vatbub.matchmaking.testutils
 
 import org.junit.jupiter.api.Assertions
@@ -59,8 +61,8 @@ abstract class KotlinTestSuperclass<T> {
 
     @Test
     fun notEqualsOtherClassTest() {
-        val instance = newObjectUnderTest()
-        Assertions.assertNotEquals(DummyClass(), instance)
+        val instance = newObjectUnderTest()!!
+        Assertions.assertFalse(instance.equals(DummyClass()))
     }
 
     @Test
@@ -71,8 +73,8 @@ abstract class KotlinTestSuperclass<T> {
 
     @Test
     fun notEqualsToNullTest() {
-        val instance = newObjectUnderTest()
-        Assertions.assertNotEquals(null, instance)
+        val instance = newObjectUnderTest()!!
+        Assertions.assertFalse(instance.equals(null))
     }
 }
 
