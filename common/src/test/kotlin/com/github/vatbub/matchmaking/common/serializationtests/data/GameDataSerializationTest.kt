@@ -37,4 +37,7 @@ class GameDataSerializationTest : SerializationTestSuperclass<GameData>(GameData
         }*/
         return gameData
     }
+
+    // Already tested in GameDataTest
+    override fun notEqualsTest() {}
 }

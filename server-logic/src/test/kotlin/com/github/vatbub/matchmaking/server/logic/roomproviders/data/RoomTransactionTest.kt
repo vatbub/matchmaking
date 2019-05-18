@@ -128,7 +128,6 @@ class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
         Assertions.assertDoesNotThrow { transaction.room }
         transaction.commit()
         Assertions.assertThrows(IllegalStateException::class.java) { transaction.room }
-
     }
 
     @Test
@@ -140,7 +139,13 @@ class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
         Assertions.assertDoesNotThrow { transaction.room }
         transaction.abort()
         Assertions.assertThrows(IllegalStateException::class.java) { transaction.room }
+    }
 
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = newObjectUnderTest()
+        Assertions.assertNotEquals(object1, object2)
     }
 }
 

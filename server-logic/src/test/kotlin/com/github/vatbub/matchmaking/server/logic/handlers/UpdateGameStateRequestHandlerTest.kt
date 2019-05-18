@@ -25,13 +25,14 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class UpdateGameStateRequestHandlerTest : RequestHandlerTestSuperclass<UpdateGameStateRequestHandler>() {
+class UpdateGameStateRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<UpdateGameStateRequestHandler>() {
     override fun getCloneOf(instance: UpdateGameStateRequestHandler) = UpdateGameStateRequestHandler(instance.roomProvider)
-    override fun newObjectUnderTest() = UpdateGameStateRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = UpdateGameStateRequestHandler(roomProvider)
 
     @Test
     override fun handleTest() {

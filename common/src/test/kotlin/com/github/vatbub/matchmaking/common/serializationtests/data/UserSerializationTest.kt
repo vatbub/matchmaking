@@ -66,4 +66,7 @@ class UserSerializationTest :
             Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.userName)
         }
     }
+
+    // Already tested in UserTest
+    override fun notEqualsTest() {}
 }

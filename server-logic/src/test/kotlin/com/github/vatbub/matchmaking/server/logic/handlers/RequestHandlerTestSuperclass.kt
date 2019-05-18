@@ -19,7 +19,11 @@
  */
 package com.github.vatbub.matchmaking.server.logic.handlers
 
+import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class RequestHandlerTestSuperclass<T : RequestHandler<*>> : KotlinTestSuperclass<T>() {
@@ -34,4 +38,19 @@ abstract class RequestHandlerTestSuperclass<T : RequestHandler<*>> : KotlinTestS
 
     @Test
     abstract fun needsAuthenticationTest()
+}
+
+abstract class RequestHandlerWithRoomProviderAccessTestSuperclass<T : RequestHandlerWithRoomProviderAccess<*>> : RequestHandlerTestSuperclass<T>() {
+    override fun newObjectUnderTest() = newObjectUnderTest(MemoryRoomProvider())
+    abstract fun newObjectUnderTest(roomProvider: RoomProvider): T
+
+    @Test
+    override fun notEqualsTest() {
+        val roomProvider1 = MemoryRoomProvider()
+        val roomProvider2 = MemoryRoomProvider()
+        roomProvider2.createNewRoom(TestUtils.defaultConnectionId)
+        val handler1 = newObjectUnderTest(roomProvider1)
+        val handler2 = newObjectUnderTest(roomProvider2)
+        Assertions.assertNotEquals(handler1, handler2)
+    }
 }

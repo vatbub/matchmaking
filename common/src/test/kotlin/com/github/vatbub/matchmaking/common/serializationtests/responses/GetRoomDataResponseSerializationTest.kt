@@ -24,10 +24,21 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class GetRoomDataResponseSerializationTest :
     ServerInteractionSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
     override fun newObjectUnderTest(): GetRoomDataResponse {
         return GetRoomDataResponse(defaultConnectionId, Room(getRandomHexString(), defaultConnectionId))
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val response1 = newObjectUnderTest()
+        val room1 = response1.room!!
+        val room2 = Room(getRandomHexString(room1.id), getRandomHexString(room1.hostUserConnectionId))
+        val response2 = GetRoomDataResponse(response1.connectionId, room2, response1.responseTo)
+        Assertions.assertNotEquals(response1, response2)
     }
 }

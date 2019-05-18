@@ -24,13 +24,14 @@ import com.github.vatbub.matchmaking.common.requests.SendDataToHostRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class SendDataToHostRequestHandlerTest : RequestHandlerTestSuperclass<SendDataToHostRequestHandler>() {
+class SendDataToHostRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<SendDataToHostRequestHandler>() {
     override fun getCloneOf(instance: SendDataToHostRequestHandler) = SendDataToHostRequestHandler(instance.roomProvider)
-    override fun newObjectUnderTest() = SendDataToHostRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = SendDataToHostRequestHandler(roomProvider)
 
     @Test
     override fun handleTest() {

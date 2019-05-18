@@ -296,4 +296,22 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
         messageDispatcher.dispatch(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword), null, null, expectedSession)
         Assertions.assertTrue(handlerCalled)
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val idProvider1 = MemoryIdProvider()
+        val idProvider2 = MemoryIdProvider()
+        idProvider2.getNewId()
+        val object1 = MessageDispatcher(idProvider1)
+        val object2 = MessageDispatcher(idProvider2)
+        Assertions.assertNotEquals(object1, object2)
+    }
+
+    @Test
+    fun handlerNotEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = newObjectUnderTest()
+        object2.handlers.add(DummyRequestHandler())
+        Assertions.assertNotEquals(object1, object2)
+    }
 }

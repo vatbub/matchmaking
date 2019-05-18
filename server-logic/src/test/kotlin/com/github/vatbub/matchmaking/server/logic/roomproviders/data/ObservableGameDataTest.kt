@@ -211,4 +211,12 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
         observableGameData.remove<Any>(expectedKey)
         Assert.assertTrue(callbackCalled)
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        Thread.sleep(1000)
+        val object2 = newObjectUnderTest()
+        Assertions.assertNotEquals(object1, object2)
+    }
 }

@@ -21,10 +21,20 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class BadRequestExceptionSerializationTest :
     ServerInteractionSerializationTestSuperclass<BadRequestException>(BadRequestException::class.java) {
     override fun newObjectUnderTest(): BadRequestException {
         return BadRequestException()
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = BadRequestException(TestUtils.getRandomHexString(request1.message))
+        Assertions.assertNotEquals(request1, request2)
     }
 }

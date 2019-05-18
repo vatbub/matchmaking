@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.common
 
 import com.esotericsoftware.kryo.Kryo
+import com.github.vatbub.matchmaking.common.KryoCommon.defaultStringValueForInstantiation
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
@@ -41,17 +42,22 @@ object KryoCommon {
 
 inline fun <reified T> kryoSafeListOf(vararg elements: T): List<T> = List(elements.size) { elements[it] }
 
+val defaultInet4Address = InetAddress.getByName("129.187.211.162") as Inet4Address
+val defaultInet6Address = InetAddress.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address
+
 fun Kryo.registerClasses() {
     // data
     val instantRegistration = this.register(Instant::class.java)!!
     instantRegistration.setInstantiator { Instant.now() }
     this.register(GameData::class.java)
     val roomRegistration = this.register(Room::class.java)
-    roomRegistration.setInstantiator { Room(KryoCommon.defaultStringValueForInstantiation, KryoCommon.defaultStringValueForInstantiation) }
+    roomRegistration.setInstantiator { Room(defaultStringValueForInstantiation, defaultStringValueForInstantiation) }
     val userRegistration = this.register(User::class.java)
-    userRegistration.setInstantiator { User(KryoCommon.defaultStringValueForInstantiation, KryoCommon.defaultStringValueForInstantiation) }
+    userRegistration.setInstantiator { User(defaultStringValueForInstantiation, defaultStringValueForInstantiation) }
 
     // requests
+    val requestRegistration = this.register(Request::class.java)
+    requestRegistration.setInstantiator { Request(null, null, defaultStringValueForInstantiation, null) }
     this.register(DestroyRoomRequest::class.java)
     this.register(DisconnectRequest::class.java)
     this.register(GetConnectionIdRequest::class.java)
@@ -82,9 +88,9 @@ fun Kryo.registerClasses() {
     val listRegistration = this.register(ArrayList::class.java)
     listRegistration.setInstantiator { ArrayList<Any>() }
     val inet4AddressRegistration = this.register(Inet4Address::class.java)
-    inet4AddressRegistration.setInstantiator { InetAddress.getByName("129.187.211.162") }
+    inet4AddressRegistration.setInstantiator { defaultInet4Address }
     val inet6AddressRegistration = this.register(Inet6Address::class.java)
-    inet6AddressRegistration.setInstantiator { InetAddress.getByName("2001:4ca0:2fff:11:0:0:0:25") }
+    inet6AddressRegistration.setInstantiator { defaultInet6Address }
     // inner class Collections$UnmodifiableRandomAccessList is not public. We therefore need to get an instance of that
     // class and get its javaClass-object
     val unmodifiableRandomAccessListRegistration = this.register(Collections.unmodifiableList(listOf<Any>()).javaClass)

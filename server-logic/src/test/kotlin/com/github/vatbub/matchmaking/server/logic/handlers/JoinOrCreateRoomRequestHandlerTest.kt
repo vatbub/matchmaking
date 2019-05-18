@@ -31,9 +31,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class JoinOrCreateRoomRequestHandlerTest : RequestHandlerTestSuperclass<JoinOrCreateRoomRequestHandler>() {
+class JoinOrCreateRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<JoinOrCreateRoomRequestHandler>() {
     override fun getCloneOf(instance: JoinOrCreateRoomRequestHandler) = JoinOrCreateRoomRequestHandler(instance.roomProvider)
-    override fun newObjectUnderTest() = JoinOrCreateRoomRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = JoinOrCreateRoomRequestHandler(roomProvider)
 
     private lateinit var handler: JoinOrCreateRoomRequestHandler
     private lateinit var roomProvider: RoomProvider

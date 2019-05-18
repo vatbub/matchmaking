@@ -132,4 +132,12 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
         Assertions.assertNotNull(readResult)
         Assertions.assertEquals(originalConfiguration, readResult)
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val manager1 = ConfigurationManager()
+        val manager2 = ConfigurationManager()
+        manager2.onChangeListeners.add { _, _ -> print("") }
+        Assertions.assertNotEquals(manager1, manager2)
+    }
 }

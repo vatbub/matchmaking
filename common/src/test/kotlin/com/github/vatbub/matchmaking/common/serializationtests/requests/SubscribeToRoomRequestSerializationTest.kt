@@ -20,16 +20,24 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class SubscribeToRoomRequestSerializationTest :
-        ServerInteractionSerializationTestSuperclass<SubscribeToRoomRequest>(SubscribeToRoomRequest::class.java) {
+        RequestSerializationTestSuperclass<SubscribeToRoomRequest>(SubscribeToRoomRequest::class.java) {
     override fun newObjectUnderTest(): SubscribeToRoomRequest {
         return SubscribeToRoomRequest(
             TestUtils.defaultConnectionId,
             TestUtils.defaultPassword,
             TestUtils.getRandomHexString()
         )
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = SubscribeToRoomRequest(request1.connectionId!!, request1.password!!, TestUtils.getRandomHexString(request1.roomId), request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
     }
 }

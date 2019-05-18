@@ -83,4 +83,7 @@ class RoomSerializationTest :
             Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.hostUserConnectionId)
         }
     }
+
+    // Already tested in RoomTest
+    override fun notEqualsTest() {}
 }

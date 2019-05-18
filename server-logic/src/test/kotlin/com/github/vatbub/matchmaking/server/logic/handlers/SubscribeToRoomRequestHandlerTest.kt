@@ -26,14 +26,15 @@ import com.github.vatbub.matchmaking.common.responses.SubscribeToRoomResponse
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.NoOpSession
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class SubscribeToRoomRequestHandlerTest : RequestHandlerTestSuperclass<SubscribeToRoomRequestHandler>() {
+class SubscribeToRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<SubscribeToRoomRequestHandler>() {
     override fun getCloneOf(instance: SubscribeToRoomRequestHandler) = SubscribeToRoomRequestHandler(instance.roomProvider)
-    override fun newObjectUnderTest() = SubscribeToRoomRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = SubscribeToRoomRequestHandler(roomProvider)
 
     @Test
     override fun handleTest() {

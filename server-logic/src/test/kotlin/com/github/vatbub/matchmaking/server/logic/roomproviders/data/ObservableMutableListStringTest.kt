@@ -19,10 +19,21 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+
 class ObservableMutableListStringTest : ObservableMutableListTestSuperclass<String>() {
     private var callCount = -1
     override fun getNewTestElement(): String {
         callCount++
         return "dummyValue$callCount"
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = newObjectUnderTest()
+        object2.add(getNewTestElement())
+        Assertions.assertNotEquals(object1, object2)
     }
 }

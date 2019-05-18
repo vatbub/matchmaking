@@ -20,14 +20,22 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.StartGameRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class StartGameRequestSerializationTest :
-    ServerInteractionSerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
+        RequestSerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
     override fun newObjectUnderTest(): StartGameRequest {
         return StartGameRequest(defaultConnectionId, defaultPassword, getRandomHexString())
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = StartGameRequest(request1.connectionId!!, request1.password!!, getRandomHexString(request1.roomId), request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
     }
 }

@@ -30,6 +30,23 @@ import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
 class DestroyRoomResponse(connectionId: String?, val roomDestroyed: Boolean, responseTo: String? = null) :
         ResponseImpl(connectionId, DestroyRoomResponse::class.qualifiedName!!, responseTo) {
     override fun copy() = DestroyRoomResponse(connectionId, roomDestroyed, responseTo)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as DestroyRoomResponse
+
+        if (roomDestroyed != other.roomDestroyed) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + roomDestroyed.hashCode()
+        return result
+    }
 
     private constructor() : this(null, false)
 }

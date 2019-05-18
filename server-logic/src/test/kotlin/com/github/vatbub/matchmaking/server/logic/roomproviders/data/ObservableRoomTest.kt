@@ -102,4 +102,11 @@ class ObservableRoomTest : KotlinTestSuperclass<ObservableRoom>() {
         observableRoom.gameStarted = true
         Assertions.assertTrue(listenerCalled)
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = ObservableRoom(Room(TestUtils.getRandomHexString(object1.id), TestUtils.getRandomHexString()))
+        Assertions.assertNotEquals(object1, object2)
+    }
 }

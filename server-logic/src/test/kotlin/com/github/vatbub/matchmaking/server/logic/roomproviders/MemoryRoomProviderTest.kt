@@ -19,6 +19,10 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
+import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+
 class MemoryRoomProviderTest : RoomProviderTest<MemoryRoomProvider>() {
     override fun getCloneOf(instance: MemoryRoomProvider): MemoryRoomProvider {
         val result = MemoryRoomProvider()
@@ -27,4 +31,12 @@ class MemoryRoomProviderTest : RoomProviderTest<MemoryRoomProvider>() {
     }
 
     override fun newObjectUnderTest() = MemoryRoomProvider()
+
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = newObjectUnderTest()
+        object2.createNewRoom(TestUtils.getRandomHexString())
+        Assertions.assertNotEquals(object1, object2)
+    }
 }

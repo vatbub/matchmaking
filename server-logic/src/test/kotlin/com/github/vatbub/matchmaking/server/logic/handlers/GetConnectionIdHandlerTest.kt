@@ -64,4 +64,14 @@ class GetConnectionIdHandlerTest : RequestHandlerTestSuperclass<GetConnectionIdH
         Assertions.assertTrue(idProvider.connectionIdsInUse.containsKey(response.connectionId))
         Assertions.assertTrue(idProvider.connectionIdsInUse.containsValue(Id(response.connectionId, response.password)))
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val idProvider1 = MemoryIdProvider()
+        val idProvider2 = MemoryIdProvider()
+        idProvider2.getNewId()
+        val handler1 = GetConnectionIdHandler(idProvider1)
+        val handler2 = GetConnectionIdHandler(idProvider2)
+        Assertions.assertNotEquals(handler1, handler2)
+    }
 }

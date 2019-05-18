@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders
 
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class JdbcRoomProviderTest : RoomProviderTest<JdbcRoomProvider>() {
     override fun getCloneOf(instance: JdbcRoomProvider) = JdbcRoomProvider(instance.connectionPoolWrapper)
@@ -55,5 +56,12 @@ class JdbcRoomProviderTest : RoomProviderTest<JdbcRoomProvider>() {
     fun assertAllConnectionsReturned() {
         val lastProviderInstanceCopy = lastProviderInstance ?: return
         Assertions.assertEquals(0, lastProviderInstanceCopy.connectionPoolWrapper.connectionCount)
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val object1 = newObjectUnderTest()
+        val object2 = newObjectUnderTest()
+        Assertions.assertNotEquals(object1, object2)
     }
 }

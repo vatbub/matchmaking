@@ -29,12 +29,13 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
 
-    private fun <T : Any> testGameData(key: String, value: T) {
+    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>) {
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(value, gameData[key]!!)
+        Assertions.assertEquals(value, gameData[key, clazz]!!)
         Assertions.assertEquals(1, gameData.size)
         Assertions.assertTrue(gameData.keys.contains(key))
         Assertions.assertTrue(gameData.values.contains(value))
@@ -44,54 +45,58 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     }
 
     @Test
-    fun byteTest() =
-            testGameData("sampleByte", 5)
+    fun byteTest() {
+        val sampleByte: Byte = 5
+        testGameData("sampleByte", sampleByte, Byte::class.java)
+    }
 
     @Test
     fun byteArrayTest() =
-            testGameData("sampleByteArray", ByteArray(3) { i -> i.toByte() })
+            testGameData("sampleByteArray", ByteArray(3) { i -> i.toByte() }, ByteArray::class.java)
 
     @Test
     fun charTest() =
-            testGameData("sampleChar", 'a')
+            testGameData("sampleChar", 'a', Char::class.java)
 
     @Test
     fun charArrayTest() =
-            testGameData("sampleCharArray", CharArray(3) { i -> i.toChar() })
+            testGameData("sampleCharArray", CharArray(3) { i -> i.toChar() }, CharArray::class.java)
 
     @Test
     fun stringTest() =
-            testGameData("sampleString", "Hello")
+            testGameData("sampleString", "Hello", String::class.java)
 
     @Test
     fun stringArrayTest() =
-            testGameData("sampleStringArray", arrayOf("Hello", "Test"))
+            testGameData("sampleStringArray", arrayOf("Hello", "Test"), Array<String>::class.java)
 
     @Test
-    fun stringListTest() =
-            testGameData("sampleStringList", listOf("Hello", "Test"))
+    fun stringListTest() {
+        val list = listOf("Hello", "Test")
+        testGameData("sampleStringList", list, list.javaClass)
+    }
 
     @Test
     fun floatTest() =
-            testGameData("sampleFloat", 5.0f)
+            testGameData("sampleFloat", 5.0f, Float::class.java)
 
     @Test
     fun floatArrayTest() =
-            testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() })
+            testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() }, FloatArray::class.java)
 
     @Test
-    fun integerListTest() =
-            testGameData("sampleIntegerList", IntArray(3) { i -> i })
+    fun integerArrayTest() =
+            testGameData("sampleIntegerList", IntArray(3) { i -> i }, IntArray::class.java)
 
     @Test
     fun shortTest() {
         val sampleShort: Short = 5
-        testGameData("sampleShort", sampleShort)
+        testGameData("sampleShort", sampleShort, Short::class.java)
     }
 
     @Test
     fun shortArrayTest() {
-        testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() })
+        testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() }, ShortArray::class.java)
     }
 
     @Test
@@ -178,7 +183,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     }
 
     @Test
-    fun createdByConnectionIdNotEqualTest() {
+    override fun notEqualsTest() {
         val instance1 = GameData(TestUtils.defaultConnectionId)
         val instance2 = GameData(TestUtils.getRandomHexString(instance1.createdByConnectionId))
         Assertions.assertNotEquals(instance1, instance2)

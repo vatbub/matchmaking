@@ -39,20 +39,19 @@ abstract class ServerInteractionException(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as ServerInteractionException
 
-        if (httpStatusCode != other.httpStatusCode) return false
-        if (connectionId != other.connectionId) return false
-        if (className != other.className) return false
+        if (message != other.message) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = httpStatusCode
-        result = 31 * result + (connectionId?.hashCode() ?: 0)
-        result = 31 * result + className.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + (message?.hashCode() ?: 0)
         return result
     }
+
 }

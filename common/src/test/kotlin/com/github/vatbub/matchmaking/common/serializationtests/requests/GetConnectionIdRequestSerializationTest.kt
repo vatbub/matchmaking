@@ -20,12 +20,20 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class GetConnectionIdRequestSerializationTest :
-    ServerInteractionSerializationTestSuperclass<GetConnectionIdRequest>(GetConnectionIdRequest::class.java) {
+        RequestSerializationTestSuperclass<GetConnectionIdRequest>(GetConnectionIdRequest::class.java) {
     override fun newObjectUnderTest(): GetConnectionIdRequest {
         return GetConnectionIdRequest()
     }
 
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = GetConnectionIdRequest(TestUtils.getRandomHexString(request1.connectionId))
+        Assertions.assertNotEquals(request1, request2)
+    }
 }

@@ -24,14 +24,16 @@ import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DisconnectRequestHandlerTest : RequestHandlerTestSuperclass<DisconnectRequestHandler>() {
+class DisconnectRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<DisconnectRequestHandler>() {
     override fun getCloneOf(instance: DisconnectRequestHandler) = DisconnectRequestHandler(instance.roomProvider)
-    override fun newObjectUnderTest() = DisconnectRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest() = newObjectUnderTest(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = DisconnectRequestHandler(roomProvider)
 
     @Test
     override fun handleTest() {

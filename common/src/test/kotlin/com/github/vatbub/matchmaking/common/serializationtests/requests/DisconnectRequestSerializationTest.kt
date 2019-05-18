@@ -20,13 +20,22 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class DisconnectRequestSerializationTest :
-    ServerInteractionSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
+        RequestSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
     override fun newObjectUnderTest(): DisconnectRequest {
         return DisconnectRequest(defaultConnectionId, defaultPassword)
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = DisconnectRequest(request1.connectionId!!, request1.password!!, TestUtils.getRandomHexString(request1.requestId))
+        Assertions.assertNotEquals(request1, request2)
     }
 }

@@ -72,6 +72,13 @@ class KryoSessionWrapperTest : KotlinTestSuperclassWithExceptionHandlerForMultit
         await().atMost(5, TimeUnit.SECONDS).until { connection.sendUdpCallCount == 1 }
         Assertions.assertEquals(0, connection.sendTcpCallCount)
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val wrapper1 = KryoSessionWrapper(object : Connection() {})
+        val wrapper2 = KryoSessionWrapper(object : Connection() {})
+        Assertions.assertNotEquals(wrapper1, wrapper2)
+    }
 }
 
 class MockConnection(private val allowUdp: Boolean = false, private val expectedTcpObject: Any? = null, private val expectedUdpObject: Any? = null) : Connection() {

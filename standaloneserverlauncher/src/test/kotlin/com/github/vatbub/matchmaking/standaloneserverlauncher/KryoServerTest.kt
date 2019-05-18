@@ -174,6 +174,11 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
         }
     }
 
+    // not supported
+    @Test
+    override fun notEqualsTest() {
+    }
+
     @Test
     fun internalServerErrorExceptionTest() {
         val expectedInnerException = ArrayIndexOutOfBoundsException("Test exception")

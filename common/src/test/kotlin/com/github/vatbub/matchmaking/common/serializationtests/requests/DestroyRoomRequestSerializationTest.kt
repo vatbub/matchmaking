@@ -20,13 +20,21 @@
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DestroyRoomRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class DestroyRoomRequestSerializationTest :
-    ServerInteractionSerializationTestSuperclass<DestroyRoomRequest>(DestroyRoomRequest::class.java) {
+        RequestSerializationTestSuperclass<DestroyRoomRequest>(DestroyRoomRequest::class.java) {
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = DestroyRoomRequest(request1.connectionId!!, request1.password!!, getRandomHexString(request1.roomId), request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
+    }
+
     override fun newObjectUnderTest(): DestroyRoomRequest {
         return DestroyRoomRequest(defaultConnectionId, defaultPassword, getRandomHexString())
     }

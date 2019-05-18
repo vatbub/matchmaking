@@ -79,6 +79,30 @@ class RoomTest : KotlinTestSuperclass<Room>() {
     }
 
     @Test
+    override fun notEqualsTest() {
+        val original = Room(
+                TestUtils.getRandomHexString(),
+                TestUtils.defaultConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        )
+
+        val copy = Room(
+                TestUtils.getRandomHexString(original.id),
+                original.hostUserConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        )
+
+        Assertions.assertNotEquals(original, copy)
+        Assertions.assertNotSame(original, copy)
+    }
+
+    @Test
     fun hashCodeTest() {
         val original = Room(
                 TestUtils.getRandomHexString(),

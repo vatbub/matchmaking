@@ -38,4 +38,12 @@ class MemoryIdProviderTest : ConnectionIdProviderTest<MemoryIdProvider>() {
             connectionIds["id"] = Id("id", "password")
         }
     }
+
+    @Test
+    override fun notEqualsTest() {
+        val provider1 = newObjectUnderTest()
+        val provider2 = newObjectUnderTest()
+        provider2.getNewId()
+        Assertions.assertNotEquals(provider1, provider2)
+    }
 }

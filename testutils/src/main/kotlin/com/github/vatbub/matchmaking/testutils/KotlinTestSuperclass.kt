@@ -31,6 +31,9 @@ abstract class KotlinTestSuperclass<T> {
 
     abstract fun newObjectUnderTest(): T
     abstract fun getCloneOf(instance: T): T
+
+    abstract fun notEqualsTest()
+
     @Test
     fun equalsSameInstanceTest() {
         val instance = newObjectUnderTest()

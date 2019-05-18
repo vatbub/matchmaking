@@ -21,10 +21,20 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
+import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class InternalServerErrorExceptionSerializationTest :
-    ServerInteractionSerializationTestSuperclass<InternalServerErrorException>(InternalServerErrorException::class.java) {
+        ServerInteractionSerializationTestSuperclass<InternalServerErrorException>(InternalServerErrorException::class.java) {
     override fun newObjectUnderTest(): InternalServerErrorException {
         return InternalServerErrorException()
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val response1 = newObjectUnderTest()
+        val response2 = InternalServerErrorException(TestUtils.getRandomHexString(response1.message), response1.connectionId, response1.responseTo)
+        Assertions.assertNotEquals(response1, response2)
     }
 }

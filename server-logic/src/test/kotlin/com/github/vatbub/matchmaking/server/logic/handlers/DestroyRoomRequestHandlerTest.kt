@@ -24,15 +24,17 @@ import com.github.vatbub.matchmaking.common.responses.DestroyRoomResponse
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DestroyRoomRequestHandlerTest : RequestHandlerTestSuperclass<DestroyRoomRequestHandler>() {
+class DestroyRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSuperclass<DestroyRoomRequestHandler>() {
     override fun getCloneOf(instance: DestroyRoomRequestHandler) = DestroyRoomRequestHandler(instance.roomProvider)
 
-    override fun newObjectUnderTest() = DestroyRoomRequestHandler(MemoryRoomProvider())
+    override fun newObjectUnderTest() = newObjectUnderTest(MemoryRoomProvider())
+    override fun newObjectUnderTest(roomProvider: RoomProvider) = DestroyRoomRequestHandler(roomProvider)
 
     @Test
     override fun handleTest() {

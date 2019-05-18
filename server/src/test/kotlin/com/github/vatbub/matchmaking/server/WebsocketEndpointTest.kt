@@ -24,6 +24,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
+import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DummyRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
@@ -83,6 +84,16 @@ class WebsocketEndpointTest : KotlinTestSuperclass<WebsocketEndpoint>() {
         Assertions.assertTrue(response is DummyResponse)
         response as DummyResponse
         Assertions.assertEquals(request.connectionId, response.connectionId)
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val context1 = ServerContext()
+        val context2 = ServerContext()
+        context2.connectionIdProvider.getNewId()
+        val websocketEndpoint1 = WebsocketEndpoint(context1)
+        val websocketEndpoint2 = WebsocketEndpoint(context2)
+        Assertions.assertNotEquals(websocketEndpoint1, websocketEndpoint2)
     }
 
     private class MockSession : Session {

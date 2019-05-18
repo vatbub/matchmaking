@@ -162,6 +162,16 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
         assertExceptionResponse(InternalServerErrorException(), expectedInnerException, 500, response)
     }
 
+    @Test
+    override fun notEqualsTest() {
+        val context1 = ServerContext()
+        val context2 = ServerContext()
+        context2.connectionIdProvider.getNewId()
+        val servlet1 = ServerServlet(context1)
+        val servlet2 = ServerServlet(context2)
+        Assertions.assertNotEquals(servlet1, servlet2)
+    }
+
     private fun assertExceptionResponse(
             expectedOuterException: ServerInteractionException,
             expectedInnerException: Throwable,

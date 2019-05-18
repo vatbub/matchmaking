@@ -19,15 +19,31 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests.requests
 
+import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.requests.SendDataToHostRequest
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class SendDataToHostRequestSerializationTest :
-    ServerInteractionSerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
+        RequestSerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
     override fun newObjectUnderTest(): SendDataToHostRequest {
         return SendDataToHostRequest(defaultConnectionId, defaultPassword, getRandomHexString(), listOf())
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = SendDataToHostRequest(request1.connectionId!!, request1.password!!, getRandomHexString(request1.roomId), request1.dataToHost, request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
+    }
+
+    @Test
+    fun dataToHostNotEqualTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = SendDataToHostRequest(request1.connectionId!!, request1.password!!, request1.roomId, listOf(GameData(request1.connectionId!!)), request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
     }
 }

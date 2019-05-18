@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.server.logic.idprovider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProviderTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 
 class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
@@ -57,5 +58,12 @@ class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
     fun assertAllConnectionsReturned() {
         val lastProviderInstanceCopy = lastProviderInstance ?: return
         Assertions.assertEquals(0, lastProviderInstanceCopy.connectionPoolWrapper.connectionCount)
+    }
+
+    @Test
+    override fun notEqualsTest() {
+        val provider1 = newObjectUnderTest()
+        val provider2 = newObjectUnderTest()
+        Assertions.assertNotEquals(provider1, provider2)
     }
 }
