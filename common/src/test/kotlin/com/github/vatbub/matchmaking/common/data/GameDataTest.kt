@@ -35,7 +35,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(value, gameData[key]!!)
-        Assertions.assertEquals(value, gameData[key, clazz]!!)
+        Assertions.assertEquals(value, gameData[key, null, clazz]!!)
         Assertions.assertEquals(1, gameData.size)
         Assertions.assertTrue(gameData.keys.contains(key))
         Assertions.assertTrue(gameData.values.contains(value))
