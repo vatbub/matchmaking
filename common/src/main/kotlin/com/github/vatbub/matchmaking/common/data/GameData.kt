@@ -85,7 +85,7 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
      * @return The data associated with the key or [defaultValue] if the key was not found or the data associated with
      * the key is not of type [T] (see the note on type safety above) or `null` if [defaultValue] is not specified.
      */
-    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null, expectedPrimitiveType: JavaPrimitive? = null): T? {
+    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null, expectedPrimitiveType: JavaPrimitive<T>? = null): T? {
         val result = contents[key] ?: return defaultValue
         if (expectedPrimitiveType?.isAssignableFrom(result) == false)
             return defaultValue
@@ -148,17 +148,24 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
     }
 }
 
-enum class JavaPrimitive {
-    Byte, Short, Int, Long, Float, Double, Boolean, Char;
-
+sealed class JavaPrimitive<T> {
     fun isAssignableFrom(value: Any) = when (this) {
-        Byte -> value is kotlin.Byte
-        Short -> value is kotlin.Short
-        Int -> value is kotlin.Int
-        Long -> value is kotlin.Long
-        Float -> value is kotlin.Float
-        Double -> value is kotlin.Double
-        Boolean -> value is kotlin.Boolean
-        Char -> value is kotlin.Char
+        ExpectedByte -> value is Byte
+        ExpectedShort -> value is Short
+        ExpectedInt -> value is Int
+        ExpectedLong -> value is Long
+        ExpectedFloat -> value is Float
+        ExpectedDouble -> value is Double
+        ExpectedBoolean -> value is Boolean
+        ExpectedChar -> value is Char
     }
 }
+
+object ExpectedByte : JavaPrimitive<Byte>()
+object ExpectedShort : JavaPrimitive<Short>()
+object ExpectedInt : JavaPrimitive<Int>()
+object ExpectedLong : JavaPrimitive<Long>()
+object ExpectedFloat : JavaPrimitive<Float>()
+object ExpectedDouble : JavaPrimitive<Double>()
+object ExpectedBoolean : JavaPrimitive<Boolean>()
+object ExpectedChar : JavaPrimitive<Char>()

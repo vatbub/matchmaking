@@ -29,7 +29,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
 
-    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>? = null, expectedPrimitiveType: JavaPrimitive? = null) {
+    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>? = null, expectedPrimitiveType: JavaPrimitive<T>? = null) {
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
 
@@ -50,7 +50,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     @Test
     fun byteTest() {
         val sampleByte: Byte = 5
-        testGameData("sampleByte", sampleByte, expectedPrimitiveType = JavaPrimitive.Byte)
+        testGameData("sampleByte", sampleByte, expectedPrimitiveType = ExpectedByte)
     }
 
     @Test
@@ -59,7 +59,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun charTest() =
-            testGameData("sampleChar", 'a', expectedPrimitiveType = JavaPrimitive.Char)
+            testGameData("sampleChar", 'a', expectedPrimitiveType = ExpectedChar)
 
     @Test
     fun charArrayTest() =
@@ -81,7 +81,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun floatTest() =
-            testGameData("sampleFloat", 5.0f, expectedPrimitiveType = JavaPrimitive.Float)
+            testGameData("sampleFloat", 5.0f, expectedPrimitiveType = ExpectedFloat)
 
     @Test
     fun floatArrayTest() =
@@ -94,12 +94,22 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     @Test
     fun shortTest() {
         val sampleShort: Short = 5
-        testGameData("sampleShort", sampleShort, expectedPrimitiveType = JavaPrimitive.Short)
+        testGameData("sampleShort", sampleShort, expectedPrimitiveType = ExpectedShort)
     }
 
     @Test
     fun shortArrayTest() {
         testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() }, ShortArray::class.java)
+    }
+
+    @Test
+    fun typeMismatchForPrimitivesTest() {
+        val key = "sampleShort"
+        val value = 5.toShort()
+        val defaultValue = 6.toFloat()
+        val gameData = GameData(TestUtils.defaultConnectionId)
+        gameData[key] = value
+        Assertions.assertEquals(defaultValue, gameData[key, defaultValue, null, ExpectedFloat])
     }
 
     @Test
