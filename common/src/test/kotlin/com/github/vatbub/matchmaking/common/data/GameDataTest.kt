@@ -48,10 +48,8 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     }
 
     @Test
-    fun byteTest() {
-        val sampleByte: Byte = 5
-        testGameData("sampleByte", sampleByte, expectedPrimitiveType = ExpectedByte)
-    }
+    fun byteTest() =
+            testGameData("sampleByte", 5.toByte(), expectedPrimitiveType = ExpectedByte)
 
     @Test
     fun byteArrayTest() =
@@ -84,6 +82,22 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
             testGameData("sampleFloat", 5.0f, expectedPrimitiveType = ExpectedFloat)
 
     @Test
+    fun intTest() =
+            testGameData("sampleInt", 5, expectedPrimitiveType = ExpectedInt)
+
+    @Test
+    fun longTest() =
+            testGameData("sampleLong", 5.toLong(), expectedPrimitiveType = ExpectedLong)
+
+    @Test
+    fun doubleTest() =
+            testGameData("sampleDouble", 5.0, expectedPrimitiveType = ExpectedDouble)
+
+    @Test
+    fun booleanTest() =
+            testGameData("sampleBoolean", true, expectedPrimitiveType = ExpectedBoolean)
+
+    @Test
     fun floatArrayTest() =
             testGameData("sampleFloatArray", FloatArray(3) { i -> i.toFloat() }, FloatArray::class.java)
 
@@ -92,15 +106,12 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
             testGameData("sampleIntegerList", IntArray(3) { i -> i }, IntArray::class.java)
 
     @Test
-    fun shortTest() {
-        val sampleShort: Short = 5
-        testGameData("sampleShort", sampleShort, expectedPrimitiveType = ExpectedShort)
-    }
+    fun shortTest() =
+            testGameData("sampleShort", 5.toShort(), expectedPrimitiveType = ExpectedShort)
 
     @Test
-    fun shortArrayTest() {
-        testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() }, ShortArray::class.java)
-    }
+    fun shortArrayTest() =
+            testGameData("sampleShortArray", ShortArray(3) { i -> i.toShort() }, ShortArray::class.java)
 
     @Test
     fun typeMismatchForPrimitivesTest() {
