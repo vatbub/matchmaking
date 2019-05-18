@@ -29,13 +29,16 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
 
-    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>) {
+    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>? = null, expectedPrimitiveType: JavaPrimitive? = null) {
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
 
         Assertions.assertTrue(gameData.contains(key))
         Assertions.assertEquals(value, gameData[key]!!)
-        Assertions.assertEquals(value, gameData[key, null, clazz]!!)
+        if (clazz != null)
+            Assertions.assertEquals(value, gameData[key, null, clazz])
+        if (expectedPrimitiveType != null)
+            Assertions.assertEquals(value, gameData[key, null, null, expectedPrimitiveType])
         Assertions.assertEquals(1, gameData.size)
         Assertions.assertTrue(gameData.keys.contains(key))
         Assertions.assertTrue(gameData.values.contains(value))
@@ -47,7 +50,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     @Test
     fun byteTest() {
         val sampleByte: Byte = 5
-        testGameData("sampleByte", sampleByte, Byte::class.java)
+        testGameData("sampleByte", sampleByte, expectedPrimitiveType = JavaPrimitive.Byte)
     }
 
     @Test
@@ -56,7 +59,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun charTest() =
-            testGameData("sampleChar", 'a', Char::class.java)
+            testGameData("sampleChar", 'a', expectedPrimitiveType = JavaPrimitive.Char)
 
     @Test
     fun charArrayTest() =
@@ -78,7 +81,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun floatTest() =
-            testGameData("sampleFloat", 5.0f, Float::class.java)
+            testGameData("sampleFloat", 5.0f, expectedPrimitiveType = JavaPrimitive.Float)
 
     @Test
     fun floatArrayTest() =
@@ -91,7 +94,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     @Test
     fun shortTest() {
         val sampleShort: Short = 5
-        testGameData("sampleShort", sampleShort, Short::class.java)
+        testGameData("sampleShort", sampleShort, expectedPrimitiveType = JavaPrimitive.Short)
     }
 
     @Test
@@ -120,7 +123,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
         gameData[key] = sampleString
 
         Assertions.assertTrue(gameData.contains(key))
-        val returnedObject: Int? = gameData[key, defaultValue, Int::class.java]
+        val returnedObject: Int? = gameData[key, defaultValue, Integer.TYPE]
         Assertions.assertEquals(defaultValue, returnedObject)
     }
 

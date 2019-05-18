@@ -79,11 +79,16 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
      * not of type [T] (see the note on type safety above)
      * @param typeClass The [Class] that represents the type of data to be returned. This must be specified in order to
      * guarantee type safety (see the note above)
+     * **Important: If you expect a primitive value, use [expectedPrimitiveType]
+     * instead!**
+     * @param expectedPrimitiveType Same purpose as [typeClass], but to be used if a primitive type is expected
      * @return The data associated with the key or [defaultValue] if the key was not found or the data associated with
      * the key is not of type [T] (see the note on type safety above) or `null` if [defaultValue] is not specified.
      */
-    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null): T? {
+    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null, expectedPrimitiveType: JavaPrimitive? = null): T? {
         val result = contents[key] ?: return defaultValue
+        if (expectedPrimitiveType?.isAssignableFrom(result) == false)
+            return defaultValue
         if (typeClass?.isAssignableFrom(result.javaClass) == false)
             return defaultValue
 
@@ -140,5 +145,20 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
 
     override fun toString(): String {
         return gson.toJson(this)
+    }
+}
+
+enum class JavaPrimitive {
+    Byte, Short, Int, Long, Float, Double, Boolean, Char;
+
+    fun isAssignableFrom(value: Any) = when (this) {
+        Byte -> value is kotlin.Byte
+        Short -> value is kotlin.Short
+        Int -> value is kotlin.Int
+        Long -> value is kotlin.Long
+        Float -> value is kotlin.Float
+        Double -> value is kotlin.Double
+        Boolean -> value is kotlin.Boolean
+        Char -> value is kotlin.Char
     }
 }
