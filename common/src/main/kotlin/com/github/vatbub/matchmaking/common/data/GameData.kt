@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.common.data
 
+import com.github.vatbub.matchmaking.common.data.GameData.Companion.MatchesPrimitiveClassResult.*
 import com.google.gson.GsonBuilder
 import java.time.Instant
 import java.time.ZoneOffset
@@ -48,6 +49,22 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
     companion object {
         @JvmStatic
         private val gson = GsonBuilder().setPrettyPrinting().create()
+
+        internal enum class MatchesPrimitiveClassResult {
+            IsPrimitiveAndMatches, IsPrimitiveButDoesNotMatch, NotAPrimitive
+        }
+
+        internal fun <T : Any> matchesPrimitiveClass(typeClass: Class<T>, result: Any) = when (result) {
+            is Byte -> if (typeClass == Byte::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Short -> if (typeClass == Short::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Int -> if (typeClass == Int::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Long -> if (typeClass == Long::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Float -> if (typeClass == Float::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Double -> if (typeClass == Double::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Boolean -> if (typeClass == Boolean::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            is Char -> if (typeClass == Char::class.java) IsPrimitiveAndMatches else IsPrimitiveButDoesNotMatch
+            else -> NotAPrimitive
+        }
     }
 
     var createdAtUtc = Instant.now().atOffset(ZoneOffset.UTC).toInstant()!!
@@ -79,20 +96,22 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
      * not of type [T] (see the note on type safety above)
      * @param typeClass The [Class] that represents the type of data to be returned. This must be specified in order to
      * guarantee type safety (see the note above)
-     * **Important: If you expect a primitive value, use [expectedPrimitiveType]
-     * instead!**
-     * @param expectedPrimitiveType Same purpose as [typeClass], but to be used if a primitive type is expected
      * @return The data associated with the key or [defaultValue] if the key was not found or the data associated with
      * the key is not of type [T] (see the note on type safety above) or `null` if [defaultValue] is not specified.
      */
-    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null, expectedPrimitiveType: JavaPrimitive<T>? = null): T? {
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T : Any> get(key: String, defaultValue: T? = null, typeClass: Class<T>? = null): T? {
         val result = contents[key] ?: return defaultValue
-        if (expectedPrimitiveType?.isAssignableFrom(result) == false)
+        if (typeClass == null)
+            return result as T?
+        val matchesPrimitive = matchesPrimitiveClass(typeClass, result)
+        if (matchesPrimitive == IsPrimitiveAndMatches)
+            return result as T?
+        if (matchesPrimitive == IsPrimitiveButDoesNotMatch)
             return defaultValue
-        if (typeClass?.isAssignableFrom(result.javaClass) == false)
+        if (!typeClass.isAssignableFrom(result.javaClass))
             return defaultValue
 
-        @Suppress("UNCHECKED_CAST")
         return result as T?
 
     }
@@ -147,25 +166,3 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
         return gson.toJson(this)
     }
 }
-
-sealed class JavaPrimitive<T> {
-    fun isAssignableFrom(value: Any) = when (this) {
-        ExpectedByte -> value is Byte
-        ExpectedShort -> value is Short
-        ExpectedInt -> value is Int
-        ExpectedLong -> value is Long
-        ExpectedFloat -> value is Float
-        ExpectedDouble -> value is Double
-        ExpectedBoolean -> value is Boolean
-        ExpectedChar -> value is Char
-    }
-}
-
-object ExpectedByte : JavaPrimitive<Byte>()
-object ExpectedShort : JavaPrimitive<Short>()
-object ExpectedInt : JavaPrimitive<Int>()
-object ExpectedLong : JavaPrimitive<Long>()
-object ExpectedFloat : JavaPrimitive<Float>()
-object ExpectedDouble : JavaPrimitive<Double>()
-object ExpectedBoolean : JavaPrimitive<Boolean>()
-object ExpectedChar : JavaPrimitive<Char>()

@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.common.data
 
+import com.github.vatbub.matchmaking.common.data.GameData.Companion.MatchesPrimitiveClassResult.*
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
@@ -29,7 +30,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     override fun newObjectUnderTest() = GameData(TestUtils.defaultConnectionId)
 
-    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>? = null, expectedPrimitiveType: JavaPrimitive<T>? = null) {
+    private fun <T : Any> testGameData(key: String, value: T, clazz: Class<T>? = null) {
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
 
@@ -37,8 +38,6 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
         Assertions.assertEquals(value, gameData[key]!!)
         if (clazz != null)
             Assertions.assertEquals(value, gameData[key, null, clazz])
-        if (expectedPrimitiveType != null)
-            Assertions.assertEquals(value, gameData[key, null, null, expectedPrimitiveType])
         Assertions.assertEquals(1, gameData.size)
         Assertions.assertTrue(gameData.keys.contains(key))
         Assertions.assertTrue(gameData.values.contains(value))
@@ -49,7 +48,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun byteTest() =
-            testGameData("sampleByte", 5.toByte(), expectedPrimitiveType = ExpectedByte)
+            testGameData("sampleByte", 5.toByte(), Byte::class.java)
 
     @Test
     fun byteArrayTest() =
@@ -57,7 +56,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun charTest() =
-            testGameData("sampleChar", 'a', expectedPrimitiveType = ExpectedChar)
+            testGameData("sampleChar", 'a', Char::class.java)
 
     @Test
     fun charArrayTest() =
@@ -79,23 +78,23 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun floatTest() =
-            testGameData("sampleFloat", 5.0f, expectedPrimitiveType = ExpectedFloat)
+            testGameData("sampleFloat", 5.0f, Float::class.java)
 
     @Test
     fun intTest() =
-            testGameData("sampleInt", 5, expectedPrimitiveType = ExpectedInt)
+            testGameData("sampleInt", 5, Int::class.java)
 
     @Test
     fun longTest() =
-            testGameData("sampleLong", 5.toLong(), expectedPrimitiveType = ExpectedLong)
+            testGameData("sampleLong", 5.toLong(), Long::class.java)
 
     @Test
     fun doubleTest() =
-            testGameData("sampleDouble", 5.0, expectedPrimitiveType = ExpectedDouble)
+            testGameData("sampleDouble", 5.0, Double::class.java)
 
     @Test
     fun booleanTest() =
-            testGameData("sampleBoolean", true, expectedPrimitiveType = ExpectedBoolean)
+            testGameData("sampleBoolean", true, Boolean::class.java)
 
     @Test
     fun floatArrayTest() =
@@ -107,7 +106,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
 
     @Test
     fun shortTest() =
-            testGameData("sampleShort", 5.toShort(), expectedPrimitiveType = ExpectedShort)
+            testGameData("sampleShort", 5.toShort(), Short::class.java)
 
     @Test
     fun shortArrayTest() =
@@ -120,18 +119,18 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
         val defaultValue = 6.toFloat()
         val gameData = GameData(TestUtils.defaultConnectionId)
         gameData[key] = value
-        Assertions.assertEquals(defaultValue, gameData[key, defaultValue, null, ExpectedFloat])
+        Assertions.assertEquals(defaultValue, gameData[key, defaultValue, Float::class.java])
     }
 
     @Test
     fun typeMismatchTest() {
-        val key = "sampleString"
-        val sampleString = "Hello"
+        val key = "sampleDouble"
+        val sampleDouble = 5.0
         val gameData = GameData(TestUtils.defaultConnectionId)
-        gameData[key] = sampleString
+        gameData[key] = sampleDouble
 
         Assertions.assertTrue(gameData.contains(key))
-        val returnedObject: Int? = gameData[key, null, Int::class.java]
+        val returnedObject: String? = gameData[key, null, String::class.java]
         Assertions.assertNull(returnedObject)
     }
 
@@ -251,4 +250,72 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
         val instance2 = GameData(instance1.createdByConnectionId)
         Assertions.assertNotEquals(instance1.hashCode(), instance2.hashCode())
     }
+
+    @Test
+    fun matchesPrimitiveNotAPrimitiveTest() =
+            Assertions.assertEquals(NotAPrimitive, GameData.matchesPrimitiveClass(Short::class.java, "hello"))
+
+    @Test
+    fun matchesPrimitiveByteMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Byte::class.java, 5.toByte()))
+
+    @Test
+    fun matchesPrimitiveShortMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Short::class.java, 5.toShort()))
+
+    @Test
+    fun matchesPrimitiveIntMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Int::class.java, 5))
+
+    @Test
+    fun matchesPrimitiveLongMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Long::class.java, 5.toLong()))
+
+    @Test
+    fun matchesPrimitiveFloatMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Float::class.java, 5.0f))
+
+    @Test
+    fun matchesPrimitiveDoubleMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Double::class.java, 5.0))
+
+    @Test
+    fun matchesPrimitiveBooleanMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Boolean::class.java, true))
+
+    @Test
+    fun matchesPrimitiveCharMatchTest() =
+            Assertions.assertEquals(IsPrimitiveAndMatches, GameData.matchesPrimitiveClass(Char::class.java, 'a'))
+
+    @Test
+    fun matchesPrimitiveByteNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 5.toByte()))
+
+    @Test
+    fun matchesPrimitiveShortNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Byte::class.java, 5.toShort()))
+
+    @Test
+    fun matchesPrimitiveIntNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 5))
+
+    @Test
+    fun matchesPrimitiveLongNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 5.toLong()))
+
+    @Test
+    fun matchesPrimitiveFloatNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 5.0f))
+
+    @Test
+    fun matchesPrimitiveDoubleNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 5.0))
+
+    @Test
+    fun matchesPrimitiveBooleanNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, true))
+
+    @Test
+    fun matchesPrimitiveCharNoMatchTest() =
+            Assertions.assertEquals(IsPrimitiveButDoesNotMatch, GameData.matchesPrimitiveClass(Short::class.java, 'a'))
 }
