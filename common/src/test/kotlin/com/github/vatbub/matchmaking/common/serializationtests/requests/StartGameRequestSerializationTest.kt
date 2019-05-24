@@ -28,9 +28,11 @@ import org.junit.jupiter.api.Test
 
 class StartGameRequestSerializationTest :
         RequestSerializationTestSuperclass<StartGameRequest>(StartGameRequest::class.java) {
-    override fun newObjectUnderTest(): StartGameRequest {
-        return StartGameRequest(defaultConnectionId, defaultPassword, getRandomHexString())
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            StartGameRequest(connectionId, password, getRandomHexString(), requestId)
+
+    override fun newObjectUnderTest() =
+            newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {

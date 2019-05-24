@@ -26,9 +26,12 @@ import org.junit.jupiter.api.Test
 
 class GetConnectionIdRequestSerializationTest :
         RequestSerializationTestSuperclass<GetConnectionIdRequest>(GetConnectionIdRequest::class.java) {
-    override fun newObjectUnderTest(): GetConnectionIdRequest {
-        return GetConnectionIdRequest()
-    }
+    override val skipConnectionIdAndPasswordEqualityTests = true
+
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            GetConnectionIdRequest(requestId)
+
+    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
 
     @Test
     override fun notEqualsTest() {

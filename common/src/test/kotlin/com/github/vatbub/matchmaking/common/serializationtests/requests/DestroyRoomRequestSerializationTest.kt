@@ -28,14 +28,16 @@ import org.junit.jupiter.api.Test
 
 class DestroyRoomRequestSerializationTest :
         RequestSerializationTestSuperclass<DestroyRoomRequest>(DestroyRoomRequest::class.java) {
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            DestroyRoomRequest(connectionId, password, getRandomHexString(), requestId)
+
+    override fun newObjectUnderTest(): DestroyRoomRequest =
+            newObjectUnderTest(defaultConnectionId, defaultPassword, getRandomHexString())
+
     @Test
     override fun notEqualsTest() {
         val request1 = newObjectUnderTest()
         val request2 = DestroyRoomRequest(request1.connectionId!!, request1.password!!, getRandomHexString(request1.roomId), request1.requestId)
         Assertions.assertNotEquals(request1, request2)
-    }
-
-    override fun newObjectUnderTest(): DestroyRoomRequest {
-        return DestroyRoomRequest(defaultConnectionId, defaultPassword, getRandomHexString())
     }
 }

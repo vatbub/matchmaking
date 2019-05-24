@@ -28,9 +28,11 @@ import org.junit.jupiter.api.Test
 
 class DisconnectRequestSerializationTest :
         RequestSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
-    override fun newObjectUnderTest(): DisconnectRequest {
-        return DisconnectRequest(defaultConnectionId, defaultPassword)
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            DisconnectRequest(connectionId, password, requestId)
+
+    override fun newObjectUnderTest() =
+            newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {

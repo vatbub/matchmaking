@@ -28,9 +28,10 @@ import org.junit.jupiter.api.Test
 
 class GetRoomDataRequestSerializationTest :
         RequestSerializationTestSuperclass<GetRoomDataRequest>(GetRoomDataRequest::class.java) {
-    override fun newObjectUnderTest(): GetRoomDataRequest {
-        return GetRoomDataRequest(defaultConnectionId, defaultPassword, getRandomHexString())
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            GetRoomDataRequest(connectionId, password, getRandomHexString(), requestId)
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId, defaultPassword, getRandomHexString())
 
     @Test
     override fun notEqualsTest() {

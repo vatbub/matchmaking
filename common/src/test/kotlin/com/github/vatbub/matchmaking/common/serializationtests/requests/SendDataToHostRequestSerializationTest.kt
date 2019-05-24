@@ -29,9 +29,11 @@ import org.junit.jupiter.api.Test
 
 class SendDataToHostRequestSerializationTest :
         RequestSerializationTestSuperclass<SendDataToHostRequest>(SendDataToHostRequest::class.java) {
-    override fun newObjectUnderTest(): SendDataToHostRequest {
-        return SendDataToHostRequest(defaultConnectionId, defaultPassword, getRandomHexString(), listOf())
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            SendDataToHostRequest(connectionId, password, getRandomHexString(), listOf(), requestId)
+
+    override fun newObjectUnderTest() =
+            newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {

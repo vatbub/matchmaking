@@ -29,13 +29,10 @@ import org.junit.jupiter.api.Test
 
 class UpdateGameStateRequestSerializationTest :
         RequestSerializationTestSuperclass<UpdateGameStateRequest>(UpdateGameStateRequest::class.java) {
-    override fun newObjectUnderTest(): UpdateGameStateRequest {
-        return UpdateGameStateRequest(
-                defaultConnectionId, defaultPassword, getRandomHexString(), GameData(
-                defaultConnectionId
-        ), listOf()
-        )
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            UpdateGameStateRequest(connectionId, password, getRandomHexString(), GameData(connectionId), listOf(), requestId)
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {

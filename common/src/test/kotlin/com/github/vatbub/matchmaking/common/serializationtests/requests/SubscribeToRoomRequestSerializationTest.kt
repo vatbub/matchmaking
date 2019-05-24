@@ -26,13 +26,10 @@ import org.junit.jupiter.api.Test
 
 class SubscribeToRoomRequestSerializationTest :
         RequestSerializationTestSuperclass<SubscribeToRoomRequest>(SubscribeToRoomRequest::class.java) {
-    override fun newObjectUnderTest(): SubscribeToRoomRequest {
-        return SubscribeToRoomRequest(
-            TestUtils.defaultConnectionId,
-            TestUtils.defaultPassword,
-            TestUtils.getRandomHexString()
-        )
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            SubscribeToRoomRequest(connectionId, password, TestUtils.getRandomHexString(), requestId)
+
+    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
 
     @Test
     override fun notEqualsTest() {

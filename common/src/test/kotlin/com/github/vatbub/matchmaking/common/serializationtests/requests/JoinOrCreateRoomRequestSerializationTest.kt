@@ -30,14 +30,16 @@ import org.junit.jupiter.api.Test
 
 class JoinOrCreateRoomRequestSerializationTest :
         RequestSerializationTestSuperclass<JoinOrCreateRoomRequest>(JoinOrCreateRoomRequest::class.java) {
-    override fun newObjectUnderTest(): JoinOrCreateRoomRequest {
-        return JoinOrCreateRoomRequest(
-                defaultConnectionId,
-                defaultPassword,
-                JoinOrCreateRoom,
-                getRandomHexString()
-        )
-    }
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            JoinOrCreateRoomRequest(
+                    connectionId,
+                    password,
+                    JoinOrCreateRoom,
+                    getRandomHexString(),
+                    requestId = requestId
+            )
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId, defaultPassword, getRandomHexString())
 
     @Test
     override fun notEqualsTest() {
@@ -65,6 +67,20 @@ class JoinOrCreateRoomRequestSerializationTest :
         val request1 = newObjectUnderTest()
         val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
+    }
+
+    @Test
+    fun whitelistHashCodeNotEqualTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, listOf("khgvcjhg"), request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        Assertions.assertNotEquals(request1.hashCode(), request2.hashCode())
+    }
+
+    @Test
+    fun blacklistHashCodeNotEqualTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        Assertions.assertNotEquals(request1.hashCode(), request2.hashCode())
     }
 
     @Test

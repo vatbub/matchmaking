@@ -26,6 +26,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class RequestSerializationTestSuperclass<T : Request>(clazz: Class<T>) : ServerInteractionSerializationTestSuperclass<T>(clazz) {
+    open val skipConnectionIdAndPasswordEqualityTests = false
+    abstract fun newObjectUnderTest(connectionId: String, password: String, requestId: String? = null): T
+
     @Test
     fun copyTest() {
         val request = newObjectUnderTest()
@@ -36,29 +39,31 @@ abstract class RequestSerializationTestSuperclass<T : Request>(clazz: Class<T>) 
 
     @Test
     fun connectionIdNotEqualTest() {
+        if (skipConnectionIdAndPasswordEqualityTests) return
         val request1 = newObjectUnderTest()
-        val request2 = Request(TestUtils.getRandomHexString(request1.connectionId), request1.password, request1.className, request1.requestId)
-        Assertions.assertNotEquals(request1, request2)
-    }
-
-    @Test
-    fun classNameNotEqualTest() {
-        val request1 = newObjectUnderTest()
-        val request2 = Request(request1.connectionId, request1.password, TestUtils.getRandomHexString(request1.className), request1.requestId)
+        val request2 = newObjectUnderTest(TestUtils.getRandomHexString(request1.connectionId), request1.password!!, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun requestIdNotEqualTest() {
+        if (skipConnectionIdAndPasswordEqualityTests) return
         val request1 = newObjectUnderTest()
-        val request2 = Request(request1.connectionId, request1.password, request1.className, TestUtils.getRandomHexString(request1.requestId))
+        val request2 = newObjectUnderTest(request1.connectionId!!, request1.password!!, TestUtils.getRandomHexString(request1.requestId))
         Assertions.assertNotEquals(request1, request2)
     }
 }
 
 class RequestSerializationTest : RequestSerializationTestSuperclass<Request>(Request::class.java) {
-    override fun newObjectUnderTest() = Request(TestUtils.defaultConnectionId, TestUtils.defaultPassword, Request::class.qualifiedName!!, TestUtils.getRandomHexString())
+    override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
+            Request(connectionId, password, Request::class.qualifiedName!!, requestId)
 
-    // Already tested in the super class
-    override fun notEqualsTest() {}
+    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
+
+    @Test
+    override fun notEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = Request(request1.connectionId, request1.password, TestUtils.getRandomHexString(request1.className), request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
+    }
 }
