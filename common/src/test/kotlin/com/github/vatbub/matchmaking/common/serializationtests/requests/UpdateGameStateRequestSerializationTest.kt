@@ -21,8 +21,6 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.requests.UpdateGameStateRequest
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -31,8 +29,6 @@ class UpdateGameStateRequestSerializationTest :
         RequestSerializationTestSuperclass<UpdateGameStateRequest>(UpdateGameStateRequest::class.java) {
     override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
             UpdateGameStateRequest(connectionId, password, getRandomHexString(), GameData(connectionId), listOf(), requestId)
-
-    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {

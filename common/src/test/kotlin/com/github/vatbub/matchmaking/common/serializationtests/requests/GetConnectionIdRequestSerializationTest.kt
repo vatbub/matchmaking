@@ -31,8 +31,6 @@ class GetConnectionIdRequestSerializationTest :
     override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
             GetConnectionIdRequest(requestId)
 
-    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
-
     @Test
     override fun notEqualsTest() {
         val request1 = newObjectUnderTest()

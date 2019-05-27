@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 
 abstract class RequestSerializationTestSuperclass<T : Request>(clazz: Class<T>) : ServerInteractionSerializationTestSuperclass<T>(clazz) {
     abstract fun newObjectUnderTest(connectionId: String, password: String, requestId: String? = null): T
+    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
 
     @Test
     fun connectionIdNotEqualTest() {
@@ -48,8 +49,6 @@ abstract class RequestSerializationTestSuperclass<T : Request>(clazz: Class<T>) 
 class RequestSerializationTest : RequestSerializationTestSuperclass<Request>(Request::class.java) {
     override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
             Request(connectionId, password, Request::class.qualifiedName!!, requestId)
-
-    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, TestUtils.getRandomHexString())
 
     @Test
     override fun notEqualsTest() {

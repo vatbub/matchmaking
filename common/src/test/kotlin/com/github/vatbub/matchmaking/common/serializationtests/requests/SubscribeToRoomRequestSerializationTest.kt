@@ -29,8 +29,6 @@ class SubscribeToRoomRequestSerializationTest :
     override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
             SubscribeToRoomRequest(connectionId, password, TestUtils.getRandomHexString(), requestId)
 
-    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
-
     @Test
     override fun notEqualsTest() {
         val request1 = newObjectUnderTest()

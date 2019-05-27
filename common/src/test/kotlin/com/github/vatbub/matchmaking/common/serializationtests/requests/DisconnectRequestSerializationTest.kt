@@ -21,8 +21,6 @@ package com.github.vatbub.matchmaking.common.serializationtests.requests
 
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -30,9 +28,6 @@ class DisconnectRequestSerializationTest :
         RequestSerializationTestSuperclass<DisconnectRequest>(DisconnectRequest::class.java) {
     override fun newObjectUnderTest(connectionId: String, password: String, requestId: String?) =
             DisconnectRequest(connectionId, password, requestId)
-
-    override fun newObjectUnderTest() =
-            newObjectUnderTest(defaultConnectionId, defaultPassword)
 
     @Test
     override fun notEqualsTest() {
