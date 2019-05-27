@@ -76,7 +76,7 @@
 		<tomcat.version>8.5.40</tomcat.version>
         <sonar.links.homepage>https://github.com/vatbub/${gitRepoName}/</sonar.links.homepage>
         <sonar.links.scm>https://github.com/vatbub/${gitRepoName}/</sonar.links.scm>
-        <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt</sonar.exclusions>
+        <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt, **/ServerInteraction.kt</sonar.exclusions>
     </properties>
 
     <dependencies>
