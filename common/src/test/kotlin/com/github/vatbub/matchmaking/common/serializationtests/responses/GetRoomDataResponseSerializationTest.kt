@@ -21,21 +21,14 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GetRoomDataResponseSerializationTest :
         ResponseImplSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
-    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): GetRoomDataResponse {
-        val result = GetRoomDataResponse(connectionId, Room(getRandomHexString(), connectionId!!), responseTo)
-        if (httpStatusCode != null)
-            result.httpStatusCode = httpStatusCode
-        return result
-    }
-
-    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
+    override fun newObjectUnderTest(connectionId: String?, responseTo: String?) =
+            GetRoomDataResponse(connectionId, Room(getRandomHexString(), connectionId!!), responseTo)
 
     @Test
     override fun notEqualsTest() {
@@ -44,5 +37,12 @@ class GetRoomDataResponseSerializationTest :
         val room2 = Room(getRandomHexString(room1.id), getRandomHexString(room1.hostUserConnectionId))
         val response2 = GetRoomDataResponse(response1.connectionId, room2, response1.responseTo)
         Assertions.assertNotEquals(response1, response2)
+    }
+
+    @Test
+    fun roomNotEqualHashCodeNotEqual() {
+        val instance1 = newObjectUnderTest()
+        val instance2 = GetRoomDataResponse(instance1.connectionId, null, instance1.responseTo)
+        Assertions.assertNotEquals(instance1.hashCode(), instance2.hashCode())
     }
 }

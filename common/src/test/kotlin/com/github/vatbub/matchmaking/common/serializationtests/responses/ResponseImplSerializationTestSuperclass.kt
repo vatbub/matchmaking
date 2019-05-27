@@ -23,11 +23,19 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.ResponseImpl
 import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
+import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class ResponseImplSerializationTestSuperclass<T : ResponseImpl>(clazz: Class<T>) : ServerInteractionSerializationTestSuperclass<T>(clazz) {
-    abstract fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int? = null, responseTo: String? = null): T
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
+    abstract fun newObjectUnderTest(connectionId: String?, responseTo: String? = null): T
+    fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int? = null, responseTo: String? = null): T {
+        val result = newObjectUnderTest(connectionId, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
+    }
 
     @Test
     fun connectionIdNotEqualTest() {
@@ -47,14 +55,9 @@ abstract class ResponseImplSerializationTestSuperclass<T : ResponseImpl>(clazz: 
 }
 
 class ResponseImplSerializationTest : ResponseImplSerializationTestSuperclass<ResponseImpl>(ResponseImpl::class.java) {
-    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): ResponseImpl {
-        val result = ResponseImpl(connectionId, Request::class.qualifiedName!!, responseTo)
-        if (httpStatusCode != null)
-            result.httpStatusCode = httpStatusCode
-        return result
-    }
+    override fun newObjectUnderTest(connectionId: String?, responseTo: String?) = ResponseImpl(connectionId, Request::class.qualifiedName!!, responseTo)
 
-    override fun newObjectUnderTest() = newObjectUnderTest(TestUtils.defaultConnectionId, null, TestUtils.getRandomHexString())
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId, null, TestUtils.getRandomHexString())
 
     @Test
     override fun notEqualsTest() {

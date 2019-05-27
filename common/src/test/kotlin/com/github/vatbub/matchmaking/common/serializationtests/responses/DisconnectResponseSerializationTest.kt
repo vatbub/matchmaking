@@ -22,20 +22,13 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class DisconnectResponseSerializationTest :
         ResponseImplSerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {
-    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): DisconnectResponse {
-        val result = DisconnectResponse(connectionId, listOf(), listOf(), responseTo)
-        if (httpStatusCode != null)
-            result.httpStatusCode = httpStatusCode
-        return result
-    }
-
-    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
+    override fun newObjectUnderTest(connectionId: String?, responseTo: String?) =
+            DisconnectResponse(connectionId, listOf(), listOf(), responseTo)
 
     @Test
     override fun notEqualsTest() {
@@ -44,6 +37,16 @@ class DisconnectResponseSerializationTest :
         val disconnectedRooms = response1.disconnectedRooms.toMutableList()
         val destroyedRooms = response1.destroyedRooms.toMutableList()
         disconnectedRooms.add(room)
+        val response2 = DisconnectResponse(response1.connectionId, disconnectedRooms, destroyedRooms)
+        Assertions.assertNotEquals(response1, response2)
+    }
+
+    @Test
+    fun destroyedRoomsNotEqualTest() {
+        val response1 = newObjectUnderTest()
+        val room = Room(TestUtils.getRandomHexString(), response1.connectionId!!)
+        val disconnectedRooms = response1.disconnectedRooms.toMutableList()
+        val destroyedRooms = response1.destroyedRooms.toMutableList()
         destroyedRooms.add(room)
         val response2 = DisconnectResponse(response1.connectionId, disconnectedRooms, destroyedRooms)
         Assertions.assertNotEquals(response1, response2)

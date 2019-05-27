@@ -21,20 +21,13 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.SubscribeToRoomResponse
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class SubscribeToRoomResponseSerializationTest :
         ResponseImplSerializationTestSuperclass<SubscribeToRoomResponse>(SubscribeToRoomResponse::class.java) {
-    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): SubscribeToRoomResponse {
-        val result = SubscribeToRoomResponse(connectionId, responseTo)
-        if (httpStatusCode != null)
-            result.httpStatusCode = httpStatusCode
-        return result
-    }
-
-    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
+    override fun newObjectUnderTest(connectionId: String?, responseTo: String?) =
+            SubscribeToRoomResponse(connectionId, responseTo)
 
     @Test
     override fun notEqualsTest() {
