@@ -65,4 +65,11 @@ class ResponseImplSerializationTest : ResponseImplSerializationTestSuperclass<Re
         val response2 = ResponseImpl(response1.connectionId, TestUtils.getRandomHexString(response1.className), response1.responseTo)
         Assertions.assertNotEquals(response1, response2)
     }
+
+    @Test
+    fun connectionIdHashCodeNotEqualsTest() {
+        val response1 = newObjectUnderTest()
+        val response2 = ResponseImpl(null, response1.className, response1.responseTo)
+        Assertions.assertNotEquals(response1.hashCode(), response2.hashCode())
+    }
 }

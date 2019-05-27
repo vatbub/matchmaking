@@ -56,4 +56,11 @@ class RequestSerializationTest : RequestSerializationTestSuperclass<Request>(Req
         val request2 = Request(request1.connectionId, request1.password, TestUtils.getRandomHexString(request1.className), request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
+
+    @Test
+    fun requestIdHashCodeNotEqualsTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = Request(request1.connectionId, request1.password, request1.className, null)
+        Assertions.assertNotEquals(request1.hashCode(), request2.hashCode())
+    }
 }
