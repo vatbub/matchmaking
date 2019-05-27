@@ -20,16 +20,20 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class UnknownConnectionIdExceptionSerializationTest :
-        ServerInteractionSerializationTestSuperclass<UnknownConnectionIdException>(UnknownConnectionIdException::class.java) {
-    override fun newObjectUnderTest(): UnknownConnectionIdException {
-        return UnknownConnectionIdException()
+        ResponseImplSerializationTestSuperclass<UnknownConnectionIdException>(UnknownConnectionIdException::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): UnknownConnectionIdException {
+        val result = UnknownConnectionIdException(null, connectionId, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(null)
 
     @Test
     override fun notEqualsTest() {

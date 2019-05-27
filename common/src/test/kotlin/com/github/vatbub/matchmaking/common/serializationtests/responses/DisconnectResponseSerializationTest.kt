@@ -21,17 +21,21 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class DisconnectResponseSerializationTest :
-        ServerInteractionSerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {
-    override fun newObjectUnderTest(): DisconnectResponse {
-        return DisconnectResponse(defaultConnectionId, listOf(), listOf())
+        ResponseImplSerializationTestSuperclass<DisconnectResponse>(DisconnectResponse::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): DisconnectResponse {
+        val result = DisconnectResponse(connectionId, listOf(), listOf(), responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
 
     @Test
     override fun notEqualsTest() {

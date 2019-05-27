@@ -69,6 +69,8 @@ fun Kryo.registerClasses() {
     this.register(UpdateGameStateRequest::class.java)
 
     // responses
+    val responseImplRegistration = this.register(ResponseImpl::class.java)
+    responseImplRegistration.setInstantiator { ResponseImpl(defaultStringValueForInstantiation, defaultStringValueForInstantiation, null) }
     this.register(AuthorizationException::class.java)
     this.register(BadRequestException::class.java)
     this.register(DestroyRoomResponse::class.java)

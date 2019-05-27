@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 
 abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteraction>(clazz: Class<T>) :
         SerializationTestSuperclass<T>(clazz) {
+    open val skipConnectionIdAndPasswordEqualityTests = false
 
     @Test
     fun protocolVersionTest() {
@@ -36,6 +37,16 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
 
     @Suppress("UNCHECKED_CAST")
     override fun getCloneOf(instance: T) = instance.copy() as T
+
+    @Test
+    fun copyTest() {
+        val interaction = newObjectUnderTest()
+        val copy = interaction.copy()
+        Assertions.assertEquals(interaction, copy)
+        Assertions.assertNotSame(interaction, copy)
+    }
+
+
 
     @Test
     fun protocolVersionSerializationTest() {

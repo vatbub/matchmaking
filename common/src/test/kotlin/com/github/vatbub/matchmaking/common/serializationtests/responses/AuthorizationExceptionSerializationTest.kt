@@ -20,16 +20,20 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.AuthorizationException
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class AuthorizationExceptionSerializationTest :
-        ServerInteractionSerializationTestSuperclass<AuthorizationException>(AuthorizationException::class.java) {
-    override fun newObjectUnderTest(): AuthorizationException {
-        return AuthorizationException()
+        ResponseImplSerializationTestSuperclass<AuthorizationException>(AuthorizationException::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): AuthorizationException {
+        val result = AuthorizationException(null, connectionId, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(null)
 
     @Test
     override fun notEqualsTest() {

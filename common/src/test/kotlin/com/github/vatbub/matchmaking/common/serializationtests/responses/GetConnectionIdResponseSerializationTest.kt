@@ -20,7 +20,6 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
@@ -28,10 +27,15 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GetConnectionIdResponseSerializationTest :
-        ServerInteractionSerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {
-    override fun newObjectUnderTest(): GetConnectionIdResponse {
-        return GetConnectionIdResponse(defaultConnectionId, defaultPassword)
+        ResponseImplSerializationTestSuperclass<GetConnectionIdResponse>(GetConnectionIdResponse::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): GetConnectionIdResponse {
+        val result = GetConnectionIdResponse(connectionId!!, defaultPassword, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
 
     @Test
     override fun notEqualsTest() {

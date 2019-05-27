@@ -20,16 +20,20 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.NotAllowedException
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class NotAllowedExceptionSerializationTest :
-    ServerInteractionSerializationTestSuperclass<NotAllowedException>(NotAllowedException::class.java) {
-    override fun newObjectUnderTest(): NotAllowedException {
-        return NotAllowedException()
+        ResponseImplSerializationTestSuperclass<NotAllowedException>(NotAllowedException::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): NotAllowedException {
+        val result = NotAllowedException(null, connectionId, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(null)
 
     @Test
     override fun notEqualsTest() {

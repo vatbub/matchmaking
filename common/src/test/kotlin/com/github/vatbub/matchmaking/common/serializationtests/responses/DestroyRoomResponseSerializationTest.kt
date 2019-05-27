@@ -20,16 +20,20 @@
 package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.responses.DestroyRoomResponse
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class DestroyRoomResponseSerializationTest :
-        ServerInteractionSerializationTestSuperclass<DestroyRoomResponse>(DestroyRoomResponse::class.java) {
-    override fun newObjectUnderTest(): DestroyRoomResponse {
-        return DestroyRoomResponse(defaultConnectionId, true)
+        ResponseImplSerializationTestSuperclass<DestroyRoomResponse>(DestroyRoomResponse::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): DestroyRoomResponse {
+        val result = DestroyRoomResponse(connectionId, true, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
 
     @Test
     override fun notEqualsTest() {

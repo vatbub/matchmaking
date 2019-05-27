@@ -23,17 +23,21 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
 import com.github.vatbub.matchmaking.common.responses.Result.*
 import com.github.vatbub.matchmaking.common.responses.Result.Nothing
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class JoinOrCreateRoomResponseSerializationTest :
-        ServerInteractionSerializationTestSuperclass<JoinOrCreateRoomResponse>(JoinOrCreateRoomResponse::class.java) {
-    override fun newObjectUnderTest(): JoinOrCreateRoomResponse {
-        return JoinOrCreateRoomResponse(defaultConnectionId, Nothing, null)
+        ResponseImplSerializationTestSuperclass<JoinOrCreateRoomResponse>(JoinOrCreateRoomResponse::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): JoinOrCreateRoomResponse {
+        val result = JoinOrCreateRoomResponse(connectionId, Nothing, null, responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
 
     @Test
     override fun notEqualsTest() {

@@ -21,17 +21,21 @@ package com.github.vatbub.matchmaking.common.serializationtests.responses
 
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
-import com.github.vatbub.matchmaking.common.serializationtests.ServerInteractionSerializationTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.getRandomHexString
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class GetRoomDataResponseSerializationTest :
-    ServerInteractionSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
-    override fun newObjectUnderTest(): GetRoomDataResponse {
-        return GetRoomDataResponse(defaultConnectionId, Room(getRandomHexString(), defaultConnectionId))
+        ResponseImplSerializationTestSuperclass<GetRoomDataResponse>(GetRoomDataResponse::class.java) {
+    override fun newObjectUnderTest(connectionId: String?, httpStatusCode: Int?, responseTo: String?): GetRoomDataResponse {
+        val result = GetRoomDataResponse(connectionId, Room(getRandomHexString(), connectionId!!), responseTo)
+        if (httpStatusCode != null)
+            result.httpStatusCode = httpStatusCode
+        return result
     }
+
+    override fun newObjectUnderTest() = newObjectUnderTest(defaultConnectionId)
 
     @Test
     override fun notEqualsTest() {

@@ -26,16 +26,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 abstract class RequestSerializationTestSuperclass<T : Request>(clazz: Class<T>) : ServerInteractionSerializationTestSuperclass<T>(clazz) {
-    open val skipConnectionIdAndPasswordEqualityTests = false
     abstract fun newObjectUnderTest(connectionId: String, password: String, requestId: String? = null): T
-
-    @Test
-    fun copyTest() {
-        val request = newObjectUnderTest()
-        val copy = request.copy()
-        Assertions.assertEquals(request, copy)
-        Assertions.assertNotSame(request, copy)
-    }
 
     @Test
     fun connectionIdNotEqualTest() {
