@@ -89,6 +89,8 @@ fun Kryo.registerClasses() {
     this.register(Result::class.java)
     val listRegistration = this.register(ArrayList::class.java)
     listRegistration.setInstantiator { ArrayList<Any>() }
+    val kryoSafeListRegistration = this.register(List::class.java)
+    kryoSafeListRegistration.setInstantiator { kryoSafeListOf<Any>() }
     val inet4AddressRegistration = this.register(Inet4Address::class.java)
     inet4AddressRegistration.setInstantiator { defaultInet4Address }
     val inet6AddressRegistration = this.register(Inet6Address::class.java)
