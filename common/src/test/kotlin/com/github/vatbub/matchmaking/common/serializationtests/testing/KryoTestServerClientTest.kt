@@ -26,6 +26,7 @@ import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
@@ -33,6 +34,7 @@ class KryoTestServerClientTest {
     @Test
     fun connectAndSendTcp() = doTest(false)
 
+    @Disabled
     @Test
     fun connectAndSendUdp() = doTest(true)
 
