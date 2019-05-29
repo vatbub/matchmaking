@@ -57,7 +57,7 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
         serverContext.resetMessageHandlers()
     }
 
-    override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
+    public override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
         if (request == null)
             return
         if (response == null)

@@ -37,7 +37,10 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
 import java.net.URL
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     override fun getCloneOf(instance: ServerServlet) = ServerServlet(instance.serverContext)
@@ -170,6 +173,22 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
         val servlet1 = ServerServlet(context1)
         val servlet2 = ServerServlet(context2)
         Assertions.assertNotEquals(servlet1, servlet2)
+    }
+
+    @Test
+    fun requestNullTest() {
+        val servlet = newObjectUnderTest()
+        val response = mock(HttpServletResponse::class.java)
+        servlet.doPost(null, response)
+        verify(response, never()).outputStream
+    }
+
+    @Test
+    fun responseNullTest() {
+        val servlet = newObjectUnderTest()
+        val request = mock(HttpServletRequest::class.java)
+        servlet.doPost(request, null)
+        verify(request, never()).reader
     }
 
     private fun assertExceptionResponse(
