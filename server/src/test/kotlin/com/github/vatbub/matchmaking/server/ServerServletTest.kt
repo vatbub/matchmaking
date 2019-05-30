@@ -27,6 +27,7 @@ import com.github.vatbub.matchmaking.common.responses.InternalServerErrorExcepti
 import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.ServerContext
+import com.github.vatbub.matchmaking.server.logic.configuration.*
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
@@ -189,6 +190,21 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
         val request = mock(HttpServletRequest::class.java)
         servlet.doPost(request, null)
         verify(request, never()).reader
+    }
+
+    @Test
+    fun configurationChangeTest() {
+        val serverServlet = ServerServlet()
+        val oldServerContext = serverServlet.serverContext
+        val idDbName = "servletServerTestNewIdDb"
+        val roomDbName = "servletServerTestNewRoomDb"
+        val newConfiguration = Configuration(IdProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:hsqldb:mem:$idDbName", "SA", "")),
+                RoomProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:hsqldb:mem:$roomDbName", "SA", "")))
+        val newServerContext = newConfiguration.getAsServerContext()
+        ConfigurationManager.currentConfiguration = newConfiguration
+        newServerContext.resetMessageHandlers()
+        Assertions.assertNotEquals(oldServerContext, serverServlet.serverContext)
+        Assertions.assertEquals(newServerContext, serverServlet.serverContext)
     }
 
     private fun assertExceptionResponse(

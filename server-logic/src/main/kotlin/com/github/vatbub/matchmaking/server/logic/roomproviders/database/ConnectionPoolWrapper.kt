@@ -25,10 +25,10 @@ import java.sql.DriverManager
 import java.util.*
 
 class ConnectionPoolWrapper private constructor(
-    connectionString: String,
-    dbUser: String?,
-    dbPassword: String?,
-    connectionProperties: Properties?
+    private val connectionString: String,
+    private val dbUser: String?,
+    private val dbPassword: String?,
+    private val connectionProperties: Properties?
 ) {
     constructor(connectionString: String) : this(connectionString, null, null, null)
     constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
@@ -85,5 +85,27 @@ class ConnectionPoolWrapper private constructor(
         } finally {
             connection.close()
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ConnectionPoolWrapper
+
+        if (connectionString != other.connectionString) return false
+        if (dbUser != other.dbUser) return false
+        if (dbPassword != other.dbPassword) return false
+        if (connectionProperties != other.connectionProperties) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = connectionString.hashCode()
+        result = 31 * result + (dbUser?.hashCode() ?: 0)
+        result = 31 * result + (dbPassword?.hashCode() ?: 0)
+        result = 31 * result + (connectionProperties?.hashCode() ?: 0)
+        return result
     }
 }
