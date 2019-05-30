@@ -49,7 +49,7 @@ class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
                     "ehlblzzc",
                     "WLwb_lRqRPB8wkXl6yg37OyaciD1T2Ny"
             )
-        JdbcRoomProviderTest.dbCounter++
+        dbCounter++
         lastProviderInstance = provider
         return provider
     }
