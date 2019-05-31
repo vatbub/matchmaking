@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.idprovider
 
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.*
 import java.security.MessageDigest
 import java.util.*
@@ -51,16 +52,12 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
 
     private val schema = Schema(listOf(idsTable))
 
-    /*
-    Schema:
-    connectionIds { id: char(8) primary key; passwordHash: char(8)}
-     */
-
     init {
         connectionPoolWrapper.getConnectionAndCommit { schema.createIfNecessary(it);true }
     }
 
     override fun getNewId(): Id {
+        logger.trace("Creating a new id...")
         var connectionIdAsString: String
         do {
             var connectionId = Random.nextInt()
@@ -88,6 +85,7 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
     }
 
     override fun deleteId(id: String): Id? {
+        logger.trace("Deleting an id...")
         val result = get(id)
         connectionPoolWrapper.getConnectionAndCommit {
             val statement = it.prepareStatement("DELETE FROM ${idsTable.name} WHERE id = ?")
@@ -102,8 +100,9 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
         var result: Id? = null
 
         connectionPoolWrapper.getConnectionAndCommit {
+            logger.debug("Getting the id info for a specified connection id...")
             val statement =
-                it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
+                    it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
             statement.setString(1, id)
             val resultSet = statement.executeQuery()!!
             if (resultSet.next())
@@ -146,6 +145,13 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
     }
 
     override fun isAuthorized(id: Id): AuthorizationResult {
+        logger.debug("Checking authorization...")
+        val result = isAuthorizedImpl(id)
+        logger.debug("Authorization check result: $result")
+        return result
+    }
+
+    private fun isAuthorizedImpl(id: Id): AuthorizationResult {
         if (id.connectionId == null)
             return AuthorizationResult.NotAuthorized
         val lookUpResult = this[id.connectionId] ?: return AuthorizationResult.NotFound

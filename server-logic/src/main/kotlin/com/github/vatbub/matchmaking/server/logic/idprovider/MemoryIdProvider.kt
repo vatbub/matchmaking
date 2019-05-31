@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.idprovider
 
+import com.github.vatbub.matchmaking.common.logger
 import java.util.*
 import kotlin.random.Random
 
@@ -40,6 +41,7 @@ open class MemoryIdProvider : ConnectionIdProvider {
         }
 
     override fun getNewId(): Id {
+        logger.trace("Creating a new id...")
         var connectionIdAsString: String
         do {
             var connectionId = Random.nextInt()
@@ -59,12 +61,11 @@ open class MemoryIdProvider : ConnectionIdProvider {
     }
 
     override fun deleteId(id: String): Id? {
+        logger.trace("Deleting an id...")
         return _connectionIdsInUse.remove(id)
     }
 
-    override fun containsId(id: String?): Boolean {
-        return _connectionIdsInUse.contains(id)
-    }
+    override fun containsId(id: String?) = _connectionIdsInUse.contains(id)
 
     override fun reset() {
         _connectionIdsInUse.clear()

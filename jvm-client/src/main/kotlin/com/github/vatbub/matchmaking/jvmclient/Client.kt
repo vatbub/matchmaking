@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.jvmclient
 import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.User
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.requests.*
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
@@ -96,8 +97,7 @@ class Client(
                 }
                 return@forEach
             } catch (e: Exception) {
-                System.err.println("Unable to connect using this configuration, trying the next configuration (if there's more specified)...")
-                e.printStackTrace() // TODO: Logging framework
+                logger.error("Unable to connect using this configuration, trying the next configuration (if there's more specified)...", e)
             }
         }
         endpoint = tempEndpoint
@@ -134,12 +134,13 @@ class Client(
             }
             endpoint.sendRequest<JoinOrCreateRoomResponse>(JoinOrCreateRoomRequest(safeConnectionId, safePassword, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize)) {
                 when (it.result) {
-                    RoomCreated -> println("Room created: ${it.roomId}") // TODO: Logging framework
+                    RoomCreated -> logger.debug("Room created: ${it.roomId}")
                     RoomJoined -> {
+                        logger.debug("Room joined: ${it.roomId}")
                         currentRoomId = it.roomId!!
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
                     }
-                    Nothing -> println("Result of JoinOrCreateRoomRequest: Nothing") // TODO: Logging framework
+                    Nothing -> logger.debug("Result of JoinOrCreateRoomRequest: Nothing")
                 }
             }
         }

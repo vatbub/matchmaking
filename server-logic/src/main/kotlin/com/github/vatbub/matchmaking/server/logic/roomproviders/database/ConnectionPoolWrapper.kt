@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.roomproviders.database
 
+import com.github.vatbub.matchmaking.common.logger
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import java.sql.Connection
 import java.sql.DriverManager
@@ -50,6 +51,7 @@ class ConnectionPoolWrapper private constructor(
         private set
 
     init {
+        logger.debug("Creating a new database connection...")
         val driver = DriverManager.getDriver(connectionString)!!
         // connectionPoolDataSource.maxPoolSize = 999999999
         connectionPoolDataSource.maxPoolSize = 5
@@ -66,6 +68,7 @@ class ConnectionPoolWrapper private constructor(
     }
 
     fun getConnection(): Connection {
+        logger.debug("Getting a connection from the pool...")
         val connection = connectionPoolDataSource.connection
         connection.autoCommit = false
         connectionCount++
@@ -78,10 +81,13 @@ class ConnectionPoolWrapper private constructor(
         val connection = getConnection()
         @Suppress("ConvertTryFinallyToUseCall")
         try {
-            if (transaction.invoke(connection))
+            if (transaction.invoke(connection)) {
+                logger.debug("Committing the transaction...")
                 connection.commit()
-            else
+            } else {
+                logger.debug("Rolling the database transaction back...")
                 connection.rollback()
+            }
         } finally {
             connection.close()
         }

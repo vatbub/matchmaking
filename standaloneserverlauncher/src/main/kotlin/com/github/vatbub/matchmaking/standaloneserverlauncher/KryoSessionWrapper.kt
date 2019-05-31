@@ -21,12 +21,13 @@ package com.github.vatbub.matchmaking.standaloneserverlauncher
 
 import com.esotericsoftware.kryonet.Connection
 import com.github.vatbub.matchmaking.common.ServerInteraction
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
 
 class KryoSessionWrapper(val connection: Connection) : Session() {
     override fun sendObjectSync(objectToSend: ServerInteraction) {
         try {
-            println("Sending object: $objectToSend") // TODO: Logging framework
+            logger.debug("Sending object: $objectToSend")
             connection.sendUDP(objectToSend)
         } catch (e: IllegalStateException) {
             connection.sendTCP(objectToSend)

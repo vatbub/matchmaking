@@ -74,6 +74,7 @@
         <jupiter.version>5.4.2</jupiter.version>
         <kotlin.version>1.3.11</kotlin.version>
 		<tomcat.version>8.5.40</tomcat.version>
+        <slf4j.version>1.7.26</slf4j.version>
         <sonar.links.homepage>https://github.com/vatbub/${gitRepoName}/</sonar.links.homepage>
         <sonar.links.scm>https://github.com/vatbub/${gitRepoName}/</sonar.links.scm>
         <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt, **/ServerInteraction.kt</sonar.exclusions>
@@ -100,6 +101,16 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

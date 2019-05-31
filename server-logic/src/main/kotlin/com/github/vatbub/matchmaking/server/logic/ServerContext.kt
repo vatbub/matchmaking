@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic
 
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.handlers.*
 import com.github.vatbub.matchmaking.server.logic.idprovider.ConnectionIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
@@ -38,6 +39,7 @@ data class ServerContext(
      * Removes all handlers from the [messageDispatcher] and reinstantiates the default handlers
      */
     fun resetMessageHandlers() {
+        logger.debug("Resetting message handlers...")
         messageDispatcher.removeAllHandlers()
         messageDispatcher.registerHandler(GetConnectionIdHandler(connectionIdProvider))
         messageDispatcher.registerHandler(JoinOrCreateRoomRequestHandler(roomProvider))

@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 
 abstract class RoomProvider {
@@ -133,6 +134,8 @@ abstract class RoomProvider {
             minRoomSize: Int = 1,
             maxRoomSize: Int = 2
     ): RoomTransaction? {
+        logger.debug("Checking for applicable rooms...")
+        logger.trace("hasApplicableRoom parameters: userName = $userName, whitelist = $whitelist, blacklist = $blacklist, minRoomSize = $minRoomSize, maxRoomSize = $maxRoomSize")
         var result: RoomTransaction? = null
 
         beginTransactionsForRoomsWithFilter({ room -> !room.gameStarted && result == null },
@@ -202,6 +205,7 @@ abstract class RoomProvider {
                     result = roomTransaction
                 })
 
+        logger.trace("hasApplicableRoom result: $result")
         return result
     }
 

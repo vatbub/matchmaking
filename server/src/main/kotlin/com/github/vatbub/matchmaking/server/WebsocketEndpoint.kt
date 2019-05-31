@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server
 
 import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.Request
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
 import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.Configuration
@@ -98,18 +99,22 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @Suppress("UNUSED_PARAMETER")
     private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
+        logger.info("Loading new configuration into WebsocketEndpoint...")
         serverContext = newConfiguration.getAsServerContext()
         serverContext.resetMessageHandlers()
     }
 
     @OnOpen
     fun open(session: Session, endpointConfig: EndpointConfig) {
+        logger.info("A new websocket was opened")
         this.sessionWrapper = WebsocketSessionWrapper(session)
         this.endpointConfig = endpointConfig
     }
 
     @OnMessage
     fun onTextMessage(session: Session, message: String) {
+        logger.debug("Received a text message through WebsocketEndpoint")
+        logger.trace("Received the following text message through WebsocketEndpoint: $message")
         val request = InteractionConverter.deserializeRequest<Request>(message)
         val responseInteraction =
                 serverContext.messageDispatcher.dispatchOrCreateException(
@@ -118,12 +123,16 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
                         remoteInet6Address,
                         sessionWrapper!!
                 )
+        logger.debug("Response generated, now serializing...")
         val responseJson = InteractionConverter.serialize(responseInteraction)
+        logger.trace("The following response was generated: $responseJson")
         session.asyncRemote.sendText(responseJson)
+        logger.debug("Response sent")
     }
 
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
+        logger.info("A new websocket was closed")
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }

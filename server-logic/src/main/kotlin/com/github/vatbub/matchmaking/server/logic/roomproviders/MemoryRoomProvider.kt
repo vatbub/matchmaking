@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.server.logic.roomproviders
 
 import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 import kotlin.random.Random
@@ -36,6 +37,7 @@ open class MemoryRoomProvider : RoomProvider() {
     private val pendingTransactions = mutableMapOf<String, RoomTransaction>()
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
+        logger.trace("Beginning a transaction for room $id...")
         val room = rooms[id] ?: return null
         val transaction = RoomTransaction(
                 ObservableRoom(room), this
@@ -51,12 +53,14 @@ open class MemoryRoomProvider : RoomProvider() {
     }
 
     override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
+        logger.trace("Committing a room transaction for room ${roomTransaction.room.id}")
         if (!pendingTransactions.containsValue(roomTransaction)) return
         rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
         pendingTransactions.remove(roomTransaction.room.id)
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
+        logger.trace("Aborting a room transaction for room ${roomTransaction.room.id}")
         pendingTransactions.remove(roomTransaction.room.id)
     }
 
@@ -69,13 +73,13 @@ open class MemoryRoomProvider : RoomProvider() {
     }
 
     override fun createNewRoom(
-        hostUserConnectionId: String,
-        whitelist: List<String>?,
-        blacklist: List<String>?,
-        minRoomSize: Int,
-        maxRoomSize: Int
+            hostUserConnectionId: String,
+            whitelist: List<String>?,
+            blacklist: List<String>?,
+            minRoomSize: Int,
+            maxRoomSize: Int
     ): Room {
-
+        logger.trace("Creating a new room...")
         var roomIdAsString: String
         do {
             var roomId = Random.nextInt()
@@ -86,33 +90,33 @@ open class MemoryRoomProvider : RoomProvider() {
         } while (containsRoom(roomIdAsString))
 
         val room = Room(
-            roomIdAsString,
-            hostUserConnectionId,
-            whitelist,
-            blacklist,
-            minRoomSize,
-            maxRoomSize
+                roomIdAsString,
+                hostUserConnectionId,
+                whitelist,
+                blacklist,
+                minRoomSize,
+                maxRoomSize
         )
         rooms[roomIdAsString] = room
         return room
     }
 
-    override fun get(id: String): Room? {
-        return rooms[id]?.copy()
-    }
+    override fun get(id: String) = rooms[id]?.copy()
 
     override fun deleteRoom(id: String): Room? {
+        logger.trace("Deleting room with id $id...")
         return rooms.remove(id)
     }
 
     override fun clearRooms() {
+        logger.debug("Deleting all rooms from memory...")
         rooms.clear()
     }
 
     override fun forEach(action: (room: Room) -> Unit) = rooms.forEach { _, room -> action(room) }
 
     override fun forEachTransaction(action: (transaction: RoomTransaction) -> Unit) =
-        forEach { room -> action(beginTransactionWithRoom(room.id)!!) }
+            forEach { room -> action(beginTransactionWithRoom(room.id)!!) }
 
     override fun filter(filter: (room: Room) -> Boolean): Collection<Room> {
         val result = mutableListOf<Room>()

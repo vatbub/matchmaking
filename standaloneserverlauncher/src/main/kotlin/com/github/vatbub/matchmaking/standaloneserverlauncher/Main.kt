@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
 import com.beust.jcommander.JCommander
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationManager
 import org.apache.catalina.Context
 import org.apache.catalina.LifecycleException
@@ -65,13 +66,13 @@ class Main {
 
             val tomcat = Tomcat()
             val baseDir = resolveTomcatBaseDir(commandLineParams.port, commandLineParams.tempDirectory)
-            println("Tomcat base dir: $baseDir") // TODO: Logging framework
+            logger.debug("Tomcat base dir: $baseDir")
             tomcat.setBaseDir(baseDir)
 
             val port = commandLineParams.port
 
             if (port == null) {
-                println("Port not specified") // TODO: Logging framework
+                logger.error("Port not specified")
                 jCommander.usage()
                 System.exit(1)
                 return
@@ -92,12 +93,10 @@ class Main {
             nioConnector.port = port
 
             if (commandLineParams.attributes.isNotEmpty()) {
-                println("Connector attributes") // TODO: Logging framework
-                for (entry in commandLineParams.attributes) {
-                    val key = entry.key
-                    val value = entry.value
-                    println("property: $key - $value") // TODO: Logging framework
-                    nioConnector.setProperty(entry.key, entry.value)
+                logger.debug("Connector attributes")
+                commandLineParams.attributes.forEach { key, value ->
+                    logger.debug("property: $key - $value")
+                    nioConnector.setProperty(key, value)
                 }
             }
 
@@ -110,7 +109,7 @@ class Main {
                     nioConnector.setProperty("sslProtocol", "tls")
                     val truststoreFile = File(pathToTrustStore)
                     nioConnector.setAttribute("truststoreFile", truststoreFile.absolutePath)
-                    println(truststoreFile.absolutePath) // TODO: Logging framework
+                    logger.debug(truststoreFile.absolutePath)
                     nioConnector.setAttribute(
                             "trustStorePassword",
                             System.getProperty("javax.net.ssl.trustStorePassword")
@@ -120,7 +119,7 @@ class Main {
                 if (pathToKeystore != null) {
                     val keystoreFile = File(pathToKeystore)
                     nioConnector.setAttribute("keystoreFile", keystoreFile.absolutePath)
-                    println(keystoreFile.absolutePath) // TODO: Logging framework
+                    logger.debug(keystoreFile.absolutePath)
                     nioConnector.setAttribute("keystorePass", System.getProperty("javax.net.ssl.keyStorePassword"))
                 }
                 if (commandLineParams.enableClientAuth) {
@@ -163,7 +162,7 @@ class Main {
                 if (handler is AbstractProtocol<*>) {
                     handler.setMaxThreads(maxThreads)
                 } else {
-                    println("WARNING: Could not set maxThreads!") // TODO: Logging framework
+                    logger.warn("Could not set maxThreads!")
                 }
             }
 
@@ -175,7 +174,7 @@ class Main {
             val context: Context
 
             if (commandLineParams.contextPath.isNotEmpty() && !commandLineParams.contextPath.startsWith("/")) {
-                System.out.println("WARNING: You entered a path: [" + commandLineParams.contextPath + "]. Your path should start with a '/'. Tomcat will update this for you, but you may still experience issues.")
+                logger.warn("You entered a path: [${commandLineParams.contextPath}]. Your path should start with a '/'. Tomcat will update this for you, but you may still experience issues.")
             }
 
             val contextPath = commandLineParams.contextPath
@@ -183,7 +182,7 @@ class Main {
             val war = exportResource(warName)
             war.deleteOnExit()
 
-            println("Adding Context " + contextPath + " for " + war.path) // TODO: Logging framework
+            logger.info("Adding Context $contextPath for ${war.path}")
             context = tomcat.addWebapp(contextPath, war.absolutePath)
 
             context as StandardContext
@@ -196,7 +195,7 @@ class Main {
                     if (event.lifecycle.state === LifecycleState.FAILED) {
                         val server = tomcat.server
                         if (server is StandardServer) {
-                            System.err.println("SEVERE: Context [" + contextPath + "] failed in [" + event.lifecycle::class.java.name + "] lifecycle. Allowing Tomcat to shutdown.")
+                            logger.error("Context [$contextPath] failed in [${event.lifecycle::class.java.name}] lifecycle. Allowing Tomcat to shutdown.")
                             server.stopAwait()
                         }
                     }
@@ -210,7 +209,7 @@ class Main {
             }
 
             if (commandLineParams.contextXml != null) {
-                System.out.println("Using context config: " + commandLineParams.contextXml)
+                logger.info("Using context config: ${commandLineParams.contextXml}")
                 context.setConfigFile(File(commandLineParams.contextXml).toURI().toURL())
             }
 
@@ -335,7 +334,7 @@ class Main {
             }
 
             // Register memoryUserDatabase with GlobalNamingContext
-            println("MemoryUserDatabase: $memoryUserDatabase") // TODO: Logging framework
+            logger.debug("MemoryUserDatabase: $memoryUserDatabase")
             tomcat.server.globalNamingContext.addToEnvironment("UserDatabase", memoryUserDatabase)
 
             val ctxRes = org.apache.tomcat.util.descriptor.web.ContextResource()
@@ -388,7 +387,7 @@ class Main {
 
             stream.use { resourceInputStream ->
                 val finalName = jarFolder + resourceName
-                println("Extracting resource '$resourceName' to '$finalName'") // TODO: Logging framework
+                logger.debug("Extracting resource '$resourceName' to '$finalName'")
                 FileOutputStream(finalName).use { resourceOutputStream ->
                     IOUtils.copy(resourceInputStream, resourceOutputStream)
                 }

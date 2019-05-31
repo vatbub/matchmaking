@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.idprovider
 
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.idprovider.AuthorizationResult.*
 
 /**
@@ -58,6 +59,13 @@ interface ConnectionIdProvider {
     fun reset()
 
     fun isAuthorized(id: Id): AuthorizationResult {
+        logger.debug("Checking authorization...")
+        val result = isAuthorizedImpl(id)
+        logger.debug("Authorization check result: $result")
+        return result
+    }
+
+    private fun isAuthorizedImpl(id: Id): AuthorizationResult {
         if (id.connectionId == null)
             return NotAuthorized
         val lookUpResult = this[id.connectionId] ?: return NotFound

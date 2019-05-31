@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.ProviderType.Jdbc
 import com.github.vatbub.matchmaking.server.logic.configuration.ProviderType.Memory
@@ -78,22 +79,22 @@ class ConfigurationManager {
     private fun readDefaultConfigurationFileIfExists(): Configuration? {
         val configFile = JndiHelper.readJndi("configFile") ?: File("matchmakingConfig.json")
 
-        println("Looking for the default configuration file at: ${configFile.absoluteFile}") // TODO: Logging framework
+        logger.info("Looking for the default configuration file at: ${configFile.absoluteFile}")
         return readConfigurationFile(configFile)
     }
 
     fun readConfigurationFile(fileToRead: File): Configuration? {
         if (!fileToRead.exists()) {
-            println("The configuration file does not exist!") // TODO: Logging framework
+            logger.warn("The configuration file does not exist!")
             return null
         }
 
         if (!fileToRead.isFile) {
-            println("The configuration file is not a file!") // TODO: Logging framework
+            logger.warn("The configuration file is not a file!")
             return null
         }
 
-        println("File found, reading config file... ") // TODO: Logging framework
+        logger.info("File found, reading config file... ")
         var result: Configuration? = null
         FileReader(fileToRead).use { result = Gson().fromJson(it, Configuration::class.java) }
         return result!!

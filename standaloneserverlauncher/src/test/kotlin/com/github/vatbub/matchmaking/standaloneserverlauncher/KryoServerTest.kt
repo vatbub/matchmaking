@@ -25,6 +25,7 @@ import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
@@ -117,8 +118,8 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
                     if (receivedObject == null) return
                     if (receivedObject is FrameworkMessage.KeepAlive) return
                     receivedObjectsCount++
-                    println("[Test Client] receivedObjectsCount = $receivedObjectsCount") // TODO: Logging framework
-                    println("[Test Client] Received: $receivedObject") // TODO: Logging framework
+                    logger.info("[Test Client] receivedObjectsCount = $receivedObjectsCount")
+                    logger.info("[Test Client] Received: $receivedObject")
                     if (receivedObject !is Response) return onUnexpectedObjectReceived(receivedObject)
                     val handler = pendingResponses.remove(receivedObject.responseTo)
                             ?: return onUnexpectedObjectReceived(receivedObject)
@@ -145,7 +146,7 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
                     retryCount++
                     if (retryCount > maxRequestRetryCount)
                         throw timeoutException
-                    println("Resending request...") // TODO: Logging framework
+                    logger.warn("Resending request...")
                 }
             }
         }

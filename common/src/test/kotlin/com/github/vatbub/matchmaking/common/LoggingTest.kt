@@ -1,6 +1,6 @@
 /*-
  * #%L
- * matchmaking.server
+ * matchmaking.common
  * %%
  * Copyright (C) 2016 - 2019 Frederik Kammel
  * %%
@@ -17,22 +17,16 @@
  * limitations under the License.
  * #L%
  */
-package com.github.vatbub.matchmaking.server.logic.configuration
+package com.github.vatbub.matchmaking.common
 
-import com.github.vatbub.matchmaking.common.logger
-import javax.naming.InitialContext
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
-object JndiHelper {
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> readJndi(paramName: String): T? {
-        val finalName = "java:comp/env/$paramName"
-        logger.debug("Getting the following jndi parameter: $finalName")
-        return try {
-            val initialContext = InitialContext()
-            initialContext.lookup(finalName) as T?
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+class DummyClass1
+
+class LoggingTest {
+    @Test
+    fun testClassName() {
+        Assertions.assertEquals(DummyClass1::class.java.canonicalName, DummyClass1().logger.name)
     }
 }

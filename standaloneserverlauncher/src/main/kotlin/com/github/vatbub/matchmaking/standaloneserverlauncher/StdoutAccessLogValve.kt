@@ -19,13 +19,14 @@
  */
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
+import com.github.vatbub.matchmaking.common.logger
 import org.apache.catalina.valves.AbstractAccessLogValve
 import java.io.CharArrayWriter
 
 class StdoutAccessLogValve : AbstractAccessLogValve() {
     override fun log(message: CharArrayWriter?) {
         synchronized(this) {
-            println(message?.toCharArray())
+            logger.info(message?.toString())
         }
     }
 }

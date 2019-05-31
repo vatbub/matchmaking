@@ -25,6 +25,7 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
@@ -60,12 +61,12 @@ class KryoServer(internal val tcpPort: Int, internal val udpPort: Int?, initialS
 
     @Suppress("UNUSED_PARAMETER")
     private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
+        logger.info("Loading new configuration into KryoServer...")
         serverContext = newConfiguration.getAsServerContext()
         serverContext.resetMessageHandlers()
     }
 
     inner class KryoListener : Listener() {
-
         override fun connected(connection: Connection) {
             this@KryoServer.sessions[connection] = KryoSessionWrapper(connection)
         }
@@ -77,15 +78,11 @@ class KryoServer(internal val tcpPort: Int, internal val udpPort: Int?, initialS
 
         override fun received(connection: Connection, receivedObject: Any) {
             val session = this@KryoServer.sessions[connection]
-            println("[SERVER] Received object: $receivedObject") // TODO: Logging framework
+            logger.trace("Server: Received object: $receivedObject")
             if (session == null) {
                 val exceptionMessage = "Unknown connection object"
                 val responseException = InternalServerErrorException(exceptionMessage)
-                try {
-                    connection.sendUDP(responseException)
-                } catch (e: IllegalStateException) {
-                    connection.sendTCP(responseException)
-                }
+                connection.sendTCP(responseException)
                 throw IllegalStateException(exceptionMessage)
             }
             if (receivedObject is FrameworkMessage.KeepAlive) return
