@@ -132,7 +132,7 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
-        logger.info("A new websocket was closed")
+        logger.info("A websocket was closed")
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }
