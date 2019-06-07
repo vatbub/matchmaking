@@ -55,6 +55,8 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
         logger.trace("Dispatching request of type ${request.className}...")
         for (handler in handlers) {
             if (!handler.canHandle(request)) continue
+            if (handler is RequestHandlerWithWebsocketSupport && handler.requiresSocket && websocketSession == null)
+                continue
             @Suppress("UNCHECKED_CAST")
             handler as RequestHandler<Request>
             logger.trace("Found a matching handler")
@@ -80,8 +82,10 @@ class MessageDispatcher(var connectionIdProvider: ConnectionIdProvider) {
             websocketSession: Session?
     ): Response {
         logger.trace("Invoking the corresponding handler...")
-        if (handler is RequestHandlerWithWebsocketSupport && websocketSession != null)
+        if (handler is RequestHandlerWithWebsocketSupport && websocketSession != null) {
+            logger.trace("Invoking a socket handler with a session object...")
             return handler.handle(websocketSession, request, sourceIp, sourceIpv6)
+        }
         return handler.handle(request, sourceIp, sourceIpv6)
     }
 

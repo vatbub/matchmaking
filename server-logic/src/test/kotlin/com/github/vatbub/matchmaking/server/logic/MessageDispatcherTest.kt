@@ -27,6 +27,7 @@ import com.github.vatbub.matchmaking.common.responses.InternalServerErrorExcepti
 import com.github.vatbub.matchmaking.common.responses.UnknownConnectionIdException
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
+import com.github.vatbub.matchmaking.server.logic.handlers.RequestHandler
 import com.github.vatbub.matchmaking.server.logic.handlers.RequestHandlerWithWebsocketSupport
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
@@ -107,7 +108,8 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
     @Test
     fun negativeDispatchTest() {
         val messageDispatcher = newObjectUnderTest()
-        val handler = DummyRequestHandler()
+        val handler = DynamicRequestHandler<DummyRequest>({ false }, { false }, { request, sourceIp, sourceIpv6 -> throw Exception("Unexpected call: handle($request, $sourceIp, $sourceIpv6)") })
+        messageDispatcher.registerHandler(handler)
 
         val request = DummyRequest(
                 TestUtils.defaultConnectionId,
@@ -116,7 +118,6 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
         val response = messageDispatcher.dispatch(request, null, null)
 
         Assertions.assertNull(response)
-        Assertions.assertTrue(handler.handledRequests.isEmpty())
     }
 
     @Test
@@ -251,8 +252,14 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
         var onSessionClosedCalled = false
         val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
             override val requiresSocket = false
-            override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) = DummyResponse(request.connectionId)
-            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?) = DummyResponse(request.connectionId)
+            override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw Exception("Unexpected method call: handle($session, $request, $sourceIp, $sourceIpv6)")
+            }
+
+            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw Exception("Unexpected method call: handle($request, $sourceIp, $sourceIpv6)")
+            }
+
             override fun canHandle(request: Request) = true
             override fun needsAuthentication(request: DummyRequest) = false
 
@@ -268,7 +275,107 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
     }
 
     @Test
-    fun dispatchToWebsocketHandler() {
+    fun negativeDispatchWebsocketSessionClosedTest() {
+        val messageDispatcher = newObjectUnderTest()
+
+        val expectedSession = NoOpSession()
+
+        val handler = object : RequestHandler<DummyRequest> {
+            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw Exception("Unexpected method call: handle($request, $sourceIp, $sourceIpv6)")
+            }
+
+            override fun canHandle(request: Request) = true
+            override fun needsAuthentication(request: DummyRequest) = false
+        }
+        messageDispatcher.registerHandler(handler)
+
+        Assertions.assertDoesNotThrow { messageDispatcher.dispatchWebsocketSessionClosed(expectedSession) }
+    }
+
+    @Test
+    fun dispatchToWebsocketHandlerTest() {
+        val messageDispatcher = newObjectUnderTest()
+
+        val expectedSession = NoOpSession()
+
+        var handlerCalled = false
+        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
+            override val requiresSocket = true
+            override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                handlerCalled = true
+                Assertions.assertSame(expectedSession, session)
+                return DummyResponse(request.connectionId)
+            }
+
+            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw IllegalStateException("Handler cannot handle non-socket requests")
+            }
+
+            override fun canHandle(request: Request) = true
+            override fun needsAuthentication(request: DummyRequest) = false
+
+            override fun onSessionClosed(session: Session) {}
+        }
+        messageDispatcher.registerHandler(handler)
+
+        messageDispatcher.dispatch(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword), null, null, expectedSession)
+        Assertions.assertTrue(handlerCalled)
+    }
+
+    @Test
+    fun dispatchToWebsocketHandlerWhichRequiresASessionWithoutASessionTest() {
+        val messageDispatcher = newObjectUnderTest()
+
+        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
+            override val requiresSocket = true
+            override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw Exception("Unexpected call: handle($session, $request, $sourceIp, $sourceIpv6)")
+            }
+
+            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw IllegalStateException("Handler cannot handle non-socket requests")
+            }
+
+            override fun canHandle(request: Request) = true
+            override fun needsAuthentication(request: DummyRequest) = false
+
+            override fun onSessionClosed(session: Session) {}
+        }
+        messageDispatcher.registerHandler(handler)
+
+        Assertions.assertDoesNotThrow { messageDispatcher.dispatch(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword), null, null, null) }
+    }
+
+    @Test
+    fun dispatchToWebsocketHandlerWhichCanHandleNonSocketRequestsWithoutASessionTest() {
+        val messageDispatcher = newObjectUnderTest()
+
+        var nonSocketHandlerCalled = false
+        val handler = object : RequestHandlerWithWebsocketSupport<DummyRequest> {
+            override val requiresSocket = false
+            override fun handle(session: Session, request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                throw Exception("Unexpected call: handle($session, $request, $sourceIp, $sourceIpv6)")
+            }
+
+            override fun handle(request: DummyRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
+                nonSocketHandlerCalled = true
+                return DummyResponse(request.connectionId, request.requestId)
+            }
+
+            override fun canHandle(request: Request) = true
+            override fun needsAuthentication(request: DummyRequest) = false
+
+            override fun onSessionClosed(session: Session) {}
+        }
+        messageDispatcher.registerHandler(handler)
+
+        Assertions.assertDoesNotThrow { messageDispatcher.dispatch(DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword), null, null, null) }
+        Assertions.assertTrue(nonSocketHandlerCalled)
+    }
+
+    @Test
+    fun dispatchToOrdinaryHandlerWithSessionTest() {
         val messageDispatcher = newObjectUnderTest()
 
         val expectedSession = NoOpSession()
