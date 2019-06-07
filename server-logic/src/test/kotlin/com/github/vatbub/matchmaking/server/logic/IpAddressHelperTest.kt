@@ -50,6 +50,16 @@ class IpAddressHelperTest {
     }
 
     @Test
+    fun convertToIpv4NullInputTest() {
+        Assertions.assertNull(IpAddressHelper.convertToIpv4(null))
+    }
+
+    @Test
+    fun convertToIpv6NullInputTest() {
+        Assertions.assertNull(IpAddressHelper.convertToIpv6(null))
+    }
+
+    @Test
     fun castToIpv4OrNullTest(){
         val inetAddress = InetAddress.getByName(ipv4Sample)
         val castedInetAddress = IpAddressHelper.castToIpv4OrNull(inetAddress)
