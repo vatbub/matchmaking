@@ -20,18 +20,21 @@
 package com.github.vatbub.matchmaking.server.logic.configuration
 
 import com.github.vatbub.matchmaking.common.logger
+import java.util.*
 import javax.naming.InitialContext
+import kotlin.properties.Delegates
 
 object JndiHelper {
+    var context = InitialContext()
+
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> readJndi(paramName: String): T? {
         val finalName = "java:comp/env/$paramName"
         logger.debug("Getting the following jndi parameter: $finalName")
         return try {
-            val initialContext = InitialContext()
-            initialContext.lookup(finalName) as T?
+            context.lookup(finalName) as T?
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Error during JNDI lookup", e)
             null
         }
     }
