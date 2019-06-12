@@ -19,18 +19,22 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
+import com.github.vatbub.matchmaking.server.logic.JndiTestUtils
 import com.github.vatbub.matchmaking.server.logic.idprovider.JdbcIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.google.gson.Gson
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.io.FileWriter
 import java.nio.file.Path
+import javax.naming.InitialContext
 
 class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
     override fun getCloneOf(instance: ConfigurationManager): ConfigurationManager {
@@ -45,6 +49,11 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
     @BeforeEach
     fun beforeEachTest() {
         ConfigurationManager.resetInstance()
+    }
+
+    @AfterEach
+    fun resetJndi() {
+        JndiHelper.context = InitialContext()
     }
 
     @Test
@@ -131,6 +140,21 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
         val readResult = ConfigurationManager.readConfigurationFile(configFile)
         Assertions.assertNotNull(readResult)
         Assertions.assertEquals(originalConfiguration, readResult)
+    }
+
+    @Test
+    fun readDefaultConfigFromJndiParameterTest() {
+        JndiTestUtils.mockContext(mapOf("configFile" to File(this.javaClass.getResource("dummyConfig.json").toURI())))
+        val configuration = ConfigurationManager.currentConfiguration
+        Assertions.assertEquals(ProviderType.Jdbc, configuration.idProviderConfig.providerType)
+        Assertions.assertEquals("jdbc:postgresql://manny.db.elephantsql.com:1111/1234", configuration.idProviderConfig.jdbcConfig!!.connectionString)
+        Assertions.assertEquals("user", configuration.idProviderConfig.jdbcConfig!!.dbUser)
+        Assertions.assertEquals("password", configuration.idProviderConfig.jdbcConfig!!.dbPassword)
+
+        Assertions.assertEquals(ProviderType.Jdbc, configuration.roomProviderConfig.providerType)
+        Assertions.assertEquals("jdbc:postgresql://manny.db.elephantsql.com:1111/1234", configuration.roomProviderConfig.jdbcConfig!!.connectionString)
+        Assertions.assertEquals("user", configuration.roomProviderConfig.jdbcConfig!!.dbUser)
+        Assertions.assertEquals("password", configuration.roomProviderConfig.jdbcConfig!!.dbPassword)
     }
 
     @Test

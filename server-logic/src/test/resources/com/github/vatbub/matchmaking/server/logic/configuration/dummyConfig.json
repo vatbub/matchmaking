@@ -1,0 +1,18 @@
+{
+  "idProviderConfig": {
+    "providerType": "Jdbc",
+    "jdbcConfig": {
+      "connectionString": "jdbc:postgresql://manny.db.elephantsql.com:1111/1234",
+      "dbUser": "user",
+      "dbPassword": "password"
+    }
+  },
+  "roomProviderConfig": {
+    "providerType": "Jdbc",
+    "jdbcConfig": {
+      "connectionString": "jdbc:postgresql://manny.db.elephantsql.com:1111/1234",
+      "dbUser": "user",
+      "dbPassword": "password"
+    }
+  }
+}

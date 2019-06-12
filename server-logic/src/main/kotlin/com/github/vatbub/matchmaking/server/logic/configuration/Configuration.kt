@@ -85,12 +85,12 @@ class ConfigurationManager {
 
     fun readConfigurationFile(fileToRead: File): Configuration? {
         if (!fileToRead.exists()) {
-            logger.warn("The configuration file does not exist!")
+            logger.warn("The configuration file ${fileToRead.absolutePath} does not exist!")
             return null
         }
 
         if (!fileToRead.isFile) {
-            logger.warn("The configuration file is not a file!")
+            logger.warn("The configuration file ${fileToRead.absolutePath} is not a file!")
             return null
         }
 
