@@ -96,7 +96,7 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
 
     @Test
     fun getAsServerContextJdbcConfigTest() {
-        val jdbcConfig = JdbcConfig("jdbc:hsqldb:mem:configTest", "SA", "")
+        val jdbcConfig = JdbcConfig("jdbc:h2:mem:configTest", "SA", "")
         val configuration = Configuration(IdProviderConfig(ProviderType.Jdbc, jdbcConfig), RoomProviderConfig(ProviderType.Jdbc, jdbcConfig))
         val serverContext = configuration.getAsServerContext()
         Assertions.assertTrue(serverContext.connectionIdProvider is JdbcIdProvider)

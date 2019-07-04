@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.server.logic.idprovider
 
-import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProviderTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -39,7 +38,7 @@ class JdbcIdProviderTest : ConnectionIdProviderTest<JdbcIdProvider>() {
         @Suppress("ConstantConditionIf")
         val provider = if (useMemDb)
             JdbcIdProvider(
-                    "jdbc:hsqldb:mem:connectionIdTestDB$dbCounter",
+                    "jdbc:h2:mem:connectionIdTestDB$dbCounter",
                     "SA",
                     ""
             )

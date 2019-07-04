@@ -37,7 +37,7 @@ class JdbcRoomProviderTest : RoomProviderTest<JdbcRoomProvider>() {
         @Suppress("ConstantConditionIf")
         val provider = if (useMemDb)
             JdbcRoomProvider(
-                    "jdbc:hsqldb:mem:roomProviderTestDB$dbCounter",
+                    "jdbc:h2:mem:roomProviderTestDB$dbCounter",
                     "SA",
                     ""
             )
