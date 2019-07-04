@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.server.logic.idprovider
 
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.idprovider.AuthorizationResult.*
+import kotlin.random.Random
 
 /**
  * Provides and stores connection ids.
@@ -28,11 +29,37 @@ import com.github.vatbub.matchmaking.server.logic.idprovider.AuthorizationResult
  * See [MemoryIdProvider] for a reference implementation
  */
 interface ConnectionIdProvider {
+
     /**
      * Called when a new connection id is requested. The implementation is expected to store the generated connection id
      * automatically
      */
-    fun getNewId(): Id
+    fun getNewId(): Id {
+        logger.trace("Creating a new id...")
+        var connectionIdAsString: String
+        do {
+            var connectionId = Random.nextInt()
+            if (connectionId < 0)
+                connectionId = -connectionId
+
+            connectionIdAsString = connectionId.toString(16)
+        } while (containsId(connectionIdAsString))
+
+        var passwordAsInt = Random.nextInt()
+        if (passwordAsInt < 0)
+            passwordAsInt = -passwordAsInt
+
+        val result = Id(connectionIdAsString, passwordAsInt.toString(16))
+        saveNewId(result)
+        return result
+    }
+
+    /**
+     * Saves the new id. This method is called by [getNewId] and must not be called directly. Use [getNewId] instead.
+     * @see [getNewId]
+     * @param id The id to save
+     */
+    fun saveNewId(id: Id)
 
     /**
      * Deletes the specified id if it exists

@@ -21,32 +21,34 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders.database
 
 import com.github.vatbub.matchmaking.common.logger
 import com.mchange.v2.c3p0.ComboPooledDataSource
+import org.jetbrains.exposed.sql.Database
 import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
 class ConnectionPoolWrapper private constructor(
-    private val connectionString: String,
-    private val dbUser: String?,
-    private val dbPassword: String?,
-    private val connectionProperties: Properties?
+        private val connectionString: String,
+        private val dbUser: String?,
+        private val dbPassword: String?,
+        private val connectionProperties: Properties?
 ) {
     constructor(connectionString: String) : this(connectionString, null, null, null)
     constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
-        connectionString,
-        dbUser,
-        dbPassword,
-        null
+            connectionString,
+            dbUser,
+            dbPassword,
+            null
     )
 
     constructor(connectionString: String, connectionProperties: Properties) : this(
-        connectionString,
-        null,
-        null,
-        connectionProperties
+            connectionString,
+            null,
+            null,
+            connectionProperties
     )
 
     private val connectionPoolDataSource = ComboPooledDataSource()
+    val exposedDatabase by lazy { Database.connect(connectionPoolDataSource) }
     var connectionCount = 0
         private set
 

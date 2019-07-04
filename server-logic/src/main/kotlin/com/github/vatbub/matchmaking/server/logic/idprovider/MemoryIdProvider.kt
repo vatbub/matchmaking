@@ -21,7 +21,6 @@ package com.github.vatbub.matchmaking.server.logic.idprovider
 
 import com.github.vatbub.matchmaking.common.logger
 import java.util.*
-import kotlin.random.Random
 
 /**
  * Implementation of [ConnectionIdProvider] which keeps a list of used connection ids in memory.
@@ -40,24 +39,8 @@ open class MemoryIdProvider : ConnectionIdProvider {
             return Collections.unmodifiableMap(_connectionIdsInUse)
         }
 
-    override fun getNewId(): Id {
-        logger.trace("Creating a new id...")
-        var connectionIdAsString: String
-        do {
-            var connectionId = Random.nextInt()
-            if (connectionId < 0)
-                connectionId = -connectionId
-
-            connectionIdAsString = connectionId.toString(16)
-        } while (containsId(connectionIdAsString))
-
-        var passwordAsInt = Random.nextInt()
-        if (passwordAsInt < 0)
-            passwordAsInt = -passwordAsInt
-
-        val result = Id(connectionIdAsString, passwordAsInt.toString(16))
-        _connectionIdsInUse[connectionIdAsString] = result
-        return result
+    override fun saveNewId(id: Id) {
+        _connectionIdsInUse[id.connectionId!!] = id
     }
 
     override fun deleteId(id: String): Id? {

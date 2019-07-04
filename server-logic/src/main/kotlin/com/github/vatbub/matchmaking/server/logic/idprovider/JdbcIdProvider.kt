@@ -20,78 +20,59 @@
 package com.github.vatbub.matchmaking.server.logic.idprovider
 
 import com.github.vatbub.matchmaking.common.logger
-import com.github.vatbub.matchmaking.server.logic.roomproviders.database.*
+import com.github.vatbub.matchmaking.server.logic.roomproviders.database.ConnectionPoolWrapper
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.security.MessageDigest
 import java.util.*
-import kotlin.random.Random
 
 class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: ConnectionPoolWrapper) :
         ConnectionIdProvider {
     constructor(connectionString: String) : this(ConnectionPoolWrapper(connectionString))
     constructor(connectionString: String, dbUser: String?, dbPassword: String?) : this(
-        ConnectionPoolWrapper(
-            connectionString,
-            dbUser,
-            dbPassword
-        )
+            ConnectionPoolWrapper(
+                    connectionString,
+                    dbUser,
+                    dbPassword
+            )
     )
 
     constructor(connectionString: String, connectionProperties: Properties) : this(
-        ConnectionPoolWrapper(
-            connectionString,
-            connectionProperties
-        )
+            ConnectionPoolWrapper(
+                    connectionString,
+                    connectionProperties
+            )
     )
 
-    private val idsTable = Table(
-        "connectionids", ColumnList(
-            Column("id", Type.CHAR, listOf(8), listOf(PrimaryKeyConstraint())),
-            Column("passwordhash", Type.VARCHAR, listOf(64))
-        )
-    )
-
-    private val schema = Schema(listOf(idsTable))
-
-    init {
-        connectionPoolWrapper.getConnectionAndCommit { schema.createIfNecessary(it);true }
+    object ConnectionIDs : org.jetbrains.exposed.sql.Table("connectionids") {
+        val id = varchar("id", 8).primaryKey()
+        val passwordHash = varchar("passwordhash", 64)
     }
 
-    override fun getNewId(): Id {
-        logger.trace("Creating a new id...")
-        var connectionIdAsString: String
-        do {
-            var connectionId = Random.nextInt()
-            if (connectionId < 0)
-                connectionId = -connectionId
-
-            connectionIdAsString = connectionId.toString(16)
-        } while (containsId(connectionIdAsString))
-
-        var passwordAsInt = Random.nextInt()
-        if (passwordAsInt < 0)
-            passwordAsInt = -passwordAsInt
-
-        val result = Id(connectionIdAsString, passwordAsInt.toString(16))
-        val hashedPassword = generateSha251Hash(result.password!!)
-
-        connectionPoolWrapper.getConnectionAndCommit {
-            idsTable.insertInto(
-                it,
-                result.connectionId,
-                hashedPassword
-            );true
+    init {
+        transaction(connectionPoolWrapper.exposedDatabase) {
+            SchemaUtils.createMissingTablesAndColumns(ConnectionIDs)
         }
-        return result
+    }
+
+    override fun saveNewId(id: Id) {
+        val hashedPassword = generateSha251Hash(id.password!!)
+
+        transaction(connectionPoolWrapper.exposedDatabase) {
+            ConnectionIDs.insert {
+                it[ConnectionIDs.id] = id.connectionId!!
+                it[passwordHash] = hashedPassword
+            }
+        }
     }
 
     override fun deleteId(id: String): Id? {
         logger.trace("Deleting an id...")
         val result = get(id)
-        connectionPoolWrapper.getConnectionAndCommit {
-            val statement = it.prepareStatement("DELETE FROM ${idsTable.name} WHERE id = ?")
-            statement.setString(1, id)
-            statement.executeUpdate()
-            true
+        transaction(connectionPoolWrapper.exposedDatabase) {
+            ConnectionIDs.deleteWhere {
+                ConnectionIDs.id eq id
+            }
         }
         return result
     }
@@ -99,36 +80,19 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
     override fun get(id: String): Id? {
         var result: Id? = null
 
-        connectionPoolWrapper.getConnectionAndCommit {
+        transaction(connectionPoolWrapper.exposedDatabase) {
             logger.debug("Getting the id info for a specified connection id...")
-            val statement =
-                    it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
-            statement.setString(1, id)
-            val resultSet = statement.executeQuery()!!
-            if (resultSet.next())
-                result = Id(id, resultSet.getString(2))
-            true
-        }
-
-        return result
-    }
-
-    override fun containsId(id: String?): Boolean {
-        var result = false
-        connectionPoolWrapper.getConnectionAndCommit {
-            val statement = it.prepareStatement("SELECT * FROM ${idsTable.name} WHERE id = ?")!!
-            statement.setString(1, id)
-            result = statement.executeQuery().next()
-            true
+            val query = ConnectionIDs.select { ConnectionIDs.id eq id }
+            result = (if (query.empty()) null else Id(id, query.first()[ConnectionIDs.passwordHash]))
         }
         return result
     }
+
+    override fun containsId(id: String?) = if (id == null) false else get(id) != null
 
     override fun reset() {
-        connectionPoolWrapper.getConnectionAndCommit {
-            val statement = it.createStatement()
-            statement.executeUpdate("DELETE FROM ${idsTable.name}")
-            true
+        transaction(connectionPoolWrapper.exposedDatabase) {
+            ConnectionIDs.deleteAll()
         }
     }
 

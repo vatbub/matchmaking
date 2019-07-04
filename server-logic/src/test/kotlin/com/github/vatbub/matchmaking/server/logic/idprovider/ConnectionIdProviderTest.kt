@@ -43,6 +43,34 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
     }
 
     @Test
+    fun noDuplicateIdTest() {
+        val actualProvider = newObjectUnderTest()
+        var containsIdCallCount = 0
+        var firstGeneratedId: String? = null
+        val wrapper = object : ConnectionIdProvider {
+            override fun saveNewId(id: Id) = actualProvider.saveNewId(id)
+            override fun deleteId(id: String) = actualProvider.deleteId(id)
+            override fun get(id: String) = actualProvider[id]
+            override fun reset() = actualProvider.reset()
+
+            override fun containsId(id: String?): Boolean {
+                containsIdCallCount++
+                if (containsIdCallCount == 1) {
+                    firstGeneratedId = id
+                    return true
+                }
+
+                return actualProvider.containsId(id)
+            }
+
+        }
+
+        val newId = wrapper.getNewId()
+        Assertions.assertTrue(containsIdCallCount > 1)
+        Assertions.assertNotEquals(firstGeneratedId, newId.connectionId)
+    }
+
+    @Test
     fun negativeContainsIdTest() {
         val testValue = (4567876543).toString(16)
         Assertions.assertFalse(newObjectUnderTest().containsId(testValue))
@@ -113,8 +141,8 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
         val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
-            NotAuthorized,
-            connectionIdProvider.isAuthorized(Id(id.connectionId, TestUtils.getRandomHexString(id.password)))
+                NotAuthorized,
+                connectionIdProvider.isAuthorized(Id(id.connectionId, TestUtils.getRandomHexString(id.password)))
         )
     }
 
@@ -123,8 +151,8 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
         val connectionIdProvider = newObjectUnderTest()
         val id = connectionIdProvider.getNewId()
         Assertions.assertEquals(
-            NotFound,
-            connectionIdProvider.isAuthorized(Id(TestUtils.getRandomHexString(id.connectionId), id.password))
+                NotFound,
+                connectionIdProvider.isAuthorized(Id(TestUtils.getRandomHexString(id.connectionId), id.password))
         )
     }
 
