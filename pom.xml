@@ -51,7 +51,7 @@
     <parent>
         <groupId>com.github.vatbub</groupId>
         <artifactId>parentPom</artifactId>
-        <version>0.0.26-SNAPSHOT</version>
+        <version>0.0.27-SNAPSHOT</version>
     </parent>
 
     <artifactId>matchmaking.parent</artifactId>
