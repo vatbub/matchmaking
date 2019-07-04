@@ -198,8 +198,8 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
         val oldServerContext = serverServlet.serverContext
         val idDbName = "servletServerTestNewIdDb"
         val roomDbName = "servletServerTestNewRoomDb"
-        val newConfiguration = Configuration(IdProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:hsqldb:mem:$idDbName", "SA", "")),
-                RoomProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:hsqldb:mem:$roomDbName", "SA", "")))
+        val newConfiguration = Configuration(IdProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:h2:mem:$idDbName", "SA", "")),
+                RoomProviderConfig(ProviderType.Jdbc, JdbcConfig("jdbc:h2:mem:$roomDbName", "SA", "")))
         val newServerContext = newConfiguration.getAsServerContext()
         ConfigurationManager.currentConfiguration = newConfiguration
         newServerContext.resetMessageHandlers()
