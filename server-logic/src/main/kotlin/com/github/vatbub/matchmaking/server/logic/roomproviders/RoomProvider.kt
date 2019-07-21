@@ -231,6 +231,16 @@ abstract class RoomProvider {
         return deletedRooms
     }
 
+    open fun deleteRooms(filter: (Room) -> Boolean): List<Room> {
+        val deletedRooms = mutableListOf<Room>()
+        getAllRooms().forEach {
+            if (!filter(it)) return@forEach
+            deleteRoom(it.id)
+            deletedRooms.add(it)
+        }
+        return deletedRooms
+    }
+
     /**
      * Deletes all rooms
      */

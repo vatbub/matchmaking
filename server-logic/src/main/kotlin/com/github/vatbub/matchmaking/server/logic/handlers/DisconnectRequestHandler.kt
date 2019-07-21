@@ -21,7 +21,6 @@ package com.github.vatbub.matchmaking.server.logic.handlers
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.requests.DisconnectRequest
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
@@ -36,26 +35,15 @@ class DisconnectRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithR
     override fun canHandle(request: Request) = request is DisconnectRequest
 
     override fun handle(request: DisconnectRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
-        val roomIdsToDelete = mutableListOf<String>()
         val disconnectedRoomIds = mutableListOf<String>()
-        roomProvider.beginTransactionForAllRooms { roomTransaction ->
-            if (roomTransaction.room.hostUserConnectionId == request.connectionId)
-                roomIdsToDelete.add(roomTransaction.room.id)
-
-            val usersToDisconnect = mutableListOf<User>()
-            for (user in roomTransaction.room.connectedUsers) {
-                if (user.connectionId == request.connectionId) {
-                    if (!disconnectedRoomIds.contains(roomTransaction.room.id))
-                        disconnectedRoomIds.add(roomTransaction.room.id)
-                    usersToDisconnect.add(user)
-                }
-            }
-
+        roomProvider.beginTransactionsForRoomsWithFilter({ it.connectedUsers.find { user -> user.connectionId == request.connectionId } != null }, { roomTransaction ->
+            disconnectedRoomIds.add(roomTransaction.room.id)
+            val usersToDisconnect = roomTransaction.room.connectedUsers.filter { it.connectionId == request.connectionId }
             roomTransaction.room.connectedUsers.removeAll(usersToDisconnect)
             roomTransaction.commit()
-        }
+        })
 
-        val deletedRooms = roomProvider.deleteRooms(*roomIdsToDelete.toTypedArray())
+        val deletedRooms = roomProvider.deleteRooms { it.hostUserConnectionId == request.connectionId }
         val disconnectedRooms = roomProvider.getRoomsById(disconnectedRoomIds).toList()
 
         return DisconnectResponse(request.connectionId, disconnectedRooms, deletedRooms)

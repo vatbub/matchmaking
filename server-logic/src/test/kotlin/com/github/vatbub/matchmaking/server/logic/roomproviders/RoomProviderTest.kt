@@ -44,20 +44,20 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     @Test
     fun createRoomTest() {
         val expectedRooms = listOf(
-            Room("", "325f6f32", listOf("vatbub", "mo-mar"), listOf("leoll"), 2, 5),
-            Room("", "22321b1b", listOf("heykey", "mylord"), listOf("leoll"), 4, 10),
-            Room("", "0208e980", null, null, 3, 4),
-            Room("", "29c806f4")
+                Room("", "325f6f32", listOf("vatbub", "mo-mar"), listOf("leoll"), 2, 5),
+                Room("", "22321b1b", listOf("heykey", "mylord"), listOf("leoll"), 4, 10),
+                Room("", "0208e980", null, null, 3, 4),
+                Room("", "29c806f4")
         )
 
         val roomIds = mutableListOf<String>()
         for (expectedRoom in expectedRooms) {
             val room = newObjectUnderTest().createNewRoom(
-                expectedRoom.hostUserConnectionId,
-                expectedRoom.whitelist,
-                expectedRoom.blacklist,
-                expectedRoom.minRoomSize,
-                expectedRoom.maxRoomSize
+                    expectedRoom.hostUserConnectionId,
+                    expectedRoom.whitelist,
+                    expectedRoom.blacklist,
+                    expectedRoom.minRoomSize,
+                    expectedRoom.maxRoomSize
             )
             Assertions.assertEquals(expectedRoom.hostUserConnectionId, room.hostUserConnectionId)
             Assertions.assertEquals(expectedRoom.whitelist, room.whitelist)
@@ -121,16 +121,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         val roomProvider = newObjectUnderTest()
         val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         for (hostConnectionId in hostConnectionIds) {
             var createdRoom: Room? = null
@@ -156,16 +156,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         val roomProvider = newObjectUnderTest()
         val roomsToGet = mutableListOf("21e8b855", "36f1d82b")
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         for (hostConnectionId in hostConnectionIds) {
             var createdRoom: Room? = null
@@ -212,16 +212,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun deleteRoomsTest() {
         val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         val rooms = mutableListOf<Room>()
         val roomIds = mutableListOf<String>()
@@ -244,6 +244,51 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         for (room in rooms) {
             Assertions.assertFalse(roomProvider.containsRoom(room.id))
             Assertions.assertNull(roomProvider[room.id])
+        }
+    }
+
+    @Test
+    fun deleteRoomsWithFilterTest() {
+        val roomProvider = newObjectUnderTest()
+        val hostConnectionIds = listOf(
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
+        )
+        val rooms = mutableListOf<Room>()
+        val roomIds = mutableListOf<String>()
+
+        for (hostConnectionId in hostConnectionIds) {
+            val room = roomProvider.createNewRoom(hostConnectionId)
+            rooms.add(room)
+            roomIds.add(room.id)
+        }
+
+        for (room in rooms) {
+            Assertions.assertTrue(roomProvider.containsRoom(room.id))
+            Assertions.assertNotNull(roomProvider[room.id])
+        }
+
+        val deletedRooms = roomProvider.deleteRooms { it.hostUserConnectionId == hostConnectionIds[0] }
+
+        Assertions.assertEquals(1, deletedRooms.size)
+        Assertions.assertEquals(rooms[0], deletedRooms[0])
+
+        for (room in rooms) {
+            if (room.hostUserConnectionId == hostConnectionIds[0]) {
+                Assertions.assertFalse(roomProvider.containsRoom(room.id))
+                Assertions.assertNull(roomProvider[room.id])
+            } else {
+                Assertions.assertTrue(roomProvider.containsRoom(room.id))
+                Assertions.assertNotNull(roomProvider[room.id])
+            }
         }
     }
 
@@ -272,16 +317,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun clearRoomsTest() {
         val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
 
         for (hostConnectionId in hostConnectionIds) {
@@ -299,16 +344,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun getAllRoomsTest() {
         val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         val createdRooms = List(hostConnectionIds.size) { roomProvider.createNewRoom(hostConnectionIds[it]) }
 
@@ -432,16 +477,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun beginTransactionForAllRoomsTest() {
         val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         val createdRooms = List(hostConnectionIds.size) { roomProvider.createNewRoom(hostConnectionIds[it]) }
 
@@ -460,16 +505,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         val roomProvider = newObjectUnderTest()
         val targetConnectionId = "250b7528"
         val hostConnectionIds = listOf(
-            targetConnectionId,
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                targetConnectionId,
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
 
         for (id in hostConnectionIds)
@@ -477,12 +522,12 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
 
         var callCount = 0
         roomProvider.beginTransactionsForRoomsWithFilter(
-            { room -> room.hostUserConnectionId == targetConnectionId },
-            { roomTransaction ->
-                callCount++
-                Assertions.assertEquals(targetConnectionId, roomTransaction.room.hostUserConnectionId)
-                roomTransaction.abort()
-            })
+                { room -> room.hostUserConnectionId == targetConnectionId },
+                { roomTransaction ->
+                    callCount++
+                    Assertions.assertEquals(targetConnectionId, roomTransaction.room.hostUserConnectionId)
+                    roomTransaction.abort()
+                })
 
         Assertions.assertEquals(1, callCount)
     }
@@ -532,12 +577,12 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
 
         var callCount = 0
         roomProvider.beginTransactionsWithRooms(
-            ids = *createdRoomIds.toTypedArray(),
-            onTransactionAvailable = { transaction ->
-                callCount++
-                Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
-                transaction.abort()
-            })
+                ids = *createdRoomIds.toTypedArray(),
+                onTransactionAvailable = { transaction ->
+                    callCount++
+                    Assertions.assertTrue(createdRoomIds.contains(transaction.room.id))
+                    transaction.abort()
+                })
 
         Assertions.assertEquals(createdRoomIds.size - 1, callCount)
     }
@@ -654,16 +699,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         val roomProvider = newObjectUnderTest()
         val targetConnectionId = "250b7528"
         val hostConnectionIds = listOf(
-            targetConnectionId,
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                targetConnectionId,
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
 
         for (id in hostConnectionIds)
@@ -679,16 +724,16 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun forEachTest() {
         val roomProvider = newObjectUnderTest()
         val hostConnectionIds = listOf(
-            "250b7528",
-            "2ac2ed78",
-            "2d4d21d8",
-            "19af35dc",
-            "10a032a5",
-            "0cc14cbe",
-            "351a4d9a",
-            "16567c41",
-            "0d9d3410",
-            "32f5e17c"
+                "250b7528",
+                "2ac2ed78",
+                "2d4d21d8",
+                "19af35dc",
+                "10a032a5",
+                "0cc14cbe",
+                "351a4d9a",
+                "16567c41",
+                "0d9d3410",
+                "32f5e17c"
         )
         val createdRooms = List(hostConnectionIds.size) { roomProvider.createNewRoom(hostConnectionIds[it]) }
 
