@@ -84,6 +84,11 @@ abstract class ConnectionIdProviderTest<T : ConnectionIdProvider> :
     }
 
     @Test
+    fun containsNullIdTest() {
+        Assertions.assertFalse(newObjectUnderTest().containsId(null))
+    }
+
+    @Test
     fun resetTest() {
         val connectionIdProvider = newObjectUnderTest()
         val numberOfIdsToCreate = 10

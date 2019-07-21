@@ -88,7 +88,7 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
         return result
     }
 
-    override fun containsId(id: String?) = if (id == null) false else get(id) != null
+    override fun containsId(id: String?) = (id != null && get(id) != null)
 
     override fun reset() {
         transaction(connectionPoolWrapper.exposedDatabase) {
