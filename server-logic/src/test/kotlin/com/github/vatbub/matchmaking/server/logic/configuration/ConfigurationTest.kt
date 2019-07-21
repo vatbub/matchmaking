@@ -19,13 +19,13 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
+import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.server.logic.JndiTestUtils
 import com.github.vatbub.matchmaking.server.logic.idprovider.JdbcIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import com.google.gson.Gson
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -134,7 +134,7 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
     fun readConfigFileTest(@TempDir tempDir: Path) {
         val configFile = tempDir.resolve("config.json").toFile()!!
         val originalConfiguration = Configuration()
-        FileWriter(configFile, false).use { it.write(Gson().toJson(originalConfiguration)) }
+        FileWriter(configFile, false).use { it.write(toJson(originalConfiguration)) }
         Assertions.assertTrue(configFile.exists())
         Assertions.assertTrue(configFile.isFile)
         val readResult = ConfigurationManager.readConfigurationFile(configFile)

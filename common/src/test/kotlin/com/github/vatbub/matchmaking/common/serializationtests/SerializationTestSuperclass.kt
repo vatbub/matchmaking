@@ -24,11 +24,12 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
+import com.github.vatbub.matchmaking.common.fromJson
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
+import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import com.google.gson.GsonBuilder
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
@@ -63,10 +64,9 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
 
     @Test
     fun serializationTest() {
-        val gson = GsonBuilder().setPrettyPrinting().create()
         val originalObject = newObjectUnderTest()
-        val json = gson.toJson(originalObject)
-        val deserializedObject: T = gson.fromJson<T>(json, clazz)
+        val json = toJson(originalObject, prettify = true)
+        val deserializedObject: T = fromJson(json, clazz)
         Assertions.assertEquals(originalObject, deserializedObject)
     }
 

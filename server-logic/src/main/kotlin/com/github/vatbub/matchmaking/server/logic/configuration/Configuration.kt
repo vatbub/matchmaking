@@ -19,6 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
+import com.github.vatbub.matchmaking.common.fromJson
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.ProviderType.Jdbc
@@ -27,7 +28,6 @@ import com.github.vatbub.matchmaking.server.logic.idprovider.JdbcIdProvider
 import com.github.vatbub.matchmaking.server.logic.idprovider.MemoryIdProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.JdbcRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
-import com.google.gson.Gson
 import java.io.File
 import java.io.FileReader
 import kotlin.properties.Delegates
@@ -96,7 +96,7 @@ class ConfigurationManager {
 
         logger.info("File found, reading config file... ")
         var result: Configuration? = null
-        FileReader(fileToRead).use { result = Gson().fromJson(it, Configuration::class.java) }
+        FileReader(fileToRead).use { result = fromJson(it, Configuration::class.java) }
         return result!!
     }
 

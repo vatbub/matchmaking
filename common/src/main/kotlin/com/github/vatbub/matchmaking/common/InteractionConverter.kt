@@ -19,22 +19,18 @@
  */
 package com.github.vatbub.matchmaking.common
 
-import com.google.gson.Gson
-
 object InteractionConverter {
-    private val gson = Gson()
-
-    fun serialize(serverInteraction: ServerInteraction): String = gson.toJson(serverInteraction)
+    fun serialize(serverInteraction: ServerInteraction): String = toJson(serverInteraction)
 
     fun <T : Request> deserializeRequest(serializedRequest: String): T {
-        val abstractRequest = gson.fromJson<Request>(serializedRequest, Request::class.java)
+        val abstractRequest = fromJson(serializedRequest, Request::class.java)
         val requestClass = Class.forName(abstractRequest.className)
-        return gson.fromJson<T>(serializedRequest, requestClass)
+        return fromJson<T>(serializedRequest, requestClass)
     }
 
     fun <T : ResponseImpl> deserializeResponse(serializedResponse: String): T {
-        val abstractResponse = gson.fromJson<ResponseImpl>(serializedResponse, ResponseImpl::class.java)
+        val abstractResponse = fromJson(serializedResponse, ResponseImpl::class.java)
         val responseClass = Class.forName(abstractResponse.className)
-        return gson.fromJson<T>(serializedResponse, responseClass)
+        return fromJson<T>(serializedResponse, responseClass)
     }
 }

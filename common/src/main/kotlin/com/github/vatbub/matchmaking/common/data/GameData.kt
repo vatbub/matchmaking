@@ -20,7 +20,7 @@
 package com.github.vatbub.matchmaking.common.data
 
 import com.github.vatbub.matchmaking.common.data.GameData.Companion.MatchesPrimitiveClassResult.*
-import com.google.gson.GsonBuilder
+import com.github.vatbub.matchmaking.common.toJson
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -47,9 +47,6 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
     constructor() : this("")
 
     companion object {
-        @JvmStatic
-        private val gson = GsonBuilder().setPrettyPrinting().create()
-
         internal enum class MatchesPrimitiveClassResult {
             IsPrimitiveAndMatches, IsPrimitiveButDoesNotMatch, NotAPrimitive
         }
@@ -163,6 +160,6 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
     }
 
     override fun toString(): String {
-        return gson.toJson(this)
+        return toJson(this)
     }
 }

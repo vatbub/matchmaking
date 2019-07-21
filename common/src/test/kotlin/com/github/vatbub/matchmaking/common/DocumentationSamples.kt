@@ -29,8 +29,6 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Test
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -38,21 +36,13 @@ import java.net.InetAddress
 
 class DocumentationSamples {
     companion object {
-        private var backingGson: Gson? = null
-        private val gson: Gson
-            get() {
-                if (backingGson == null)
-                    backingGson = GsonBuilder().setPrettyPrinting().create()
-                return backingGson!!
-            }
-
         const val connectionId = "79f96ee2"
         const val password = "3450e711"
         val room = Room("73065963", connectionId, listOf("heykey", "mo-mar"), listOf("leoll"))
     }
 
     private fun <T : Any> serializeAndPrint(objectToPrint: T) {
-        println(gson.toJson(objectToPrint))
+        println(toJson(objectToPrint, prettify = true))
     }
 
     @Test

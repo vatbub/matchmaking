@@ -23,16 +23,14 @@ import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultConnectionId
 import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
-import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class InteractionConverterDeserializationTestsTest {
-    private val gson = GsonBuilder().setPrettyPrinting().create()
     @Test
     fun requestCastTest() {
         val request = DummyRequest(defaultConnectionId, defaultPassword)
-        val serializedRequest = gson.toJson(request)
+        val serializedRequest = toJson(request)
         var deserializedRequest = DummyRequest()
         Assertions.assertDoesNotThrow {
             deserializedRequest = InteractionConverter.deserializeRequest(serializedRequest)
@@ -43,7 +41,7 @@ class InteractionConverterDeserializationTestsTest {
     @Test
     fun responseCastTest() {
         val response = DummyResponse(defaultConnectionId)
-        val serializedResponse = gson.toJson(response)
+        val serializedResponse = toJson(response)
         var deserializedResponse = DummyResponse(null)
         Assertions.assertDoesNotThrow {
             deserializedResponse = InteractionConverter.deserializeResponse(serializedResponse)

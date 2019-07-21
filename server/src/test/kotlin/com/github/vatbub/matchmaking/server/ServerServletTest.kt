@@ -19,9 +19,7 @@
  */
 package com.github.vatbub.matchmaking.server
 
-import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.ResponseImpl
-import com.github.vatbub.matchmaking.common.ServerInteraction
+import com.github.vatbub.matchmaking.common.*
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
@@ -30,8 +28,6 @@ import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.*
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.jsunsoft.http.HttpRequestBuilder
 import org.apache.commons.io.IOUtils
 import org.junit.jupiter.api.AfterAll
@@ -54,7 +50,6 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     private val api: ServerServlet = ServerServlet(serverContext)
     private val tomcatTestUtils = TomcatTestUtils(tomcatPort, "", "ServerServlet", api, "/$apiSuffix")
 
-    private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val connectionId = (4567876543).toString(16)
     private val password = (5638290234).toString(16)
 
@@ -103,17 +98,17 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     }
 
     private fun <T : Response> doRequest(request: ServerInteraction): T {
-        val json = doRequest(gson.toJson(request))
-        val response = gson.fromJson<Response>(json, ResponseImpl::class.java)
-        val clazz = Class.forName(response.className)
-        return gson.fromJson<T>(json, clazz)
+        val json = doRequest(toJson(request))
+        val response = fromJson(json, ResponseImpl::class.java)
+        val clazz = Class.forName(response.className) as Class<T>
+        return fromJson<T>(json, clazz)
     }
 
     private fun doRequestNoTypeParam(request: ServerInteraction): Response {
-        val json = doRequest(gson.toJson(request))
-        val response = gson.fromJson<Response>(json, ResponseImpl::class.java)
-        val clazz = Class.forName(response.className)
-        return gson.fromJson<Response>(json, clazz)
+        val json = doRequest(toJson(request))
+        val response = fromJson(json, ResponseImpl::class.java)
+        val clazz = Class.forName(response.className) as Class<Response>
+        return fromJson(json, clazz)
     }
 
     @Test

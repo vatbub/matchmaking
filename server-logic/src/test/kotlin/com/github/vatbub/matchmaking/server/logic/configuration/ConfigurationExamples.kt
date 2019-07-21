@@ -19,11 +19,10 @@
  */
 package com.github.vatbub.matchmaking.server.logic.configuration
 
-import com.google.gson.GsonBuilder
+import com.github.vatbub.matchmaking.common.toJson
 import org.junit.jupiter.api.Test
 
 class ConfigurationExamples {
-    private val gson = GsonBuilder().setPrettyPrinting().create()!!
 
     @Test
     fun elephantPostgresExample() {
@@ -37,6 +36,6 @@ class ConfigurationExamples {
                 IdProviderConfig(ProviderType.Jdbc, jdbcConfig),
                 RoomProviderConfig(ProviderType.Jdbc, jdbcConfig)
         )
-        println(gson.toJson(configuration))
+        println(toJson(configuration, prettify = true))
     }
 }

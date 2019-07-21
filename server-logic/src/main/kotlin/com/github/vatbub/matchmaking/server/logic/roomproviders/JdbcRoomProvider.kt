@@ -22,13 +22,14 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
+import com.github.vatbub.matchmaking.common.fromJson
 import com.github.vatbub.matchmaking.common.logger
+import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.ObservableRoom
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.*
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.OnModificationAction.CASCADE
 import com.github.vatbub.matchmaking.server.logic.roomproviders.database.Type.*
-import com.google.gson.Gson
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -53,8 +54,6 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
                     connectionProperties
             )
     )
-
-    private val gson = Gson()
 
     private val pendingTransactions = mutableMapOf<RoomTransaction, Connection>()
 
@@ -146,7 +145,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
 
     private fun saveGameData(connection: Connection, gameDataId: Int? = null, gameData: GameData): Int {
         logger.trace("Saving game data, gameDataId = $gameDataId")
-        val json = gson.toJson(gameData.contents)
+        val json = toJson(gameData.contents)
 
         if (gameDataId != null) {
             val updateStatement =
@@ -241,7 +240,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
         if (!queryResult.next()) return null
 
         val contentsJson = queryResult.getString(4)
-        val contents = gson.fromJson<LinkedHashMap<String, Any>>(contentsJson, LinkedHashMap::class.java)
+        val contents = fromJson<LinkedHashMap<String, Any>>(contentsJson, LinkedHashMap::class.java)
         val gameData = GameData(queryResult.getString(3), contents)
         gameData.createdAtUtc = queryResult.getTimestamp(2).toInstant()
         return gameData
