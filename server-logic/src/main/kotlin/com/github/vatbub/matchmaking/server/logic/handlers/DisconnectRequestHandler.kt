@@ -36,12 +36,14 @@ class DisconnectRequestHandler(roomProvider: RoomProvider) : RequestHandlerWithR
 
     override fun handle(request: DisconnectRequest, sourceIp: Inet4Address?, sourceIpv6: Inet6Address?): Response {
         val disconnectedRoomIds = mutableListOf<String>()
-        roomProvider.beginTransactionsForRoomsWithFilter({ it.connectedUsers.find { user -> user.connectionId == request.connectionId } != null }, { roomTransaction ->
-            disconnectedRoomIds.add(roomTransaction.room.id)
-            val usersToDisconnect = roomTransaction.room.connectedUsers.filter { it.connectionId == request.connectionId }
-            roomTransaction.room.connectedUsers.removeAll(usersToDisconnect)
-            roomTransaction.commit()
-        })
+        // Jacoco thinks that we missed something here in the Unit tests but I can't think of anything
+        roomProvider.beginTransactionsForRoomsWithFilter({ it.connectedUsers.find { user -> user.connectionId == request.connectionId } != null },
+                { roomTransaction ->
+                    disconnectedRoomIds.add(roomTransaction.room.id)
+                    val usersToDisconnect = roomTransaction.room.connectedUsers.filter { it.connectionId == request.connectionId }
+                    roomTransaction.room.connectedUsers.removeAll(usersToDisconnect)
+                    roomTransaction.commit()
+                })
 
         val deletedRooms = roomProvider.deleteRooms { it.hostUserConnectionId == request.connectionId }
         val disconnectedRooms = roomProvider.getRoomsById(disconnectedRoomIds).toList()

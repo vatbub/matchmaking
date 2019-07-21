@@ -90,4 +90,23 @@ class DisconnectRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSup
         val handler = DisconnectRequestHandler(MemoryRoomProvider())
         Assertions.assertTrue(handler.needsAuthentication(request))
     }
+
+    @Test
+    fun notEqualsOtherRoomProviderHandlerTest() {
+        val roomProvider = MemoryRoomProvider()
+        Assertions.assertNotEquals(DisconnectRequestHandler(roomProvider), JoinOrCreateRoomRequestHandler(roomProvider))
+    }
+
+    @Test
+    fun handleRequestWithoutConnectionId() {
+        val request = DisconnectRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword)
+        removeConnectionIdAndPassword(request)
+        val roomProvider = MemoryRoomProvider()
+        val handler = DisconnectRequestHandler(roomProvider)
+        val response = handler.handle(request, null, null)
+        Assertions.assertNull(response.connectionId)
+        response as DisconnectResponse
+        Assertions.assertEquals(0, response.disconnectedRooms.size)
+        Assertions.assertEquals(0, response.destroyedRooms.size)
+    }
 }

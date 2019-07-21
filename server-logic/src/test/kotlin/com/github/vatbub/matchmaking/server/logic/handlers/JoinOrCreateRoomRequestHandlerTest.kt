@@ -19,13 +19,11 @@
  */
 package com.github.vatbub.matchmaking.server.logic.handlers
 
-import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
-import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
@@ -97,11 +95,7 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessT
                 "vatbub",
                 maxRoomSize = 2
         )
-        println(toJson(request, true))
-        Request::class.java.fields.forEach { println(it.name) }
-        val connectionIdField = Request::class.java.getDeclaredField("connectionId")
-        connectionIdField.isAccessible = true
-        connectionIdField.set(request, null)
+        removeConnectionIdAndPassword(request)
 
         Assertions.assertThrows(IllegalArgumentException::class.java) { handler.handle(request, null, null) }
     }
