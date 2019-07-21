@@ -19,13 +19,16 @@
  */
 package com.github.vatbub.matchmaking.server.logic.handlers
 
+import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
+import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -86,6 +89,24 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessT
     }
 
     @Test
+    fun handleRequestWithoutConnectionIdTest() {
+        val request = JoinOrCreateRoomRequest(
+                TestUtils.defaultConnectionId,
+                TestUtils.defaultPassword,
+                Operation.JoinRoom,
+                "vatbub",
+                maxRoomSize = 2
+        )
+        println(toJson(request, true))
+        Request::class.java.fields.forEach { println(it.name) }
+        val connectionIdField = Request::class.java.getDeclaredField("connectionId")
+        connectionIdField.isAccessible = true
+        connectionIdField.set(request, null)
+
+        Assertions.assertThrows(IllegalArgumentException::class.java) { handler.handle(request, null, null) }
+    }
+
+    @Test
     fun handleRequestWithResultNothingTest() {
         val request = JoinOrCreateRoomRequest(
                 TestUtils.defaultConnectionId,
@@ -132,5 +153,19 @@ class JoinOrCreateRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessT
                         "vatbub"
                 )
         Assertions.assertTrue(handler.needsAuthentication(request))
+    }
+
+    @Test
+    fun unableToCreateTransactionTest() {
+        roomProvider = object : MemoryRoomProvider() {
+            override fun beginTransactionWithRoom(id: String): RoomTransaction? {
+                return null
+            }
+        }
+        handler = JoinOrCreateRoomRequestHandler(roomProvider)
+
+        val request = JoinOrCreateRoomRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, Operation.JoinOrCreateRoom, "vatbub")
+
+        Assertions.assertThrows(IllegalStateException::class.java) { handler.handle(request, null, null) }
     }
 }
