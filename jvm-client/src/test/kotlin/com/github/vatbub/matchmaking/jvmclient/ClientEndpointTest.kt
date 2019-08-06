@@ -45,6 +45,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
     }
 
     @Test
+    // TODO
     @Disabled("Cannot bind a server and a client on the same machine to the same port")
     fun sendRequestTest() {
         endpointUnderTest.connect()
