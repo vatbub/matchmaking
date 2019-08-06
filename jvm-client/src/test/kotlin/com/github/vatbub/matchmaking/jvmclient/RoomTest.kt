@@ -2,12 +2,13 @@ package com.github.vatbub.matchmaking.jvmclient
 
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.User
+import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
-class RoomTest {
+class RoomTest : KotlinTestSuperclass<Room>() {
     private val sampleDataRoom = DataRoom(TestUtils.getRandomHexString(), TestUtils.defaultConnectionId, listOf("heykey"), listOf("mo-mar, leoll"), 5, 10)
 
     private fun getClientRoom(isHost: Boolean = true) =
@@ -15,6 +16,58 @@ class RoomTest {
                 Room(TestUtils.defaultConnectionId, sampleDataRoom)
             else
                 Room(TestUtils.getRandomHexString(TestUtils.defaultConnectionId), sampleDataRoom)
+
+    override fun newObjectUnderTest() = getClientRoom()
+
+    override fun getCloneOf(instance: Room) = instance.copy()
+
+    @Test
+    override fun notEqualsTest() {
+        val original = Room(TestUtils.defaultConnectionId, DataRoom(
+                TestUtils.getRandomHexString(),
+                TestUtils.defaultConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        ))
+
+        val copy = Room(TestUtils.defaultConnectionId, DataRoom(
+                TestUtils.getRandomHexString(original.id),
+                original.hostUserConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        ))
+
+        Assertions.assertNotEquals(original, copy)
+        Assertions.assertNotSame(original, copy)
+    }
+
+    @Test
+    fun ownConnectionIdotEqualsTest() {
+        val original = Room(TestUtils.defaultConnectionId, DataRoom(
+                TestUtils.getRandomHexString(),
+                TestUtils.defaultConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        ))
+
+        val copy = Room(TestUtils.getRandomHexString(TestUtils.defaultConnectionId), DataRoom(
+                original.id,
+                original.hostUserConnectionId,
+                listOf("vatbub", "heykey"),
+                listOf("leoll"),
+                2,
+                5
+        ))
+
+        Assertions.assertNotEquals(original, copy)
+        Assertions.assertNotSame(original, copy)
+    }
 
     @Test
     fun idTest() {

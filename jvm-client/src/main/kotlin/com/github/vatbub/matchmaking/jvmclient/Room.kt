@@ -23,7 +23,7 @@ import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
-class Room( ownConnectionId: String, private val wrappedRoom: DataRoom) {
+class Room(private val ownConnectionId: String, private val wrappedRoom: DataRoom) {
     val id: String
         get() = wrappedRoom.id
     val hostUserConnectionId: String
@@ -45,4 +45,27 @@ class Room( ownConnectionId: String, private val wrappedRoom: DataRoom) {
         get() = wrappedRoom.gameStarted
     val dataToBeSentToTheHost: List<GameData>
         get() = wrappedRoom.dataToBeSentToTheHost.toList()
+
+
+    fun copy(ownConnectionId: String = this.ownConnectionId, wrappedRoom: DataRoom = this.wrappedRoom.copy()) =
+            Room(ownConnectionId, wrappedRoom)
+
+    @Suppress("DuplicatedCode")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Room
+
+        if (ownConnectionId != other.ownConnectionId) return false
+        if (wrappedRoom != other.wrappedRoom) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = ownConnectionId.hashCode()
+        result = 31 * result + wrappedRoom.hashCode()
+        return result
+    }
 }

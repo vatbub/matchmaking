@@ -43,17 +43,17 @@ enum class PollInterval(val timeToSleepBetweenUpdatesInMilliSeconds: Int) {
 }
 
 sealed class EndpointConfiguration {
-    class WebsocketEndpointConfig(hostUrl: URL) : EndpointConfiguration() {
+    data class WebsocketEndpointConfig(private val hostUrl: URL) : EndpointConfiguration() {
         private val suffix = "websocket"
         val finalUrl = URL(hostUrl, suffix)
     }
 
-    class HttpPollingEndpointConfig(hostUrl: URL, val pollInterval: PollInterval = PollInterval.Medium) : EndpointConfiguration() {
+    data class HttpPollingEndpointConfig(private val hostUrl: URL, val pollInterval: PollInterval = PollInterval.Medium) : EndpointConfiguration() {
         private val suffix = "matchmaking"
         val finalUrl = URL(hostUrl, suffix)
     }
 
-    class KryoEndpointConfiguration(val host: String, val tcpPort: Int = KryoCommon.defaultTcpPort, val udpPort: Int? = null, val timeout: Int = 5000) : EndpointConfiguration()
+    data class KryoEndpointConfiguration(val host: String, val tcpPort: Int = KryoCommon.defaultTcpPort, val udpPort: Int? = null, val timeout: Int = 5000) : EndpointConfiguration()
 }
 
 class Client(
@@ -99,6 +99,7 @@ class Client(
                     is EndpointConfiguration.HttpPollingEndpointConfig -> ClientEndpoint.HttpPollingEndpoint(it)
                     is EndpointConfiguration.KryoEndpointConfiguration -> ClientEndpoint.KryoEndpoint(it)
                 }
+                tempEndpoint!!.connect()
                 return@forEach
             } catch (e: Exception) {
                 logger.error("Unable to connect using this configuration, trying the next configuration (if there's more specified)...", e)

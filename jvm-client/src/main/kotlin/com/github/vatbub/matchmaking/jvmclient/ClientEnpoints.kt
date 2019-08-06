@@ -25,12 +25,13 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
-sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configuration: T) {
+sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
     fun <T : Response> sendRequest(request: Request, responseHandler: ((T) -> Unit)) {
         request.requestId = RequestIdGenerator.getNewId()
         sendRequestImpl(request, responseHandler)
@@ -39,17 +40,31 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
     abstract fun <T : Response> sendRequestImpl(request: Request, responseHandler: ((T) -> Unit))
     abstract fun abortRequestsOfType(sampleRequest: Request)
     abstract fun subscribeToRoom(connectionId: String, password: String, roomId: String, newRoomDataHandler: (DataRoom) -> Unit)
+    abstract fun connect()
     abstract fun terminateConnection()
     abstract val isConnected: Boolean
 
     internal fun verifyResponseIsNotAnException(response: Response) {
         when (response) {
-            is com.github.vatbub.matchmaking.common.responses.AuthorizationException -> throw AuthorizationExceptionWrapper(response)
+            is AuthorizationException -> throw AuthorizationExceptionWrapper(response)
             is BadRequestException -> throw BadRequestExceptionWrapper(response)
             is InternalServerErrorException -> throw InternalServerErrorExceptionWrapper(response)
             is NotAllowedException -> throw NotAllowedExceptionWrapper(response)
             is UnknownConnectionIdException -> throw UnknownConnectionIdExceptionWrapper(response)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClientEndpoint<*>) return false
+
+        if (configuration != other.configuration) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return configuration.hashCode()
     }
 
     class WebsocketEndpoint(configuration: EndpointConfiguration.WebsocketEndpointConfig) : ClientEndpoint<EndpointConfiguration.WebsocketEndpointConfig>(configuration) {
@@ -65,6 +80,10 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
         }
 
         override fun subscribeToRoom(connectionId: String, password: String, roomId: String, newRoomDataHandler: (DataRoom) -> Unit) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun connect() {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
@@ -90,6 +109,10 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
+        override fun connect() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
         override fun terminateConnection() {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
@@ -107,12 +130,6 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
 
         init {
             client.kryo.registerClasses()
-            client.start()
-            if (configuration.udpPort == null)
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort)
-            else
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
-
             client.addListener(KryoListener())
         }
 
@@ -123,6 +140,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
 
             override fun received(connection: Connection, obj: Any) {
                 synchronized(Lock) {
+                    logger.info("Client: Received: $obj")
                     if (obj is FrameworkMessage.KeepAlive) return
                     if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
                     this@KryoEndpoint.verifyResponseIsNotAnException(obj)
@@ -151,6 +169,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
         override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
             synchronized(Lock) {
                 pendingResponses.add(ResponseHandlerWrapper(request, responseHandler))
+                logger.info("Client: Sending: $request")
                 client.sendTCP(request)
             }
         }
@@ -166,11 +185,18 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
             sendRequest<SubscribeToRoomResponse>(SubscribeToRoomRequest(connectionId, password, roomId)) {}
         }
 
+        override fun connect() {
+            client.start()
+            if (configuration.udpPort == null)
+                client.connect(configuration.timeout, configuration.host, configuration.tcpPort)
+            else
+                client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
+        }
+
         override fun terminateConnection() {
             client.stop()
             client.dispose()
         }
-
     }
 }
 
