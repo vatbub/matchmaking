@@ -79,6 +79,9 @@ class Client(
                 ?: throw IllegalStateException("CurrentRoomId unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
     var currentRoom: Room? = null
         private set
+    private val safeCurrentRoom: Room
+        get() = currentRoom
+                ?: throw IllegalStateException("CurrentRoom unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
     val connected: Boolean
         get() = connectionId != null && password != null
     val roomConnected: Boolean
@@ -90,6 +93,7 @@ class Client(
         var tempEndpoint: ClientEndpoint<out EndpointConfiguration>? = null
         configurations.forEach {
             try {
+                if (tempEndpoint != null) return@forEach
                 tempEndpoint = when (it) {
                     is EndpointConfiguration.WebsocketEndpointConfig -> ClientEndpoint.WebsocketEndpoint(it)
                     is EndpointConfiguration.HttpPollingEndpointConfig -> ClientEndpoint.HttpPollingEndpoint(it)
@@ -105,11 +109,9 @@ class Client(
     }
 
     fun requestConnectionId() {
+        if (connected) return
         synchronized(this) {
-            if (connected) {
-                endpoint.abortRequestsOfType(GetConnectionIdRequest())
-                return
-            }
+            if (connected) return
             endpoint.sendRequest<GetConnectionIdResponse>(GetConnectionIdRequest()) {
                 connectionId = it.connectionId
                 password = it.password
@@ -127,17 +129,16 @@ class Client(
             joinOrCreateRoom(Operation.JoinOrCreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
 
     private fun joinOrCreateRoom(operation: Operation, userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) {
+        if (roomConnected) return
         synchronized(this) {
-            if (roomConnected) {
-                endpoint.abortRequestsOfType(JoinOrCreateRoomRequest("", "", Operation.JoinOrCreateRoom, ""))
-                throw IllegalStateException("Client is already connected to a room")
-            }
+            if (roomConnected) return
             endpoint.sendRequest<JoinOrCreateRoomResponse>(JoinOrCreateRoomRequest(safeConnectionId, safePassword, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize)) {
                 when (it.result) {
                     RoomCreated -> logger.debug("Room created: ${it.roomId}")
                     RoomJoined -> {
                         logger.debug("Room joined: ${it.roomId}")
-                        currentRoomId = it.roomId!!
+                        currentRoomId = it.roomId
+                                ?: throw IllegalArgumentException("Server sent an illegal response: roomId not specified")
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
                     }
                     Nothing -> logger.debug("Result of JoinOrCreateRoomRequest: Nothing")
@@ -147,7 +148,10 @@ class Client(
     }
 
     fun disconnect() {
+        if (!endpoint.isConnected) return
         synchronized(this) {
+            if (!endpoint.isConnected) return
+
             if (!connected) {
                 endpoint.terminateConnection()
                 return
@@ -180,8 +184,10 @@ class Client(
     }
 
     fun updateGameState(newGameState: GameData, processedData: List<GameData>) {
+        verifyIsHost()
+        if (safeCurrentRoom.gameStarted) return
         synchronized(this) {
-            verifyIsHost()
+            if (safeCurrentRoom.gameStarted) return
             endpoint.sendRequest<GetRoomDataResponse>(UpdateGameStateRequest(safeConnectionId, safePassword, safeCurrentRoomId, newGameState, processedData)) { processGetGameDataResponse(it) }
         }
     }

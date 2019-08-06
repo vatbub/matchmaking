@@ -40,18 +40,22 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
     abstract fun abortRequestsOfType(sampleRequest: Request)
     abstract fun subscribeToRoom(connectionId: String, password: String, roomId: String, newRoomDataHandler: (DataRoom) -> Unit)
     abstract fun terminateConnection()
+    abstract val isConnected: Boolean
 
     internal fun verifyResponseIsNotAnException(response: Response) {
         when (response) {
-            is AuthorizationException -> throw AuthorizationExceptionWrapper(response)
+            is com.github.vatbub.matchmaking.common.responses.AuthorizationException -> throw AuthorizationExceptionWrapper(response)
             is BadRequestException -> throw BadRequestExceptionWrapper(response)
-            is InternalServerErrorException -> InternalServerErrorExceptionWrapper(response)
+            is InternalServerErrorException -> throw InternalServerErrorExceptionWrapper(response)
             is NotAllowedException -> throw NotAllowedExceptionWrapper(response)
             is UnknownConnectionIdException -> throw UnknownConnectionIdExceptionWrapper(response)
         }
     }
 
     class WebsocketEndpoint(configuration: EndpointConfiguration.WebsocketEndpointConfig) : ClientEndpoint<EndpointConfiguration.WebsocketEndpointConfig>(configuration) {
+        override val isConnected: Boolean
+            get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
         override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
@@ -71,6 +75,9 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
     }
 
     class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
+        override val isConnected: Boolean
+            get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
         override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
@@ -90,6 +97,8 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(protected val configurati
     }
 
     class KryoEndpoint(configuration: EndpointConfiguration.KryoEndpointConfiguration) : ClientEndpoint<EndpointConfiguration.KryoEndpointConfiguration>(configuration) {
+        override val isConnected: Boolean
+            get() = client.isConnected
         private val client = Client()
         private val pendingResponses = mutableListOf<ResponseHandlerWrapper<*>>()
         private var newRoomDataHandlers = mutableMapOf<String, (DataRoom) -> Unit>()
