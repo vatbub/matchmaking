@@ -6,7 +6,7 @@ addons:
   sonarcloud:
     organization: "vatbub-github"
 jdk:
-- oraclejdk8
+  - openjdk8
 cache:
   directories:
   - "$HOME/.m2"
