@@ -26,7 +26,6 @@ import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -47,7 +46,7 @@ class DestroyRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSu
 
         Assertions.assertTrue(response is DestroyRoomResponse)
         response as DestroyRoomResponse
-        Assert.assertTrue(response.roomDestroyed)
+        Assertions.assertTrue(response.roomDestroyed)
     }
 
     @Test
@@ -83,7 +82,7 @@ class DestroyRoomRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSu
 
         Assertions.assertTrue(response is DestroyRoomResponse)
         response as DestroyRoomResponse
-        Assert.assertFalse(response.roomDestroyed)
+        Assertions.assertFalse(response.roomDestroyed)
     }
 
     @Test

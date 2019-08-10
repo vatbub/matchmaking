@@ -26,7 +26,6 @@ import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -66,8 +65,8 @@ class DisconnectRequestHandlerTest : RequestHandlerWithRoomProviderAccessTestSup
 
         Assertions.assertTrue(response is DisconnectResponse)
         response as DisconnectResponse
-        Assert.assertArrayEquals(hostedRooms.toTypedArray(), response.destroyedRooms.toTypedArray())
-        Assert.assertArrayEquals(connectedRooms.toTypedArray(), response.disconnectedRooms.toTypedArray())
+        Assertions.assertArrayEquals(hostedRooms.toTypedArray(), response.destroyedRooms.toTypedArray())
+        Assertions.assertArrayEquals(connectedRooms.toTypedArray(), response.disconnectedRooms.toTypedArray())
     }
 
     @Test

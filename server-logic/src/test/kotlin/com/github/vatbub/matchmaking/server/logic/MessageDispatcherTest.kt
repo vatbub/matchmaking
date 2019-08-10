@@ -35,7 +35,6 @@ import com.github.vatbub.matchmaking.server.logic.testing.dummies.DummyRequestHa
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.net.Inet4Address
@@ -139,7 +138,7 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
         Assertions.assertTrue(response is UnknownConnectionIdException)
         response as UnknownConnectionIdException
         Assertions.assertEquals("The specified connection id is not known to the server", response.message)
-        Assert.assertTrue(handler.handledRequests.isEmpty())
+        Assertions.assertTrue(handler.handledRequests.isEmpty())
     }
 
     @Test
@@ -160,7 +159,7 @@ class MessageDispatcherTest : KotlinTestSuperclass<MessageDispatcher>() {
         Assertions.assertTrue(response is AuthorizationException)
         response as AuthorizationException
         Assertions.assertEquals("Incorrect password", response.message)
-        Assert.assertTrue(handler.handledRequests.isEmpty())
+        Assertions.assertTrue(handler.handledRequests.isEmpty())
     }
 
     @Test

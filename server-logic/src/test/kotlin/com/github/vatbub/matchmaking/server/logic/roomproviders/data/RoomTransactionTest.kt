@@ -23,7 +23,6 @@ import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.server.logic.roomproviders.MemoryRoomProvider
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -41,7 +40,7 @@ class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
         val transaction1 = RoomTransaction(ObservableRoom(room), roomProvider)
 
         Assertions.assertEquals(transaction1, transaction1)
-        Assert.assertEquals(transaction1.hashCode(), transaction1.hashCode())
+        Assertions.assertEquals(transaction1.hashCode(), transaction1.hashCode())
     }
 
     @Test
@@ -53,7 +52,7 @@ class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
         val transaction2 = RoomTransaction(ObservableRoom(room), roomProvider)
 
         Assertions.assertNotEquals(transaction1, transaction2)
-        Assert.assertNotEquals(transaction1.hashCode(), transaction2.hashCode())
+        Assertions.assertNotEquals(transaction1.hashCode(), transaction2.hashCode())
     }
 
     @Test
@@ -66,7 +65,7 @@ class RoomTransactionTest : KotlinTestSuperclass<RoomTransaction>() {
         val transaction2 = roomProvider.beginTransactionWithRoom(room2.id)
 
         Assertions.assertNotEquals(transaction1, transaction2)
-        Assert.assertNotEquals(transaction1.hashCode(), transaction2.hashCode())
+        Assertions.assertNotEquals(transaction1.hashCode(), transaction2.hashCode())
     }
 
     @Test

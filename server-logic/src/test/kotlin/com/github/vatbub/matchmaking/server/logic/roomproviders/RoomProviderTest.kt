@@ -24,7 +24,6 @@ import com.github.vatbub.matchmaking.common.data.Room
 import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -467,7 +466,7 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
         val roomProvider = newObjectUnderTest()
         val room = roomProvider.createNewRoom(TestUtils.defaultConnectionId)
         val roomTransaction = roomProvider.beginTransactionWithRoom(room.id)
-        Assert.assertNotNull(roomTransaction)
+        Assertions.assertNotNull(roomTransaction)
         roomTransaction!!
         Assertions.assertEquals(room.id, roomTransaction.room.id)
         roomTransaction.abort()
@@ -536,7 +535,7 @@ abstract class RoomProviderTest<T : RoomProvider> : KotlinTestSuperclass<T>() {
     fun beginTransactionRoomNotFoundTest() {
         val roomProvider = newObjectUnderTest()
         val roomTransaction = roomProvider.beginTransactionWithRoom(TestUtils.getRandomHexString())
-        Assert.assertNull(roomTransaction)
+        Assertions.assertNull(roomTransaction)
     }
 
     @Test

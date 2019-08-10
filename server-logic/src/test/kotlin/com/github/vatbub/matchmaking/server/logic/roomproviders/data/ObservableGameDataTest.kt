@@ -22,7 +22,6 @@ package com.github.vatbub.matchmaking.server.logic.roomproviders.data
 import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import com.github.vatbub.matchmaking.testutils.TestUtils
-import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -71,8 +70,8 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
 
         observableGameData.replaceContents(newGameData)
         Assertions.assertEquals(newGameData, observableGameData.backingGameData)
-        Assert.assertTrue(onRemoveCalled)
-        Assert.assertTrue(onSetCalled)
+        Assertions.assertTrue(onRemoveCalled)
+        Assertions.assertTrue(onSetCalled)
     }
 
     @Test
@@ -90,7 +89,7 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
                 })
 
         observableGameData[expectedKey] = expectedValue
-        Assert.assertTrue(callbackCalled)
+        Assertions.assertTrue(callbackCalled)
     }
 
     @Test
@@ -111,7 +110,7 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
         })
 
         observableGameData[expectedKey] = expectedNewValue
-        Assert.assertTrue(callbackCalled)
+        Assertions.assertTrue(callbackCalled)
     }
 
     @Test
@@ -209,7 +208,7 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
         observableGameData[expectedKey] = expectedValue
 
         observableGameData.remove<Any>(expectedKey)
-        Assert.assertTrue(callbackCalled)
+        Assertions.assertTrue(callbackCalled)
     }
 
     @Test
