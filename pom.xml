@@ -75,6 +75,13 @@
         <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt, **/ServerInteraction.kt</sonar.exclusions>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:vatbub/${gitRepoName}.git</connection>
+        <url>https://github.com/vatbub/${gitRepoName}</url>
+        <developerConnection>scm:git:git@github.com:vatbub/${gitRepoName}.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>com.esotericsoftware</groupId>
