@@ -44,9 +44,10 @@ abstract class KotlinTestSuperclassWithExceptionHandlerForMultithreading<T> : Ko
     }
 
     @AfterEach
-    fun throwExceptionsFromOtherThreadsAndResetExceptionHandler(){
+    fun throwExceptionsFromOtherThreadsAndResetExceptionHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(previousExceptionHandler)
+        if (uncaughtExceptions.isNotEmpty()) System.err.println("Rethrowing uncaught exceptions...")
         uncaughtExceptions.forEach { throw it }
         uncaughtExceptions.clear()
-        Thread.setDefaultUncaughtExceptionHandler(previousExceptionHandler)
     }
 }
