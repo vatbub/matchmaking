@@ -31,6 +31,10 @@ abstract class KotlinTestSuperclassWithExceptionHandlerForMultithreading<T> : Ko
             if (e == null) return
             if (t == mainThread)
                 throw e
+            System.err.println("Uncaught exception in thread ${t?.name
+                    ?: "null"}, will be rethrown at the end of the test...")
+            e.printStackTrace()
+
             uncaughtExceptions.add(e)
         }
     }
