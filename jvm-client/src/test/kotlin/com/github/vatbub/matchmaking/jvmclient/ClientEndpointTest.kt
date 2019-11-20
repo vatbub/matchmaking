@@ -19,7 +19,6 @@
  */
 package com.github.vatbub.matchmaking.jvmclient
 
-import com.esotericsoftware.minlog.Log
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
@@ -43,7 +42,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
     abstract fun newDummyServer(): DummyServer<TEndpointConfiguration>
 
     fun prepareServer(): DummyServer<TEndpointConfiguration> {
-        Log.set(Log.LEVEL_TRACE)
+        // Log.set(Log.LEVEL_TRACE)
         val server = newDummyServer()
         server.start()
         return server
@@ -82,9 +81,9 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
 
             endpointUnderTest.connect()
             await().atMost(5, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
-            newObjectUnderTest().sendRequest<DummyResponse>(request) {
+            endpointUnderTest.sendRequest<DummyResponse>(request) {
                 responseHandlerCalled = true
-                Assertions.assertSame(lastResponse, it)
+                Assertions.assertEquals(lastResponse, it)
                 Assertions.assertEquals(request.requestId, it.responseTo)
             }
 
@@ -103,6 +102,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
         val endpointUnderTest = prepareEndpoint(server)
         try {
             endpointUnderTest.connect()
+            await().atMost(5L, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
             endpointUnderTest.terminateConnection()
             await().atMost(5L, TimeUnit.SECONDS).until { !endpointUnderTest.isConnected }
         } finally {

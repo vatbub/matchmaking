@@ -19,10 +19,15 @@
  */
 package com.github.vatbub.matchmaking.common.testing.dummies
 
+import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.ResponseImpl
 
 class DummyResponse(connectionId: String?, responseTo: String? = null) : ResponseImpl(connectionId, DummyResponse::class.qualifiedName!!, responseTo) {
     constructor() : this(null, null)
 
     override fun copy() = DummyResponse(connectionId, responseTo)
+
+    override fun toString(): String {
+        return InteractionConverter.serialize(this)
+    }
 }
