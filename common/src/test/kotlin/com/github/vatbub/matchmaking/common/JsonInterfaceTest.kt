@@ -50,13 +50,13 @@ class JsonInterfaceTest {
     fun fromJsonStringTypeTest() {
         val abstractRequest = fromJson(notPrettyJson, Request::class.java)
         val requestClass = Class.forName(abstractRequest.className)
-        Assertions.assertEquals(objectUnderTest, fromJson(notPrettyJson, requestClass))
+        Assertions.assertEquals(objectUnderTest, fromJson<DummyTestClass1>(notPrettyJson, requestClass))
     }
 
     @Test
     fun fromJsonReaderTypeTest() {
         val abstractRequest = fromJson(notPrettyJson, Request::class.java)
         val requestClass = Class.forName(abstractRequest.className)
-        Assertions.assertEquals(objectUnderTest, fromJson(StringReader(notPrettyJson), requestClass))
+        Assertions.assertEquals(objectUnderTest, fromJson<DummyTestClass1>(StringReader(notPrettyJson), requestClass))
     }
 }
