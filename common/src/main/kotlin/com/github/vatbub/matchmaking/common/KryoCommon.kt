@@ -19,21 +19,9 @@
  */
 package com.github.vatbub.matchmaking.common
 
-import com.esotericsoftware.kryo.Kryo
-import com.github.vatbub.matchmaking.common.KryoCommon.defaultStringValueForInstantiation
-import com.github.vatbub.matchmaking.common.data.GameData
-import com.github.vatbub.matchmaking.common.data.Room
-import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.requests.*
-import com.github.vatbub.matchmaking.common.responses.*
-import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
-import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
-import java.time.Instant
-import java.util.*
-import kotlin.collections.ArrayList
 
 object KryoCommon {
     const val defaultTcpPort = 23500
@@ -45,7 +33,7 @@ inline fun <reified T> kryoSafeListOf(vararg elements: T): List<T> = List(elemen
 val defaultInet4Address = InetAddress.getByName("129.187.211.162") as Inet4Address
 val defaultInet6Address = InetAddress.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address
 
-fun Kryo.registerClasses() {
+/*fun Kryo.registerClasses() {
     logger.debug("Matchmaking: Registering classes for KryoNet...")
 
     // data
@@ -107,4 +95,4 @@ fun Kryo.registerClasses() {
     // testing.dummies
     this.register(DummyRequest::class.java)
     this.register(DummyResponse::class.java)
-}
+}*/

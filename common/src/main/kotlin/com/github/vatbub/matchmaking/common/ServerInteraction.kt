@@ -23,7 +23,7 @@ package com.github.vatbub.matchmaking.common
  * An interface which must be implemented by all objects to be sent over the network.
  * Please use either [Request] or [Response] to clearly identify which type of communication is meant.
  */
-interface ServerInteraction {
+interface ServerInteraction : java.io.Serializable {
     val connectionId: String?
 
     /**

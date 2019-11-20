@@ -19,24 +19,41 @@
  */
 package com.github.vatbub.matchmaking.common.testing.kryo
 
-import com.esotericsoftware.kryonet.Client
-import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.KryoCommon
-import com.github.vatbub.matchmaking.common.registerClasses
+import org.apache.mina.core.service.IoHandler
+import org.apache.mina.core.session.IoSession
+import org.apache.mina.filter.codec.ProtocolCodecFilter
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
+import org.apache.mina.filter.logging.LoggingFilter
+import org.apache.mina.transport.socket.nio.NioSocketConnector
+import java.io.IOException
 import java.net.InetAddress
+import java.net.InetSocketAddress
 
-class KryoTestClient(listener: Listener, host: InetAddress, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = null, timeout: Int = 5000) {
-    constructor(listener: Listener, kryoTestServer: KryoTestServer) : this(listener, kryoTestServer.ipAddress, kryoTestServer.tcpPort, kryoTestServer.udpPort)
+class KryoTestClient(ioHandler: IoHandler, host: InetAddress, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = null, timeout: Int = 5000) {
+    constructor(listener: IoHandler, kryoTestServer: KryoTestServer) : this(listener, kryoTestServer.ipAddress, kryoTestServer.tcpPort, kryoTestServer.udpPort)
 
-    val client = Client()
+    private val tcpConnector = NioSocketConnector()
+    val session: IoSession
 
     init {
-        client.kryo.registerClasses()
-        client.start()
-        client.addListener(listener)
-        if (udpPort == null)
-            client.connect(timeout, host, tcpPort)
-        else
-            client.connect(timeout, host, tcpPort, udpPort)
+        if (udpPort != null) throw Exception("Not yet supported")
+
+        tcpConnector.filterChain.addLast("codec", ProtocolCodecFilter(ObjectSerializationCodecFactory()))
+        tcpConnector.filterChain.addLast("logger", LoggingFilter())
+        tcpConnector.handler = ioHandler
+
+        try {
+            val connectFuture = tcpConnector.connect(InetSocketAddress(host, tcpPort))!!
+            connectFuture.awaitUninterruptibly()
+            session = connectFuture.session
+        } catch (e: RuntimeException) {
+            throw IOException("Failed to connect.", e)
+        }
+    }
+
+    fun stop() {
+        session.closeNow().awaitUninterruptibly()
+        tcpConnector.dispose()
     }
 }

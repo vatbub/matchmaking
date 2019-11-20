@@ -19,9 +19,6 @@
  */
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
-import com.esotericsoftware.kryonet.Connection
-import com.esotericsoftware.kryonet.FrameworkMessage
-import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
@@ -35,6 +32,9 @@ import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
+import org.apache.mina.core.service.IoHandler
+import org.apache.mina.core.service.IoHandlerAdapter
+import org.apache.mina.core.session.IoSession
 import org.awaitility.Awaitility.await
 import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.AfterEach
@@ -79,13 +79,15 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
     fun shutServerAndClientDown() {
         requestResponseSetups.forEach { await().atMost(10, TimeUnit.SECONDS).until { it.allRequestsProcessed } }
         requestResponseSetups.clear()
-        client?.client?.stop()
-        server?.server?.stop()
+        client?.stop()
+        server?.stop()
     }
 
-    private fun setServerAndClientUp(clientListener: Listener, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort) {
+    private fun setServerAndClientUp(clientListener: IoHandler, tcpPort: Int = KryoCommon.defaultTcpPort, udpPort: Int? = this.udpPort) {
         shutServerAndClientDown()
-        server = KryoServer(tcpPort, udpPort, serverContext)
+        val server = KryoServer(tcpPort, udpPort, serverContext)
+        server.start()
+        this.server = server
         client = KryoTestClient(clientListener, InetAddress.getLocalHost(), tcpPort, udpPort)
     }
 
@@ -113,17 +115,16 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
             get() = pendingResponses.isEmpty()
 
         init {
-            setServerAndClientUp(tcpPort = tcpPort, udpPort = udpPort, clientListener = object : Listener() {
-                override fun received(connection: Connection?, receivedObject: Any?) {
-                    if (receivedObject == null) return
-                    if (receivedObject is FrameworkMessage.KeepAlive) return
+            setServerAndClientUp(tcpPort = tcpPort, udpPort = udpPort, clientListener = object : IoHandlerAdapter() {
+                override fun messageReceived(ioSession: IoSession?, message: Any?) {
+                    if (message == null) return
                     receivedObjectsCount++
                     logger.info("[Test Client] receivedObjectsCount = $receivedObjectsCount")
-                    logger.info("[Test Client] Received: $receivedObject")
-                    if (receivedObject !is Response) return onUnexpectedObjectReceived(receivedObject)
-                    val handler = pendingResponses.remove(receivedObject.responseTo)
-                            ?: return onUnexpectedObjectReceived(receivedObject)
-                    handler.invoke(receivedObject)
+                    logger.info("[Test Client] Received: $message")
+                    if (message !is Response) return onUnexpectedObjectReceived(message)
+                    val handler = pendingResponses.remove(message.responseTo)
+                            ?: return onUnexpectedObjectReceived(message)
+                    handler.invoke(message)
                 }
             })
         }
@@ -135,9 +136,9 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
             var retryCount = 0
             while (true) {
                 if (udpPort != null)
-                    client!!.client.sendUDP(request)
+                    throw Exception("UDP not yet supported") // client!!.session.sendUDP(request)
                 else
-                    client!!.client.sendTCP(request)
+                    client!!.session.write(request) //.sendTCP(request)
                 val requestTimeOutCopy = requestTimeOut ?: return
                 try {
                     await().atMost(requestTimeOutCopy, TimeUnit.MILLISECONDS).until { wrapper.isHandled }

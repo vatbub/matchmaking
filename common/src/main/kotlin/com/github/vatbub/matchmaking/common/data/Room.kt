@@ -31,13 +31,13 @@ import com.github.vatbub.matchmaking.common.requests.StartGameRequest
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
  */
 open class Room(
-    val id: String,
-    val hostUserConnectionId: String,
-    val whitelist: List<String>? = null,
-    val blacklist: List<String>? = null,
-    val minRoomSize: Int = 1,
-    val maxRoomSize: Int = 2
-) {
+        val id: String,
+        val hostUserConnectionId: String,
+        val whitelist: List<String>? = null,
+        val blacklist: List<String>? = null,
+        val minRoomSize: Int = 1,
+        val maxRoomSize: Int = 2
+) : java.io.Serializable {
     /**
      * The list of currently connected users
      */
@@ -60,12 +60,12 @@ open class Room(
     fun copy(): Room {
         synchronized(this) {
             val result = Room(
-                id,
-                hostUserConnectionId,
-                whitelist,
-                blacklist,
-                minRoomSize,
-                maxRoomSize
+                    id,
+                    hostUserConnectionId,
+                    whitelist,
+                    blacklist,
+                    minRoomSize,
+                    maxRoomSize
             )
             result.connectedUsers.addAll(connectedUsers)
             result.gameState = gameState.copy()

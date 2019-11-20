@@ -55,6 +55,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
     @AfterEach
     fun terminateConnection() {
         endpointUnderTest.terminateConnection()
+        await().atMost(5, TimeUnit.SECONDS).until { !endpointUnderTest.isConnected }
     }
 
     @Test
@@ -65,7 +66,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
 
     @Test
     // TODO
-    @Disabled("Cannot bind a server and a client on the same machine to the same port")
+    // @Disabled("Cannot bind a server and a client on the same machine to the same port")
     fun sendRequestTest() {
         endpointUnderTest.connect()
         var lastResponse: DummyResponse? = null
@@ -75,7 +76,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
             lastResponse!!
         }
         val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, null)
-        newObjectUnderTest().sendRequest<DummyResponse>(request) {
+        endpointUnderTest.sendRequest<DummyResponse>(request) {
             responseHandlerCalled = true
             Assertions.assertSame(lastResponse, it)
             Assertions.assertEquals(request.requestId, it.responseTo)

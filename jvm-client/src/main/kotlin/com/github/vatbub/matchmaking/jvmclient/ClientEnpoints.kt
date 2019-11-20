@@ -19,16 +19,20 @@
  */
 package com.github.vatbub.matchmaking.jvmclient
 
-import com.esotericsoftware.kryonet.Client
-import com.esotericsoftware.kryonet.Connection
-import com.esotericsoftware.kryonet.FrameworkMessage
-import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.logger
-import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
+import org.apache.mina.core.service.IoHandlerAdapter
+import org.apache.mina.core.session.IdleStatus
+import org.apache.mina.core.session.IoSession
+import org.apache.mina.filter.codec.ProtocolCodecFilter
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
+import org.apache.mina.filter.logging.LoggingFilter
+import org.apache.mina.transport.socket.nio.NioSocketConnector
+import java.io.IOException
+import java.net.InetSocketAddress
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
 sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
@@ -121,39 +125,37 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
     class KryoEndpoint(configuration: EndpointConfiguration.KryoEndpointConfiguration) : ClientEndpoint<EndpointConfiguration.KryoEndpointConfiguration>(configuration) {
         override val isConnected: Boolean
-            get() = client.isConnected
-        private val client = Client()
+            get() = session?.isConnected ?: false
+        private val tcpConnector = NioSocketConnector()
+        private var session: IoSession? = null
         private val pendingResponses = mutableListOf<ResponseHandlerWrapper<*>>()
         private var newRoomDataHandlers = mutableMapOf<String, (DataRoom) -> Unit>()
 
         private object Lock
 
         init {
-            client.kryo.registerClasses()
-            client.addListener(KryoListener())
+            tcpConnector.filterChain.addLast("codec", ProtocolCodecFilter(ObjectSerializationCodecFactory()))
+            tcpConnector.filterChain.addLast("logger", LoggingFilter())
+            tcpConnector.handler = KryoListener()
         }
 
-        private inner class KryoListener : Listener() {
-            override fun disconnected(connection: Connection?) {
-                super.disconnected(connection) // TODO: Handle reconnects
-            }
-
-            override fun received(connection: Connection, obj: Any) {
+        private inner class KryoListener : IoHandlerAdapter() {
+            override fun messageReceived(session: IoSession?, message: Any?) {
                 synchronized(Lock) {
-                    logger.info("Client: Received: $obj")
-                    if (obj is FrameworkMessage.KeepAlive) return
-                    if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
-                    this@KryoEndpoint.verifyResponseIsNotAnException(obj)
+                    logger.info("Client: Received: $message")
+                    requireNotNull(message)
+                    require(message is Response) { "Received an object of illegal type: ${message::class.java}" }
+                    this@KryoEndpoint.verifyResponseIsNotAnException(message)
 
-                    if (obj is GetRoomDataResponse && obj.responseTo == null && obj.room != null && newRoomDataHandlers.containsKey(obj.room!!.id)) {
-                        newRoomDataHandlers[obj.room!!.id]!!.invoke(obj.room!!)
+                    if (message is GetRoomDataResponse && message.responseTo == null && message.room != null && newRoomDataHandlers.containsKey(message.room!!.id)) {
+                        newRoomDataHandlers[message.room!!.id]!!.invoke(message.room!!)
                         return
                     }
 
                     if (pendingResponses.size == 0) return
                     var identifiedWrapperIndex = 0
                     for (index in pendingResponses.indices) {
-                        if (obj.responseTo == pendingResponses[index].request.requestId) {
+                        if (message.responseTo == pendingResponses[index].request.requestId) {
                             identifiedWrapperIndex = index
                             break
                         }
@@ -161,8 +163,26 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
                     @Suppress("UNCHECKED_CAST")
                     val wrapper = pendingResponses.removeAt(identifiedWrapperIndex) as ResponseHandlerWrapper<Response>
-                    wrapper.handler(obj)
+                    wrapper.handler(message)
                 }
+            }
+
+            override fun sessionOpened(session: IoSession?) {
+                logger.debug("MINA session opened")
+            }
+
+            override fun sessionClosed(session: IoSession?) {
+                logger.info("MINA session disconnected") // TODO: Handle reconnects
+            }
+
+            override fun sessionIdle(session: IoSession?, status: IdleStatus?) {
+                logger.info("MINA session status is $status")
+                if (status == IdleStatus.BOTH_IDLE)
+                    session?.closeNow()
+            }
+
+            override fun exceptionCaught(session: IoSession?, cause: Throwable?) {
+                logger.error("An error occurred while handling network traffic", cause)
             }
         }
 
@@ -170,7 +190,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
             synchronized(Lock) {
                 pendingResponses.add(ResponseHandlerWrapper(request, responseHandler))
                 logger.info("Client: Sending: $request")
-                client.sendTCP(request)
+                session?.write(request) ?: throw IllegalStateException("Not connected")
             }
         }
 
@@ -186,16 +206,29 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         }
 
         override fun connect() {
-            client.start()
-            if (configuration.udpPort == null)
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort)
-            else
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
+            if (configuration.udpPort != null)
+                throw Exception("UDP is not yet supported")
+            try {
+                val connectFuture = tcpConnector.connect(InetSocketAddress(configuration.host, configuration.tcpPort))!!
+                connectFuture.awaitUninterruptibly()
+                session = connectFuture.session
+            } catch (e: RuntimeException) {
+                throw IOException("Failed to connect.", e)
+            }
         }
 
         override fun terminateConnection() {
-            client.stop()
-            client.dispose()
+            val closeFuture = session?.closeNow() // ?.awaitUninterruptibly()
+            Thread {
+                closeFuture?.awaitUninterruptibly()
+                println("Session closed")
+                Thread {
+                    tcpConnector.dispose()
+                    println("Connector disposed")
+                }.start()
+            }.start()
+
+
         }
     }
 }

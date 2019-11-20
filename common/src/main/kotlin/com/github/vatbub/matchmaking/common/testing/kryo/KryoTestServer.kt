@@ -19,23 +19,36 @@
  */
 package com.github.vatbub.matchmaking.common.testing.kryo
 
-import com.esotericsoftware.kryonet.Listener
-import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.KryoCommon
-import com.github.vatbub.matchmaking.common.registerClasses
+import com.github.vatbub.matchmaking.common.logger
+import org.apache.mina.core.service.IoHandler
+import org.apache.mina.core.session.IdleStatus
+import org.apache.mina.filter.codec.ProtocolCodecFilter
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
+import org.apache.mina.filter.logging.LoggingFilter
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor
 import java.net.InetAddress
+import java.net.InetSocketAddress
 
-class KryoTestServer(listener: Listener, val tcpPort: Int = KryoCommon.defaultTcpPort, val udpPort: Int? = null) {
-    val server = Server()
+class KryoTestServer(listener: IoHandler, val tcpPort: Int = KryoCommon.defaultTcpPort, val udpPort: Int? = null) {
+    private val ioAcceptor = NioSocketAcceptor()
     val ipAddress = InetAddress.getLocalHost()!!
 
     init {
-        if (udpPort == null)
-            server.bind(tcpPort)
-        else
-            server.bind(tcpPort, udpPort)
-        server.kryo.registerClasses()
-        server.addListener(listener)
-        server.start()
+        if (udpPort != null)
+            throw Exception("UDP not yet supported")
+        // TODO: Specify the logging levels for each event type (see http://mina.apache.org/mina-project/userguide/ch12-logging-filter/ch12-logging-filter.html)
+        ioAcceptor.filterChain.addLast("logger", LoggingFilter())
+        ioAcceptor.filterChain.addLast("codec", ProtocolCodecFilter(ObjectSerializationCodecFactory()))
+        ioAcceptor.handler = listener
+        ioAcceptor.sessionConfig.readBufferSize = 2048
+        ioAcceptor.sessionConfig.setIdleTime(IdleStatus.BOTH_IDLE, 10)
+
+        ioAcceptor.bind(InetSocketAddress(tcpPort))
+        logger.info("MINA test tcp server bound to port $tcpPort")
+    }
+
+    fun stop(awaitTermination: Boolean = true) {
+        ioAcceptor.dispose(awaitTermination)
     }
 }

@@ -19,48 +19,60 @@
  */
 package com.github.vatbub.matchmaking.jvmclient
 
-import com.esotericsoftware.kryonet.Connection
-import com.esotericsoftware.kryonet.FrameworkMessage
-import com.esotericsoftware.kryonet.Listener
-import com.esotericsoftware.kryonet.Server
-import com.github.vatbub.matchmaking.common.*
+import com.github.vatbub.matchmaking.common.KryoCommon
+import com.github.vatbub.matchmaking.common.Request
+import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.logger
+import org.apache.mina.core.service.IoHandlerAdapter
+import org.apache.mina.core.session.IdleStatus
+import org.apache.mina.core.session.IoSession
+import org.apache.mina.filter.codec.ProtocolCodecFilter
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory
+import org.apache.mina.filter.logging.LoggingFilter
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.net.InetSocketAddress
 
 private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointConfiguration> {
-    val kryoServer = Server()
+    private val ioAcceptor = NioSocketAcceptor()
     override lateinit var dummyMessageGenerator: (Request) -> Response
     override val endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration
         get() = EndpointConfiguration.KryoEndpointConfiguration("localhost")
 
     override fun start() {
-        kryoServer.kryo.registerClasses()
         val configuration = endpointConfiguration
         val udpPort = configuration.udpPort
-        kryoServer.start()
-        if (udpPort == null)
-            kryoServer.bind(configuration.tcpPort)
-        else
-            kryoServer.bind(configuration.tcpPort, udpPort)
+        if (udpPort != null)
+            throw Exception("UDP not yet supported")
+        // TODO: Specify the logging levels for each event type (see http://mina.apache.org/mina-project/userguide/ch12-logging-filter/ch12-logging-filter.html)
 
+        ioAcceptor.filterChain.addLast("logger", LoggingFilter())
+        ioAcceptor.filterChain.addLast("codec", ProtocolCodecFilter(ObjectSerializationCodecFactory()))
 
-        kryoServer.addListener(object : Listener() {
-            override fun received(connection: Connection?, receivedObject: Any?) {
-                logger.info("Dummy server: Received: $receivedObject")
-                if (receivedObject is FrameworkMessage.KeepAlive) return
-                receivedObject as Request
-                val response = dummyMessageGenerator(receivedObject)
-                try {
-                    connection!!.sendUDP(response)
-                } catch (e: IllegalStateException) {
-                    connection!!.sendTCP(response)
-                }
+        ioAcceptor.handler = object : IoHandlerAdapter() {
+            override fun sessionClosed(session: IoSession?) {
+                logger.info("Dummy MINA Server: closing session...")
             }
-        })
+
+            override fun messageReceived(session: IoSession?, message: Any?) {
+                logger.info("Dummy server: Received: $message")
+                requireNotNull(session)
+                requireNotNull(message)
+                require(message is Request) { "Message of illegal type: ${message::class.java.name}" }
+                session.write(dummyMessageGenerator(message))
+            }
+        }
+
+        ioAcceptor.sessionConfig.readBufferSize = 2048
+        ioAcceptor.sessionConfig.setIdleTime(IdleStatus.BOTH_IDLE, 10)
+
+        ioAcceptor.bind(InetSocketAddress(configuration.tcpPort))
+        logger.info("MINA dummy tcp server bound to port ${configuration.tcpPort}")
     }
 
     override fun stop() {
-        kryoServer.stop()
+        ioAcceptor.dispose(true)
     }
 }
 

@@ -257,7 +257,7 @@ class Main {
             }
 
             tomcat.server.await()
-            kryoServer?.server?.stop()
+            kryoServer?.stop()
         }
 
         private fun resolveTomcatBaseDir(port: Int?, tempDirectory: String?): String? {
@@ -363,7 +363,7 @@ class Main {
             // add shutdown hook to stop server
             Runtime.getRuntime().addShutdownHook(Thread {
                 try {
-                    kryoServer?.server?.stop()
+                    kryoServer?.stop()
                 } catch (exception: LifecycleException) {
                     throw RuntimeException("WARNING: Cannot Stop Tomcat " + exception.message, exception)
                 }

@@ -77,6 +77,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.mina</groupId>
+            <artifactId>mina-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.vatbub</groupId>
             <artifactId>matchmaking.server</artifactId>
             <version>${project.version}</version>

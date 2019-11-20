@@ -19,35 +19,40 @@
  */
 package com.github.vatbub.matchmaking.standaloneserverlauncher
 
-import com.esotericsoftware.kryonet.Connection
 import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.server.logic.sockets.Session
+import org.apache.mina.core.future.WriteFuture
+import org.apache.mina.core.session.IoSession
 
-class KryoSessionWrapper(val connection: Connection) : Session() {
+class KryoSessionWrapper(val ioSession: IoSession) : Session() {
     override fun sendObjectSync(objectToSend: ServerInteraction) {
-        try {
-            logger.debug("Sending object: $objectToSend")
-            connection.sendUDP(objectToSend)
-        } catch (e: IllegalStateException) {
-            connection.sendTCP(objectToSend)
-        }
+        // try {
+        val future = internalSendObjectAsync(objectToSend)
+        future.await()
+        // } catch (e: IllegalStateException) {
+        // }
     }
 
     override fun sendObjectAsync(objectToSend: ServerInteraction) {
-        Thread { sendObjectSync(objectToSend) }.start()
+        internalSendObjectAsync(objectToSend)
+    }
+
+    private fun internalSendObjectAsync(objectToSend: ServerInteraction): WriteFuture {
+        logger.debug("Sending object: $objectToSend")
+        return ioSession.write(objectToSend)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is KryoSessionWrapper) return false
 
-        if (connection != other.connection) return false
+        if (ioSession != other.ioSession) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return connection.hashCode()
+        return ioSession.hashCode()
     }
 }

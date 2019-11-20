@@ -19,19 +19,13 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests.testing
 
-import com.esotericsoftware.kryonet.Connection
-import com.esotericsoftware.kryonet.Listener
-import com.github.vatbub.matchmaking.common.KryoCommon
-import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
-import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
-import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
 
 class KryoTestServerClientTest {
     @Test
+    @Disabled
     fun connectAndSendTcp() = doTest(false)
 
     @Disabled
@@ -39,7 +33,8 @@ class KryoTestServerClientTest {
     fun connectAndSendUdp() = doTest(true)
 
     private fun doTest(useUdp: Boolean) {
-        val tcpPort = KryoCommon.defaultTcpPort
+        Assertions.fail<String>("Not implemented yet")
+        /*val tcpPort = KryoCommon.defaultTcpPort
         val udpPort = if (useUdp) tcpPort + 1 else null
 
         val objectToSend = "test"
@@ -108,6 +103,6 @@ class KryoTestServerClientTest {
         Assertions.assertTrue(serverReceivedObjectCount > 0)
 
         Assertions.assertTrue(clientConnectedCalled)
-        Assertions.assertTrue(clientDisconnectedCalled)
+        Assertions.assertTrue(clientDisconnectedCalled)*/
     }
 }

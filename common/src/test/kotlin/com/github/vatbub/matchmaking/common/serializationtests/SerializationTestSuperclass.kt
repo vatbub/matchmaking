@@ -19,26 +19,21 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
-import com.esotericsoftware.kryonet.Connection
-import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.fromJson
-import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
 import com.github.vatbub.matchmaking.common.toJson
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.nio.file.Path
-import java.util.concurrent.TimeUnit
 
 private var lastFileCounter = -1
 internal val nextFileCounter: Int
@@ -58,8 +53,8 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
 
     @AfterEach
     fun stopKryo() {
-        kryoClient?.client?.stop()
-        kryoServer?.server?.stop()
+        kryoClient?.stop()
+        kryoServer?.stop()
     }
 
     @Test
@@ -72,22 +67,23 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
 
     @Test
     fun kryoSerializationTest(@TempDir tempDir: Path) {
-        val kryo = Kryo()
-        kryo.registerClasses()
         val originalObject = newObjectUnderTest()
         val outputFile = nextObjectPath(tempDir).toFile()
-        Output(FileOutputStream(outputFile)).use {
-            kryo.writeObject(it, originalObject)
+        ObjectOutputStream(FileOutputStream(outputFile)).use {
+            it.writeObject(originalObject)
         }
 
-        Input(FileInputStream(outputFile)).use {
-            val deserializedObject = kryo.readObject(it, clazz)
+        ObjectInputStream(FileInputStream(outputFile)).use {
+            val deserializedObject = it.readObject()
             Assertions.assertEquals(originalObject, deserializedObject)
         }
     }
 
     @Test
+    @Disabled
     fun kryoNetSerializationTest() {
+        Assertions.fail<String>("Not implemented yet")
+        /*
         val originalObject1 = newObjectUnderTest()
         val originalObject2 = newObjectUnderTest()
         var listener1Called = false
@@ -109,14 +105,6 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
 
         kryoClient?.client?.sendTCP(originalObject1)
         await().atMost(5, TimeUnit.SECONDS).until { listener1Called }
-        await().atMost(5, TimeUnit.SECONDS).until { listener2Called }
-    }
-
-    @Test
-    fun isClassRegisteredInKryo() {
-        val kryo = Kryo()
-        kryo.registerClasses()
-        kryo.isRegistrationRequired = true
-        Assertions.assertDoesNotThrow { kryo.getRegistration(clazz) }
+        await().atMost(5, TimeUnit.SECONDS).until { listener2Called }*/
     }
 }

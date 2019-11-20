@@ -41,7 +41,7 @@ import java.time.ZoneOffset
  * - [Short]
  * - [ShortArray]
  */
-class GameData(val createdByConnectionId: String, val contents: MutableMap<String, Any>) {
+class GameData(val createdByConnectionId: String, val contents: MutableMap<String, Any>) : java.io.Serializable {
     constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
     @Deprecated("For internal use only", ReplaceWith("GameData(createdByConnectionId)"), DeprecationLevel.HIDDEN)
     constructor() : this("")

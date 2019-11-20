@@ -30,8 +30,8 @@ import java.net.Inet6Address
  * @param ipv6Address The user's ipv6 address if he has one
  */
 data class User(
-    val connectionId: String,
-    val userName: String,
-    val ipv4Address: Inet4Address? = null,
-    val ipv6Address: Inet6Address? = null
-)
+        val connectionId: String,
+        val userName: String,
+        val ipv4Address: Inet4Address? = null,
+        val ipv6Address: Inet6Address? = null
+) : java.io.Serializable

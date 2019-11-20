@@ -19,20 +19,13 @@
  */
 package com.github.vatbub.matchmaking.common.serializationtests.data
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
-import com.github.vatbub.matchmaking.common.KryoCommon
 import com.github.vatbub.matchmaking.common.data.User
-import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.serializationtests.SerializationTestSuperclass
-import com.github.vatbub.matchmaking.common.serializationtests.nextObjectPath
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.nio.file.Path
@@ -51,8 +44,10 @@ class UserSerializationTest :
     }
 
     @Test
+    @Disabled
     fun kryoSerializationReplaceDefaultValuesTest(@TempDir tempDir: Path) {
-        val kryo = Kryo()
+        Assertions.fail<String>("Not implemented yet")
+        /*val kryo = Kryo()
         kryo.registerClasses()
         val originalObject = newObjectUnderTest()
         val outputFile = nextObjectPath(tempDir).toFile()
@@ -64,7 +59,7 @@ class UserSerializationTest :
             val deserializedObject = kryo.readObject(it, User::class.java)
             Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.connectionId)
             Assertions.assertNotEquals(KryoCommon.defaultStringValueForInstantiation, deserializedObject.userName)
-        }
+        }*/
     }
 
     // Already tested in UserTest
