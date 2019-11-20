@@ -65,7 +65,7 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
     @Test
     fun serializationTest() {
         val originalObject = newObjectUnderTest()
-        val json = toJson(originalObject, prettify = true)
+        val json = originalObject.toJson(true)
         val deserializedObject: T = fromJson(json, clazz)
         Assertions.assertEquals(originalObject, deserializedObject)
     }

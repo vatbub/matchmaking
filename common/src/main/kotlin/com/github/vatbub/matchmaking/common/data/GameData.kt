@@ -159,7 +159,5 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
         return result
     }
 
-    override fun toString(): String {
-        return toJson(this)
-    }
+    override fun toString() = this.toJson()
 }

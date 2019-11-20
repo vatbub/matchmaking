@@ -27,10 +27,10 @@ import java.lang.reflect.Type
 private val gson by lazy { Gson() }
 private val prettyGson by lazy { GsonBuilder().setPrettyPrinting().create()!! }
 
-fun toJson(obj: Any, prettify: Boolean = false): String = if (prettify)
-    prettyGson.toJson(obj)
+fun Any.toJson(prettify: Boolean = false): String = if (prettify)
+    prettyGson.toJson(this)
 else
-    gson.toJson(obj)
+    gson.toJson(this)
 
 fun <T> fromJson(json: String, clazz: Class<T>): T =
         gson.fromJson(json, clazz)

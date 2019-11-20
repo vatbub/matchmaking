@@ -132,9 +132,9 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
 
     @Test
     fun readConfigFileTest(@TempDir tempDir: Path) {
-        val configFile = tempDir.resolve("config.json").toFile()!!
+        val configFile = tempDir.resolve("config.json").toFile()
         val originalConfiguration = Configuration()
-        FileWriter(configFile, false).use { it.write(toJson(originalConfiguration)) }
+        FileWriter(configFile, false).use { it.write(originalConfiguration.toJson()) }
         Assertions.assertTrue(configFile.exists())
         Assertions.assertTrue(configFile.isFile)
         val readResult = ConfigurationManager.readConfigurationFile(configFile)

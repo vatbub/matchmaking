@@ -50,7 +50,7 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
     @Test
     fun protocolVersionSerializationTest() {
         val originalObject = newObjectUnderTest()
-        val json = toJson(originalObject, prettify = true)
+        val json = originalObject.toJson(true)
         println(json)
         Assertions.assertTrue(json.contains("\"protocolVersion\": \"${originalObject.protocolVersion}\""))
     }
@@ -58,7 +58,7 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
     @Test
     fun interactionConverterSerializationTest() {
         val originalObject = newObjectUnderTest()
-        val json = toJson(originalObject)
+        val json = originalObject.toJson()
         val serializationResult = InteractionConverter.serialize(originalObject)
         Assertions.assertEquals(json, serializationResult)
     }

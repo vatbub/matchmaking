@@ -98,14 +98,14 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     }
 
     private fun <T : Response> doRequest(request: ServerInteraction): T {
-        val json = doRequest(toJson(request))
+        val json = doRequest(request.toJson())
         val response = fromJson(json, ResponseImpl::class.java)
         val clazz = Class.forName(response.className) as Class<T>
         return fromJson<T>(json, clazz)
     }
 
     private fun doRequestNoTypeParam(request: ServerInteraction): Response {
-        val json = doRequest(toJson(request))
+        val json = doRequest(request.toJson())
         val response = fromJson(json, ResponseImpl::class.java)
         val clazz = Class.forName(response.className) as Class<Response>
         return fromJson(json, clazz)

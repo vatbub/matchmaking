@@ -20,7 +20,7 @@
 package com.github.vatbub.matchmaking.common
 
 object InteractionConverter {
-    fun serialize(serverInteraction: ServerInteraction): String = toJson(serverInteraction)
+    fun serialize(serverInteraction: ServerInteraction): String = serverInteraction.toJson()
 
     fun <T : Request> deserializeRequest(serializedRequest: String): T {
         val abstractRequest = fromJson(serializedRequest, Request::class.java)

@@ -36,6 +36,6 @@ class ConfigurationExamples {
                 IdProviderConfig(ProviderType.Jdbc, jdbcConfig),
                 RoomProviderConfig(ProviderType.Jdbc, jdbcConfig)
         )
-        println(toJson(configuration, prettify = true))
+        println(configuration.toJson(true))
     }
 }

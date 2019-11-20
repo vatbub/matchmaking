@@ -30,7 +30,7 @@ class InteractionConverterDeserializationTestsTest {
     @Test
     fun requestCastTest() {
         val request = DummyRequest(defaultConnectionId, defaultPassword)
-        val serializedRequest = toJson(request)
+        val serializedRequest = request.toJson()
         var deserializedRequest = DummyRequest()
         Assertions.assertDoesNotThrow {
             deserializedRequest = InteractionConverter.deserializeRequest(serializedRequest)
@@ -41,7 +41,7 @@ class InteractionConverterDeserializationTestsTest {
     @Test
     fun responseCastTest() {
         val response = DummyResponse(defaultConnectionId)
-        val serializedResponse = toJson(response)
+        val serializedResponse = response.toJson()
         var deserializedResponse = DummyResponse(null)
         Assertions.assertDoesNotThrow {
             deserializedResponse = InteractionConverter.deserializeResponse(serializedResponse)

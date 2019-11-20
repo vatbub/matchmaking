@@ -42,7 +42,7 @@ class DocumentationSamples {
     }
 
     private fun <T : Any> serializeAndPrint(objectToPrint: T) {
-        println(toJson(objectToPrint, prettify = true))
+        println(objectToPrint.toJson(true))
     }
 
     @Test

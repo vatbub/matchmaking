@@ -145,7 +145,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
 
     private fun saveGameData(connection: Connection, gameDataId: Int? = null, gameData: GameData): Int {
         logger.trace("Saving game data, gameDataId = $gameDataId")
-        val json = toJson(gameData.contents)
+        val json = gameData.contents.toJson()
 
         if (gameDataId != null) {
             val updateStatement =
