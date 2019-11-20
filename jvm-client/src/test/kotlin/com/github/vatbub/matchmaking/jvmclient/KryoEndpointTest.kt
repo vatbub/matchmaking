@@ -30,13 +30,18 @@ import org.junit.jupiter.api.Test
 private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointConfiguration> {
     val kryoServer = Server()
     private var disposed = false
+    override val isRunning: Boolean
+        get() = internalIsRunning
+    private var internalIsRunning = false
+
     private object Lock
+
     override lateinit var dummyMessageGenerator: (Request) -> Response
     override val endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration
         get() = EndpointConfiguration.KryoEndpointConfiguration("localhost", KryoCommon.defaultTcpPort, KryoCommon.defaultTcpPort + 50, 99999999)
 
     override fun start() {
-        synchronized(Lock){
+        synchronized(Lock) {
             if (disposed) throw IllegalStateException("Server already disposed, instance thus cannot be used again")
         }
         val configuration = endpointConfiguration
@@ -47,6 +52,7 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
             kryoServer.bind(configuration.tcpPort)
         else
             kryoServer.bind(configuration.tcpPort, udpPort)
+        internalIsRunning = true
         logger.info("Server bound")
 
 
@@ -60,7 +66,7 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
             }
 
             override fun received(connection: Connection?, receivedObject: Any?) {
-                synchronized(Lock){
+                synchronized(Lock) {
                     if (disposed) throw IllegalStateException("Server already disposed, instance thus cannot be used again")
                 }
                 logger.info("Dummy server: Received: $receivedObject")
@@ -77,9 +83,10 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
     }
 
     override fun stop() {
-        synchronized(Lock){
+        synchronized(Lock) {
             disposed = true
             kryoServer.stop()
+            internalIsRunning = false
         }
     }
 }
