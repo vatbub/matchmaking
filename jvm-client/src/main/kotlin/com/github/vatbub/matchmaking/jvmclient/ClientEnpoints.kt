@@ -125,17 +125,25 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         private val client = Client()
         private val pendingResponses = mutableListOf<ResponseHandlerWrapper<*>>()
         private var newRoomDataHandlers = mutableMapOf<String, (DataRoom) -> Unit>()
+        var disposed = false
+            private set
 
         private object Lock
 
-        init {
-            client.kryo.registerClasses()
-            client.addListener(KryoListener())
-        }
-
         private inner class KryoListener : Listener() {
+            override fun connected(connection: Connection?) {
+                logger.info("Client: Connected to server")
+            }
+
+            override fun idle(connection: Connection?) {
+                // logger.info("Client: Connection to server is idle")
+            }
+
             override fun disconnected(connection: Connection?) {
-                super.disconnected(connection) // TODO: Handle reconnects
+                logger.info("Client: Disconnected from server")
+                if (disposed) return
+                logger.info("Trying to reconnect...")
+                client.reconnect()
             }
 
             override fun received(connection: Connection, obj: Any) {
@@ -168,8 +176,10 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
         override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
             synchronized(Lock) {
+                if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before sending more requests")
                 pendingResponses.add(ResponseHandlerWrapper(request, responseHandler))
                 logger.info("Client: Sending: $request")
+                logger.info("Connection id is $client")
                 client.sendTCP(request)
             }
         }
@@ -186,16 +196,25 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         }
 
         override fun connect() {
-            client.start()
-            if (configuration.udpPort == null)
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort)
-            else
-                client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
+            synchronized(Lock){
+                if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before connecting again")
+                client.start()
+                client.kryo.registerClasses()
+                if (configuration.udpPort == null)
+                    client.connect(configuration.timeout, configuration.host, configuration.tcpPort)
+                else
+                    client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
+                client.start()
+                client.addListener(KryoListener())
+            }
         }
 
         override fun terminateConnection() {
-            client.stop()
-            client.dispose()
+            synchronized(Lock) {
+                disposed = true
+                client.stop()
+                client.dispose()
+            }
         }
     }
 }

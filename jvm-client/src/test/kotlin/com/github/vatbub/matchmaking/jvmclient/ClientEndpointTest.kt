@@ -26,7 +26,8 @@ import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 interface DummyServer<T : EndpointConfiguration> {
@@ -36,60 +37,77 @@ interface DummyServer<T : EndpointConfiguration> {
     fun stop()
 }
 
-abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TEndpointConfiguration : EndpointConfiguration>(private val dummyServer: DummyServer<TEndpointConfiguration>) : KotlinTestSuperclassWithExceptionHandlerForMultithreading<T>() {
+abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TEndpointConfiguration : EndpointConfiguration>() : KotlinTestSuperclassWithExceptionHandlerForMultithreading<T>() {
     abstract fun newObjectUnderTest(endpointConfiguration: TEndpointConfiguration): T
+    abstract fun newDummyServer(): DummyServer<TEndpointConfiguration>
 
-    private lateinit var endpointUnderTest: T
-
-    @BeforeAll
-    fun startServer() = dummyServer.start()
-
-    @AfterAll
-    fun stopServer() = dummyServer.stop()
-
-    @BeforeEach
-    fun prepareEndpoint() {
-        endpointUnderTest = newObjectUnderTest(dummyServer.endpointConfiguration)
+    fun prepareServer(): DummyServer<TEndpointConfiguration> {
+        // Log.set(Log.LEVEL_TRACE)
+        val server = newDummyServer()
+        server.start()
+        return server
     }
 
-    @AfterEach
-    fun terminateConnection() {
-        endpointUnderTest.terminateConnection()
-    }
+    fun prepareEndpoint(server: DummyServer<TEndpointConfiguration>) = newObjectUnderTest(server.endpointConfiguration)
 
     @Test
     fun connectTest() {
-        endpointUnderTest.connect()
-        await().atMost(5L, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
+        val server = prepareServer()
+        val endpointUnderTest = prepareEndpoint(server)
+        try {
+            endpointUnderTest.connect()
+            await().atMost(5L, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
+        } finally {
+            endpointUnderTest.terminateConnection()
+            server.stop()
+        }
     }
 
     @Test
     // TODO
-    @Disabled("Cannot bind a server and a client on the same machine to the same port")
+    // @Disabled("Cannot bind a server and a client on the same machine to the same port")
     fun sendRequestTest() {
-        endpointUnderTest.connect()
-        var lastResponse: DummyResponse? = null
-        var responseHandlerCalled = false
-        dummyServer.dummyMessageGenerator = {
-            lastResponse = DummyResponse(it.connectionId, it.requestId)
-            lastResponse!!
-        }
-        val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, null)
-        newObjectUnderTest().sendRequest<DummyResponse>(request) {
-            responseHandlerCalled = true
-            Assertions.assertSame(lastResponse, it)
-            Assertions.assertEquals(request.requestId, it.responseTo)
-        }
+        val dummyServer = prepareServer()
+        val endpointUnderTest = prepareEndpoint(dummyServer)
 
-        await().atMost(5L, TimeUnit.SECONDS).until { lastResponse != null }
-        await().atMost(5L, TimeUnit.SECONDS).until { responseHandlerCalled }
-        Assertions.assertNotNull(request.requestId)
+        try {
+            var lastResponse: DummyResponse? = null
+            var responseHandlerCalled = false
+            dummyServer.dummyMessageGenerator = {
+                lastResponse = DummyResponse(it.connectionId, it.requestId)
+                lastResponse!!
+            }
+            val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, null)
+
+            endpointUnderTest.connect()
+            await().atMost(5, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
+            endpointUnderTest.sendRequest<DummyResponse>(request) {
+                responseHandlerCalled = true
+                Assertions.assertEquals(lastResponse, it)
+                Assertions.assertEquals(request.requestId, it.responseTo)
+            }
+
+            await().atMost(5L, TimeUnit.SECONDS).until { lastResponse != null }
+            await().atMost(5L, TimeUnit.SECONDS).until { responseHandlerCalled }
+            Assertions.assertNotNull(request.requestId)
+        } finally {
+            endpointUnderTest.terminateConnection()
+            dummyServer.stop()
+        }
     }
 
     @Test
     fun terminateConnectionTest() {
-        endpointUnderTest.connect()
-        endpointUnderTest.terminateConnection()
-        await().atMost(5L, TimeUnit.SECONDS).until { !endpointUnderTest.isConnected }
+        val server = prepareServer()
+        val endpointUnderTest = prepareEndpoint(server)
+        try {
+            endpointUnderTest.connect()
+            await().atMost(5L, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
+            endpointUnderTest.terminateConnection()
+            await().atMost(5L, TimeUnit.SECONDS).until { !endpointUnderTest.isConnected }
+        } finally {
+            endpointUnderTest.terminateConnection()
+            server.stop()
+        }
     }
 }

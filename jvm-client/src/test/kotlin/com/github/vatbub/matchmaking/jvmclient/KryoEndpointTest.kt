@@ -29,23 +29,40 @@ import org.junit.jupiter.api.Test
 
 private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointConfiguration> {
     val kryoServer = Server()
+    private var disposed = false
+    private object Lock
     override lateinit var dummyMessageGenerator: (Request) -> Response
     override val endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration
-        get() = EndpointConfiguration.KryoEndpointConfiguration("localhost")
+        get() = EndpointConfiguration.KryoEndpointConfiguration("localhost", KryoCommon.defaultTcpPort, KryoCommon.defaultTcpPort + 50, 99999999)
 
     override fun start() {
-        kryoServer.kryo.registerClasses()
+        synchronized(Lock){
+            if (disposed) throw IllegalStateException("Server already disposed, instance thus cannot be used again")
+        }
         val configuration = endpointConfiguration
         val udpPort = configuration.udpPort
         kryoServer.start()
+        kryoServer.kryo.registerClasses()
         if (udpPort == null)
             kryoServer.bind(configuration.tcpPort)
         else
             kryoServer.bind(configuration.tcpPort, udpPort)
+        logger.info("Server bound")
 
 
         kryoServer.addListener(object : Listener() {
+            override fun connected(connection: Connection?) {
+                logger.info("Server: A client connected to me (${this@DummyKryoServer})")
+            }
+
+            override fun disconnected(connection: Connection?) {
+                logger.info("Server: Someone disconnected from me")
+            }
+
             override fun received(connection: Connection?, receivedObject: Any?) {
+                synchronized(Lock){
+                    if (disposed) throw IllegalStateException("Server already disposed, instance thus cannot be used again")
+                }
                 logger.info("Dummy server: Received: $receivedObject")
                 if (receivedObject is FrameworkMessage.KeepAlive) return
                 receivedObject as Request
@@ -60,11 +77,16 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
     }
 
     override fun stop() {
-        kryoServer.stop()
+        synchronized(Lock){
+            disposed = true
+            kryoServer.stop()
+        }
     }
 }
 
-class KryoEndpointTest : ClientEndpointTest<ClientEndpoint.KryoEndpoint, EndpointConfiguration.KryoEndpointConfiguration>(DummyKryoServer()) {
+class KryoEndpointTest : ClientEndpointTest<ClientEndpoint.KryoEndpoint, EndpointConfiguration.KryoEndpointConfiguration>() {
+    override fun newDummyServer(): DummyServer<EndpointConfiguration.KryoEndpointConfiguration> = DummyKryoServer()
+
     override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration) =
             ClientEndpoint.KryoEndpoint(endpointConfiguration)
 
