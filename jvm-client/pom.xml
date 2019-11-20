@@ -19,6 +19,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.vatbub</groupId>
             <artifactId>matchmaking.test-utils</artifactId>
             <version>${project.version}</version>

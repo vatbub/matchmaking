@@ -29,6 +29,8 @@ import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
+import org.awaitility.Awaitility.await
+import java.util.concurrent.TimeUnit
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
 sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
@@ -196,7 +198,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         }
 
         override fun connect() {
-            synchronized(Lock){
+            synchronized(Lock) {
                 if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before connecting again")
                 client.start()
                 client.kryo.registerClasses()
@@ -206,6 +208,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
                     client.connect(configuration.timeout, configuration.host, configuration.tcpPort, configuration.udpPort)
                 client.start()
                 client.addListener(KryoListener())
+                await().atMost(configuration.timeout.toLong(), TimeUnit.MILLISECONDS).until { this.isConnected }
             }
         }
 
@@ -214,6 +217,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
                 disposed = true
                 client.stop()
                 client.dispose()
+                await().atMost(5L, TimeUnit.SECONDS).until { !this.isConnected }
             }
         }
     }
