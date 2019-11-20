@@ -81,4 +81,4 @@ abstract class KotlinTestSuperclass<T> {
     }
 }
 
-class DummyClass
+private class DummyClass

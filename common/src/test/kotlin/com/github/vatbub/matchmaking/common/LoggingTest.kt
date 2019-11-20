@@ -22,7 +22,7 @@ package com.github.vatbub.matchmaking.common
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DummyClass1
+private class DummyClass1
 
 class LoggingTest {
     @Test
