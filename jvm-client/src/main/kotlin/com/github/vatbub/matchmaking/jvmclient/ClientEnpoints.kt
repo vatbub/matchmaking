@@ -30,6 +30,7 @@ import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
 import org.awaitility.Awaitility.await
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
@@ -144,8 +145,17 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
             override fun disconnected(connection: Connection?) {
                 logger.info("Client: Disconnected from server")
                 if (disposed) return
-                logger.info("Trying to reconnect...")
-                client.reconnect()
+                synchronized(Lock) {
+                    if (disposed) return
+                    Thread {
+                        logger.info("Trying to reconnect...")
+                        try {
+                            client.reconnect()
+                        } catch (e: IOException) {
+                            logger.warn("Unable to reconnect due to an IOException", e)
+                        }
+                    }
+                }
             }
 
             override fun received(connection: Connection, obj: Any) {
