@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.jvmclient
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 class RequestIdGeneratorTest {
     @Test
@@ -30,6 +31,35 @@ class RequestIdGeneratorTest {
             val newId = RequestIdGenerator.getNewId()
             Assertions.assertFalse(usedIds.contains(newId))
             usedIds.add(newId)
+        }
+    }
+
+    @Test
+    fun noDuplicateWithMockTest() {
+        val random = CustomRandom()
+        val usedIds = mutableListOf<String>()
+        val repetitionCount = 10000
+        repeat(repetitionCount) {
+            val newId = RequestIdGenerator.getNewId(random)
+            Assertions.assertFalse(usedIds.contains(newId))
+            usedIds.add(newId)
+        }
+        Assertions.assertEquals(repetitionCount + random.numberOfCallsBeforeTrueRandomIsReturned, random.nextIntCallCount)
+    }
+
+    private class CustomRandom(val intReturnedOnFirstCalls: Int = 1, val numberOfCallsBeforeTrueRandomIsReturned: Int = 2) : Random() {
+        var nextIntCallCount = 0
+            private set
+
+        override fun nextBits(bitCount: Int) = Random.nextBits(bitCount)
+        override fun nextInt(): Int {
+            val result =
+                    if (nextIntCallCount <= numberOfCallsBeforeTrueRandomIsReturned)
+                        intReturnedOnFirstCalls
+                    else
+                        super.nextInt()
+            nextIntCallCount++
+            return result
         }
     }
 }

@@ -26,11 +26,13 @@ object RequestIdGenerator {
 
     private object Lock
 
-    fun getNewId(): String {
+    fun getNewId() = getNewId(Random)
+
+    internal fun getNewId(random: Random): String {
         synchronized(Lock) {
             var id: Int
             do {
-                id = Random.nextInt()
+                id = random.nextInt()
             } while (usedIds.contains(id))
             usedIds.add(id)
             return id.toString(16)
