@@ -70,7 +70,7 @@
     <properties>
         <gitRepoName>matchmaking</gitRepoName>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tomcat.version>8.5.40</tomcat.version>
+        <tomcat.version>8.5.40</tomcat.version>
         <slf4j.version>1.7.26</slf4j.version>
         <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt, **/ServerInteraction.kt</sonar.exclusions>
     </properties>
@@ -142,11 +142,11 @@
                 <artifactId>http-request</artifactId>
                 <version>1.0.1</version>
             </dependency>
-			<dependency>
-				<groupId>org.apache.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-core</artifactId>
-				<version>${tomcat.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-websocket</artifactId>
@@ -182,12 +182,16 @@
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>
-                        <goals><goal>prepare-agent</goal></goals>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>default-report</id>
                         <phase>prepare-package</phase>
-                        <goals><goal>report</goal></goals>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
