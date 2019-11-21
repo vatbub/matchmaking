@@ -68,6 +68,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
             previousEndpoint.terminateConnection()
             await().atMost(5, TimeUnit.SECONDS).until { !previousEndpoint.isConnected }
         }
+        Thread.sleep(2000)
     }
 
     private fun prepareServer() {
