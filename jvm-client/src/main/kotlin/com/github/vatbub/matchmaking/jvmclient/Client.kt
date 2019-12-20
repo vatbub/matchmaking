@@ -24,11 +24,11 @@ import com.github.vatbub.matchmaking.common.data.GameData
 import com.github.vatbub.matchmaking.common.data.User
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.requests.*
+import com.github.vatbub.matchmaking.common.requests.Operation.*
 import com.github.vatbub.matchmaking.common.responses.DisconnectResponse
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
-import com.github.vatbub.matchmaking.common.responses.Result.*
 import com.github.vatbub.matchmaking.common.responses.Result.Nothing
 import java.net.ConnectException
 import java.net.URL
@@ -42,20 +42,64 @@ enum class PollInterval(val timeToSleepBetweenUpdatesInMilliSeconds: Int) {
     ExtremelySlow(10000)
 }
 
+/**
+ * Superclass for endpoint configurations
+ */
 sealed class EndpointConfiguration {
+    /**
+     * Configuration for a websocket connection to a server
+     * @param hostUrl The URL of the host to connect to without the `websocket` part at the end.
+     */
     data class WebsocketEndpointConfig(private val hostUrl: URL) : EndpointConfiguration() {
         private val suffix = "websocket"
+
+        /**
+         * The actual url of the websocket.
+         * This url is constructed by appending `/websocket` to the end of the supplied host url.
+         */
         val finalUrl = URL(hostUrl, suffix)
     }
 
+    /**
+     * Configuration for a http polling connection to a server
+     * @param hostUrl The URL of the host to connect to without the `matchmaking` part at the end.
+     */
     data class HttpPollingEndpointConfig(private val hostUrl: URL, val pollInterval: PollInterval = PollInterval.Medium) : EndpointConfiguration() {
         private val suffix = "matchmaking"
+
+        /**
+         * The actual url of the server.
+         * This url is constructed by appending `/matchmaking` to the end of the supplied host url.
+         */
         val finalUrl = URL(hostUrl, suffix)
     }
 
+    /**
+     * Configuration for a kryo net connection to a server
+     * @param host The host name or host ip of the server
+     * @param tcpPort The tcp port to connect to (Optional).
+     * @param udpPort The udp port to connect to. If no udp port is specified, udp will be disabled.
+     * @param timeout Timeout to connect to the host
+     */
     data class KryoEndpointConfiguration(val host: String, val tcpPort: Int = KryoCommon.defaultTcpPort, val udpPort: Int? = null, val timeout: Int = 5000) : EndpointConfiguration()
 }
 
+/**
+ * Game client which connects to a server.
+ * This is the class you should use to connect to your server.
+ *
+ * **IMPORTANT:** The constructor will already establish the connection to the server, but it will not request a connection id.
+ * You therefore need to call [requestConnectionId] before you do anything else.
+ *
+ * **IMPORTANT:** Because one client typically only participates in one game room, this class is designed to only handle one game room per instance.
+ * You therefore need multiple instances if you wish to connect to multiple rooms at once.
+ *
+ * @param configurations A list of [EndpointConfiguration]s which specify how the client can connect to your server. If you specify multiple configurations, the client will try the first one. If that fails, it will try the second one and so on
+ * @param onConnectedUsersChange Callback which is called whenever the list of connected users changes.
+ * @param onGameStateChange Callback which is called whenever [Room.gameState] changes.
+ * @param onGameStarted Callback which is called when the game host starts the game.
+ * @param onDataToBeSentToHostChange Callback which is called whenever any client adds any data to [Room.dataToBeSentToTheHost]
+ */
 class Client(
         configurations: List<EndpointConfiguration>,
         private val onConnectedUsersChange: (oldValue: List<User>?, newValue: List<User>) -> Unit,
@@ -63,8 +107,14 @@ class Client(
         private val onGameStarted: () -> Unit,
         private val onDataToBeSentToHostChange: (oldValue: List<GameData>?, newValue: List<GameData>) -> Unit
 ) {
+    /**
+     * The connection id for this client or `null` if not connected
+     */
     var connectionId: String? = null
         private set
+    /**
+     * The password for this client or `null` if not connected
+     */
     var password: String? = null
         private set
     private val safeConnectionId: String
@@ -77,13 +127,25 @@ class Client(
     private val safeCurrentRoomId: String
         get() = currentRoomId
                 ?: throw IllegalStateException("CurrentRoomId unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
+
+    /**
+     * The [Room] which this client is currently connected to or `null` if not connected or if no room was joined yet.
+     */
     var currentRoom: Room? = null
         private set
     private val safeCurrentRoom: Room
         get() = currentRoom
                 ?: throw IllegalStateException("CurrentRoom unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
+
+    /**
+     * `true` if connected to a server, `false` otherwise
+     */
     val connected: Boolean
         get() = connectionId != null && password != null
+
+    /**
+     * `true` if a room was joined, `false` otherwise
+     */
     val roomConnected: Boolean
         get() = currentRoomId != null
 
@@ -109,6 +171,9 @@ class Client(
                 ?: throw ConnectException("Unable to connect using any of the specified configurations. See the log for more details.")
     }
 
+    /**
+     * Requests a connection id from the server and stores it in [connectionId] and [password].
+     */
     fun requestConnectionId() {
         if (connected) return
         synchronized(this) {
@@ -120,14 +185,36 @@ class Client(
         }
     }
 
+    /**
+     * Joins the room with the specified criteria.
+     * @param userName The user name of this player.
+     * @param whitelist If specified, only the user names mentioned in this list are allowed to be in the room.
+     * @param blacklist If specified, rooms are not considered where any of the mentioned user names has joined.
+     * @param minRoomSize The minimal number of connected clients required to start a game.
+     * @param maxRoomSize The maximum number of connected clients (including this client).
+     * @throws IllegalArgumentException If the room cannot be joined, e.g. because no room is found which matches the specified criteria or for any other reason.
+     */
     fun joinRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(Operation.JoinRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+            joinOrCreateRoom(JoinRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
 
+    /**
+     * Creates a new room on the server with the given parameters.
+     * @param userName The user name of this player.
+     * @param whitelist If specified, only players with user names mentioned in this list are allowed to join this room. If unspecified, any user is allowed to join the room except for users mentioned in [blacklist].
+     * @param blacklist If specified, players with user names mentioned in this list are not alowed to join this room.
+     * @param minRoomSize The minimum number of players required to start a game.
+     * @param maxRoomSize The maximum number of players in the room. The server will make sure that no more players join the room once [maxRoomSize] is reached.
+     * @throws IllegalArgumentException If the room cannot be created for any reason.
+     */
     fun createRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(Operation.CreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+            joinOrCreateRoom(CreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
 
+    /**
+     * Tries to join a room which matches the given criteria. If no matching room can be found, a room with the specified parameters is created.
+     * @see [joinRoom] and [createRoom] for more documentation.
+     */
     fun joinOrCreateRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(Operation.JoinOrCreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+            joinOrCreateRoom(JoinOrCreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
 
     private fun joinOrCreateRoom(operation: Operation, userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) {
         if (roomConnected) return
@@ -135,19 +222,26 @@ class Client(
             if (roomConnected) return
             endpoint.sendRequest<JoinOrCreateRoomResponse>(JoinOrCreateRoomRequest(safeConnectionId, safePassword, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize)) {
                 when (it.result) {
-                    RoomCreated -> logger.debug("Room created: ${it.roomId}")
-                    RoomJoined -> {
-                        logger.debug("Room joined: ${it.roomId}")
+                    Nothing -> throw when (operation) {
+                        JoinRoom -> IllegalArgumentException("Unable to join the specified room. This is probably because no room with the specified id exists.")
+                        CreateRoom -> IllegalArgumentException("Unable to create a new room for an unknown reason")
+                        JoinOrCreateRoom -> IllegalArgumentException("Unable to join or create a new room for an unknown reason")
+                    }
+                    else -> {
+                        logger.debug("Room ${it.result.toInfixStringPastTense()}: ${it.roomId}")
                         currentRoomId = it.roomId
                                 ?: throw IllegalArgumentException("Server sent an illegal response: roomId not specified")
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
                     }
-                    Nothing -> logger.debug("Result of JoinOrCreateRoomRequest: Nothing")
                 }
             }
         }
     }
 
+    /**
+     * Terminates the current connection gracefully.
+     * No-op if not connected to a server.
+     */
     fun disconnect() {
         if (!endpoint.isConnected) return
         synchronized(this) {
@@ -164,6 +258,17 @@ class Client(
         }
     }
 
+    /**
+     * Sends the specified data to the host of the game.
+     * Fore specifically, the specified data is added to [Room.dataToBeSentToTheHost].
+     * [Room.dataToBeSentToTheHost] is distributed by the server to all other client sin the room, including the host.
+     * The host can then use this data to update [Room.gameState].
+     * Other clients can also use [Room.dataToBeSentToTheHost] to extrapolate the game state (to reduce lag).
+     * However, the host is not obliged to update [Room.gameState].
+     * In theory, all clients could just calculate the game state from [Room.dataToBeSentToTheHost].
+     *
+     * @param data The data to be sent to the host.
+     */
     fun sendDataToHost(data: List<GameData>) {
         synchronized(this) {
             endpoint.sendRequest<GetRoomDataResponse>(SendDataToHostRequest(safeConnectionId, safePassword, safeCurrentRoomId, data)) { processGetGameDataResponse(it) }
@@ -177,6 +282,15 @@ class Client(
             throw IllegalStateException("You are not the host of the room, only the host is allowed to perform this action!")
     }
 
+    /**
+     * Starts the game in the current room.
+     * More specifically, [Room.gameStarted] is set to `true` and the corresponding event is sent to all clients.
+     *
+     * **IMPORTANT:** Only the host of a room may start the game.
+     *
+     * @see [Room.amITheHost]
+     * @throws IllegalStateException If this client is not the host of the room or if the room data is not yet retrieved.
+     */
     fun startGame() {
         synchronized(this) {
             verifyIsHost()
@@ -184,6 +298,18 @@ class Client(
         }
     }
 
+    /**
+     * Updates [Room.gameState].
+     * This usually happens because clients have added data to [Room.dataToBeSentToTheHost] and the game state is updated accordingly.
+     *
+     * **IMPORTANT:** Only the host of a room may update the game state.
+     *
+     * @param newGameState The new game state
+     * @param processedData The [GameData] packets which were used to create the new game state. These packets will automatically be removed from [Room.dataToBeSentToTheHost] by the server.
+     *
+     * @see [Room.amITheHost]
+     * @throws IllegalStateException If this client is not the host of the room or if the room data is not yet retrieved.
+     */
     fun updateGameState(newGameState: GameData, processedData: List<GameData>) {
         verifyIsHost()
         if (safeCurrentRoom.gameStarted) return

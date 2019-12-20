@@ -21,11 +21,17 @@ package com.github.vatbub.matchmaking.jvmclient
 
 import kotlin.random.Random
 
+/**
+ * Creates random request ids without duplicates.
+ */
 object RequestIdGenerator {
     private val usedIds = mutableListOf<Int>()
 
     private object Lock
 
+    /**
+     * Returns a new id.
+     */
     fun getNewId() = getNewId(Random)
 
     internal fun getNewId(random: Random): String {

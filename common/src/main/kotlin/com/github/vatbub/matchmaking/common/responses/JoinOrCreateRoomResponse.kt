@@ -55,5 +55,12 @@ class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val ro
 }
 
 enum class Result {
-    RoomCreated, RoomJoined, Nothing
+    RoomCreated, RoomJoined, Nothing;
+
+    fun toInfixStringPastTense() =
+            when (this) {
+                RoomCreated -> "created"
+                RoomJoined -> "joined"
+                Nothing -> "nothing"
+            }
 }
