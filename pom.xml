@@ -70,7 +70,7 @@
     <properties>
         <gitRepoName>matchmaking</gitRepoName>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <tomcat.version>8.5.40</tomcat.version>
+        <tomcat.version>9.0.30</tomcat.version>
         <slf4j.version>1.7.26</slf4j.version>
         <sonar.exclusions>**/testutils/**/*,**/testing/**/*,**/KryoCommon.kt, **/ServerInteraction.kt</sonar.exclusions>
     </properties>
