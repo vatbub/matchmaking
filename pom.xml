@@ -51,7 +51,7 @@
     <parent>
         <groupId>com.github.vatbub</groupId>
         <artifactId>kotlinParentPom</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>matchmaking.parent</artifactId>
