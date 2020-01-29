@@ -18,7 +18,7 @@ install:
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -DtrimStackTrace=false --settings travisMavenSettings.xml
 after_success:
-  - if $TRAVIS_BRANCH -eq "master" -a $TRAVIS_PULL_REQUEST -eq "false"; then heroku plugins:install java; heroku deploy:jar standaloneserverlauncher/target/matchmaking.standalone-server-launcher-1.0-SNAPSHOT-jar-with-dependencies.jar --app vatbubmatchmakingstaging; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_BRANCH" = "master" ]; then heroku plugins:install java; heroku deploy:jar standaloneserverlauncher/target/matchmaking.standalone-server-launcher-1.0-SNAPSHOT-jar-with-dependencies.jar --app vatbubmatchmakingstaging; fi
 notifications:
   email:
     recipients:
