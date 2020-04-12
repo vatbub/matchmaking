@@ -85,9 +85,9 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
     override fun stop() {
         synchronized(Lock) {
             disposed = true
+            Thread.sleep(2000)
             kryoServer.stop()
             internalIsRunning = false
-            Thread.sleep(2000)
         }
     }
 }

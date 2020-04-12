@@ -275,6 +275,8 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         override fun terminateConnection() {
             synchronized(Lock) {
                 disposed = true
+                // Potential fix for ClosedSelectorException in KryoNet
+                Thread.sleep(500)
                 client.stop()
                 client.dispose()
                 await().atMost(5L, TimeUnit.SECONDS).until { !this.isConnected }
