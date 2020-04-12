@@ -87,6 +87,7 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
             disposed = true
             kryoServer.stop()
             internalIsRunning = false
+            Thread.sleep(2000)
         }
     }
 }
