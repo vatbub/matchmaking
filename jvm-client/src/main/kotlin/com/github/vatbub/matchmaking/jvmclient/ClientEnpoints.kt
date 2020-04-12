@@ -184,7 +184,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
         private inner class KryoListener : Listener() {
             override fun connected(connection: Connection?) {
-                logger.info("Client: Connected to server")
+                logger.info { "Client: Connected to server" }
             }
 
             override fun idle(connection: Connection?) {
@@ -192,16 +192,16 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
             }
 
             override fun disconnected(connection: Connection?) {
-                logger.info("Client: Disconnected from server")
+                logger.info { "Client: Disconnected from server" }
                 if (disposed) return
                 synchronized(Lock) {
                     if (disposed) return
                     Thread {
-                        logger.info("Trying to reconnect...")
+                        logger.info { "Trying to reconnect..." }
                         try {
                             client.reconnect()
                         } catch (e: IOException) {
-                            logger.warn("Unable to reconnect due to an IOException", e)
+                            logger.warn(e) { "Unable to reconnect due to an IOException" }
                         }
                     }
                 }
@@ -209,7 +209,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
             override fun received(connection: Connection, obj: Any) {
                 synchronized(Lock) {
-                    logger.info("Client: Received: $obj")
+                    logger.info { "Client: Received: $obj" }
                     if (obj is FrameworkMessage.KeepAlive) return
                     if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
                     this@KryoEndpoint.verifyResponseIsNotAnException(obj)
@@ -239,8 +239,8 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
             synchronized(Lock) {
                 if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before sending more requests")
                 pendingResponses.add(ResponseHandlerWrapper(request, responseHandler))
-                logger.info("Client: Sending: $request")
-                logger.info("Connection id is $client")
+                logger.info { "Client: Sending: $request" }
+                logger.info { "Connection id is $client" }
                 client.sendTCP(request)
             }
         }

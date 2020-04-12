@@ -37,7 +37,7 @@ open class MemoryRoomProvider : RoomProvider() {
     private val pendingTransactions = mutableMapOf<String, RoomTransaction>()
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
-        logger.trace("Beginning a transaction for room $id...")
+        logger.trace { "Beginning a transaction for room $id..." }
         val room = rooms[id] ?: return null
         val transaction = RoomTransaction(
                 ObservableRoom(room), this
@@ -53,14 +53,14 @@ open class MemoryRoomProvider : RoomProvider() {
     }
 
     override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
-        logger.trace("Committing a room transaction for room ${roomTransaction.room.id}")
+        logger.trace { "Committing a room transaction for room ${roomTransaction.room.id}" }
         if (!pendingTransactions.containsValue(roomTransaction)) return
         rooms[roomTransaction.room.id] = roomTransaction.room.toRoom()
         pendingTransactions.remove(roomTransaction.room.id)
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
-        logger.trace("Aborting a room transaction for room ${roomTransaction.room.id}")
+        logger.trace { "Aborting a room transaction for room ${roomTransaction.room.id}" }
         pendingTransactions.remove(roomTransaction.room.id)
     }
 
@@ -79,7 +79,7 @@ open class MemoryRoomProvider : RoomProvider() {
             minRoomSize: Int,
             maxRoomSize: Int
     ): Room {
-        logger.trace("Creating a new room...")
+        logger.trace { "Creating a new room..." }
         var roomIdAsString: String
         do {
             var roomId = Random.nextInt()
@@ -104,12 +104,12 @@ open class MemoryRoomProvider : RoomProvider() {
     override fun get(id: String) = rooms[id]?.copy()
 
     override fun deleteRoom(id: String): Room? {
-        logger.trace("Deleting room with id $id...")
+        logger.trace { "Deleting room with id $id..." }
         return rooms.remove(id)
     }
 
     override fun clearRooms() {
-        logger.debug("Deleting all rooms from memory...")
+        logger.debug { "Deleting all rooms from memory..." }
         rooms.clear()
     }
 

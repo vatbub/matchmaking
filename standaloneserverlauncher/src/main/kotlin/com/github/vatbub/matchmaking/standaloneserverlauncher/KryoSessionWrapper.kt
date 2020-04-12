@@ -27,7 +27,7 @@ import com.github.vatbub.matchmaking.server.logic.sockets.Session
 class KryoSessionWrapper(val connection: Connection) : Session() {
     override fun sendObjectSync(objectToSend: ServerInteraction) {
         try {
-            logger.debug("Sending object: $objectToSend")
+            logger.debug { "Sending object: $objectToSend" }
             connection.sendUDP(objectToSend)
         } catch (e: IllegalStateException) {
             connection.sendTCP(objectToSend)

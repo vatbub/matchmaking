@@ -48,25 +48,25 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
     }
 
     override fun destroy() {
-        logger.debug("ServerServlet is being destroyed")
+        logger.debug { "ServerServlet is being destroyed" }
         super.destroy()
         ConfigurationManager.onChangeListeners.remove(this::reloadConfiguration)
     }
 
     @Suppress("UNUSED_PARAMETER")
     private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
-        logger.info("Loading new configuration into ServerServlet...")
+        logger.info { "Loading new configuration into ServerServlet..." }
         serverContext = newConfiguration.getAsServerContext()
         serverContext.resetMessageHandlers()
     }
 
     public override fun doPost(request: HttpServletRequest?, response: HttpServletResponse?) {
         if (request == null) {
-            logger.warn("Received a request that was null, please report this issue to the project maintainers!")
+            logger.warn { "Received a request that was null, please report this issue to the project maintainers!" }
             return
         }
         if (response == null) {
-            logger.warn("Response object was null, please report this issue to the project maintainers!")
+            logger.warn { "Response object was null, please report this issue to the project maintainers!" }
             return
         }
 
@@ -74,21 +74,21 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
         val requestBodyBuilder = StringBuilder()
         request.reader.lines().forEachOrdered { line -> requestBodyBuilder.append(line) }
         val json = requestBodyBuilder.toString()
-        logger.debug("Received a HTTP POST request")
-        logger.trace("Received the following request: $json")
+        logger.debug { "Received a HTTP POST request" }
+        logger.trace { "Received the following request: $json" }
         val concreteRequest = InteractionConverter.deserializeRequest<Request>(json)
-        logger.debug("Request parsed.")
+        logger.debug { "Request parsed." }
 
         val responseInteraction = serverContext.messageDispatcher.dispatchOrCreateException(
-            concreteRequest,
-            IpAddressHelper.convertToIpv4(request.remoteAddr),
-            IpAddressHelper.convertToIpv6(request.remoteAddr)
+                concreteRequest,
+                IpAddressHelper.convertToIpv4(request.remoteAddr),
+                IpAddressHelper.convertToIpv6(request.remoteAddr)
         )
 
-        logger.debug("Response generated, now serializing...")
+        logger.debug { "Response generated, now serializing..." }
 
         val responseJson = InteractionConverter.serialize(responseInteraction)
-        logger.trace("The following response was generated: $responseJson")
+        logger.trace { "The following response was generated: $responseJson" }
         response.contentType = "application/json"
         response.characterEncoding = encoding
         response.status = responseInteraction.httpStatusCode
@@ -98,7 +98,7 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
 
         response.outputStream.flush()
         response.outputStream.close()
-        logger.debug("Response sent")
+        logger.debug { "Response sent" }
     }
 
     override fun equals(other: Any?): Boolean {

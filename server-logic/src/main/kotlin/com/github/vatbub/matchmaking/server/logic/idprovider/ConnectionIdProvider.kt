@@ -35,7 +35,7 @@ interface ConnectionIdProvider {
      * automatically
      */
     fun getNewId(): Id {
-        logger.trace("Creating a new id...")
+        logger.trace { "Creating a new id..." }
         var connectionIdAsString: String
         do {
             var connectionId = Random.nextInt()
@@ -80,15 +80,16 @@ interface ConnectionIdProvider {
     operator fun get(id: String): Id?
 
     fun containsId(id: String?): Boolean
+
     /**
      * Deletes all known ids
      */
     fun reset()
 
     fun isAuthorized(id: Id): AuthorizationResult {
-        logger.debug("Checking authorization...")
+        logger.debug { "Checking authorization..." }
         val result = isAuthorizedImpl(id)
-        logger.debug("Authorization check result: $result")
+        logger.debug { "Authorization check result: $result" }
         return result
     }
 

@@ -19,7 +19,8 @@
  */
 package com.github.vatbub.matchmaking.common
 
+import mu.KotlinLogging
 import org.slf4j.LoggerFactory
 
 val Any.logger
-    get() = LoggerFactory.getLogger(this.javaClass)!!
+    get() = KotlinLogging.logger(LoggerFactory.getLogger(this.javaClass)!!)

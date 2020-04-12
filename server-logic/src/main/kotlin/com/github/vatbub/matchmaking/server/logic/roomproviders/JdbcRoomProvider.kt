@@ -144,7 +144,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     override val supportsConcurrentTransactionsOnSameRoom = true
 
     private fun saveGameData(connection: Connection, gameDataId: Int? = null, gameData: GameData): Int {
-        logger.trace("Saving game data, gameDataId = $gameDataId")
+        logger.trace { "Saving game data, gameDataId = $gameDataId" }
         val json = gameData.contents.toJson()
 
         if (gameDataId != null) {
@@ -185,7 +185,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
 
 
     private fun getRoom(id: String, connection: Connection): Room? {
-        logger.trace("Getting room with id $id...")
+        logger.trace { "Getting room with id $id..." }
         val queryResult =
             connection.createStatement().executeQuery("SELECT * FROM ${roomsTable.name} WHERE id = '$id'")
         if (!queryResult.next())
@@ -207,7 +207,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     private fun getConnectedUsers(roomId: String, connection: Connection): List<User> {
-        logger.trace("Getting the connected users for room $roomId...")
+        logger.trace { "Getting the connected users for room $roomId..." }
         val statement =
             connection.prepareStatement("SELECT * FROM ${usersTable.name} WHERE ${usersTable.columns[4].name} = ?")
         statement.setString(1, roomId)
@@ -233,7 +233,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     private fun getGameData(gameDataId: Int, connection: Connection): GameData? {
-        logger.trace("Getting game data with gameDataId = $gameDataId...")
+        logger.trace { "Getting game data with gameDataId = $gameDataId..." }
         val statement = connection.prepareStatement(("SELECT * FROM ${gameDataTable.name} WHERE id = ?"))
         statement.setInt(1, gameDataId)
         val queryResult = statement.executeQuery()
@@ -247,7 +247,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     private fun getDataToBeSentToHost(roomId: String, connection: Connection): List<GameData> {
-        logger.trace("Getting data to be sent to host for room $roomId")
+        logger.trace { "Getting data to be sent to host for room $roomId" }
         val statement =
             connection.prepareStatement("SELECT * FROM ${dataToBeSentToHostTable.name} WHERE ${dataToBeSentToHostTable.columns[1].name} = ?")
         statement.setString(1, roomId)
@@ -266,7 +266,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
         minRoomSize: Int,
         maxRoomSize: Int
     ): Room {
-        logger.trace("Creating a new room...")
+        logger.trace { "Creating a new room..." }
         var room: Room? = null
         connectionPoolWrapper.getConnectionAndCommit {
             var roomIdAsString: String
@@ -311,7 +311,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     override fun beginTransactionWithRoom(id: String): RoomTransaction? {
-        logger.trace("Beginning a transaction for room $id...")
+        logger.trace { "Beginning a transaction for room $id..." }
         val connection = connectionPoolWrapper.getConnection()
         val room = getRoom(id, connection)
         if (room == null) {
@@ -478,7 +478,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     override fun commitTransactionImpl(roomTransaction: RoomTransaction) {
-        logger.trace("Committing a room transaction for room ${roomTransaction.room.id}")
+        logger.trace { "Committing a room transaction for room ${roomTransaction.room.id}" }
         val connection = pendingTransactions[roomTransaction] ?: return
         connection.commit()
         connection.close()
@@ -486,7 +486,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     override fun abortTransaction(roomTransaction: RoomTransaction) {
-        logger.trace("Aborting a room transaction for room ${roomTransaction.room.id}")
+        logger.trace { "Aborting a room transaction for room ${roomTransaction.room.id}" }
         val connection = pendingTransactions[roomTransaction] ?: return
         connection.rollback()
         connection.close()
@@ -494,7 +494,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     override fun deleteRoom(id: String): Room? {
-        logger.trace("Deleting room with id $id...")
+        logger.trace { "Deleting room with id $id..." }
         var room: Room? = null
         connectionPoolWrapper.getConnectionAndCommit {
             val gameStateId = getGameStateIdByRoomId(it, id) ?: return@getConnectionAndCommit false
@@ -508,7 +508,7 @@ class JdbcRoomProvider internal constructor(internal val connectionPoolWrapper: 
     }
 
     override fun clearRooms() {
-        logger.debug("Deleting all rooms from the database...")
+        logger.debug { "Deleting all rooms from the database..." }
         connectionPoolWrapper.getConnectionAndCommit {
             @Suppress("SqlWithoutWhere")
             it.createStatement().executeUpdate("DELETE FROM ${gameDataTable.name}")

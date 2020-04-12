@@ -26,7 +26,7 @@ import java.io.CharArrayWriter
 class StdoutAccessLogValve : AbstractAccessLogValve() {
     override fun log(message: CharArrayWriter?) {
         synchronized(this) {
-            logger.info(message?.toString())
+            logger.info { message?.toString() }
         }
     }
 }

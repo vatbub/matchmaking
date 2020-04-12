@@ -99,22 +99,22 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
 
     @Suppress("UNUSED_PARAMETER")
     private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
-        logger.info("Loading new configuration into WebsocketEndpoint...")
+        logger.info { "Loading new configuration into WebsocketEndpoint..." }
         serverContext = newConfiguration.getAsServerContext()
         serverContext.resetMessageHandlers()
     }
 
     @OnOpen
     fun open(session: Session, endpointConfig: EndpointConfig) {
-        logger.info("A new websocket was opened")
+        logger.info { "A new websocket was opened" }
         this.sessionWrapper = WebsocketSessionWrapper(session)
         this.endpointConfig = endpointConfig
     }
 
     @OnMessage
     fun onTextMessage(session: Session, message: String) {
-        logger.debug("Received a text message through WebsocketEndpoint")
-        logger.trace("Received the following text message through WebsocketEndpoint: $message")
+        logger.debug { "Received a text message through WebsocketEndpoint" }
+        logger.trace { "Received the following text message through WebsocketEndpoint: $message" }
         val request = InteractionConverter.deserializeRequest<Request>(message)
         val responseInteraction =
                 serverContext.messageDispatcher.dispatchOrCreateException(
@@ -123,16 +123,16 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
                         remoteInet6Address,
                         sessionWrapper!!
                 )
-        logger.debug("Response generated, now serializing...")
+        logger.debug { "Response generated, now serializing..." }
         val responseJson = InteractionConverter.serialize(responseInteraction)
-        logger.trace("The following response was generated: $responseJson")
+        logger.trace { "The following response was generated: $responseJson" }
         session.asyncRemote.sendText(responseJson)
-        logger.debug("Response sent")
+        logger.debug { "Response sent" }
     }
 
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
-        logger.info("A websocket was closed")
+        logger.info { "A websocket was closed" }
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }

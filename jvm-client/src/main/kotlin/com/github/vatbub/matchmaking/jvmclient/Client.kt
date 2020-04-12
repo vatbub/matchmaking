@@ -164,7 +164,7 @@ class Client(
                 tempEndpoint!!.connect()
                 return@forEach
             } catch (e: Exception) {
-                logger.error("Unable to connect using this configuration, trying the next configuration (if there's more specified)...", e)
+                logger.error(e) { "Unable to connect using this configuration, trying the next configuration (if there's more specified)..." }
             }
         }
         endpoint = tempEndpoint
@@ -228,7 +228,7 @@ class Client(
                         JoinOrCreateRoom -> IllegalArgumentException("Unable to join or create a new room for an unknown reason")
                     }
                     else -> {
-                        logger.debug("Room ${it.result.toInfixStringPastTense()}: ${it.roomId}")
+                        logger.debug { "Room ${it.result.toInfixStringPastTense()}: ${it.roomId}" }
                         currentRoomId = it.roomId
                                 ?: throw IllegalArgumentException("Server sent an illegal response: roomId not specified")
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)

@@ -39,7 +39,7 @@ data class ServerContext(
      * Removes all handlers from the [messageDispatcher] and reinstantiates the default handlers
      */
     fun resetMessageHandlers() {
-        logger.debug("Resetting message handlers...")
+        logger.debug { "Resetting message handlers..." }
         messageDispatcher.removeAllHandlers()
         messageDispatcher.registerHandler(GetConnectionIdHandler(connectionIdProvider))
         messageDispatcher.registerHandler(JoinOrCreateRoomRequestHandler(roomProvider))

@@ -118,8 +118,8 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
                     if (receivedObject == null) return
                     if (receivedObject is FrameworkMessage.KeepAlive) return
                     receivedObjectsCount++
-                    logger.info("[Test Client] receivedObjectsCount = $receivedObjectsCount")
-                    logger.info("[Test Client] Received: $receivedObject")
+                    logger.info { "[Test Client] receivedObjectsCount = $receivedObjectsCount" }
+                    logger.info { "[Test Client] Received: $receivedObject" }
                     if (receivedObject !is Response) return onUnexpectedObjectReceived(receivedObject)
                     val handler = pendingResponses.remove(receivedObject.responseTo)
                             ?: return onUnexpectedObjectReceived(receivedObject)
@@ -146,7 +146,7 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
                     retryCount++
                     if (retryCount > maxRequestRetryCount)
                         throw timeoutException
-                    logger.warn("Resending request...")
+                    logger.warn { "Resending request..." }
                 }
             }
         }

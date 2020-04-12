@@ -79,22 +79,22 @@ class ConfigurationManager {
     private fun readDefaultConfigurationFileIfExists(): Configuration? {
         val configFile = JndiHelper.readJndi("configFile") ?: File("matchmakingConfig.json")
 
-        logger.info("Looking for the default configuration file at: ${configFile.absoluteFile}")
+        logger.info { "Looking for the default configuration file at: ${configFile.absoluteFile}" }
         return readConfigurationFile(configFile)
     }
 
     fun readConfigurationFile(fileToRead: File): Configuration? {
         if (!fileToRead.exists()) {
-            logger.warn("The configuration file ${fileToRead.absolutePath} does not exist!")
+            logger.warn { "The configuration file ${fileToRead.absolutePath} does not exist!" }
             return null
         }
 
         if (!fileToRead.isFile) {
-            logger.warn("The configuration file ${fileToRead.absolutePath} is not a file!")
+            logger.warn { "The configuration file ${fileToRead.absolutePath} is not a file!" }
             return null
         }
 
-        logger.info("File found, reading config file... ")
+        logger.info { "File found, reading config file... " }
         var result: Configuration? = null
         FileReader(fileToRead).use { result = fromJson(it, Configuration::class.java) }
         return result!!

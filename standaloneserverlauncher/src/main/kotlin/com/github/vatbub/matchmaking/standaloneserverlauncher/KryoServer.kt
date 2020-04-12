@@ -61,7 +61,7 @@ class KryoServer(internal val tcpPort: Int, internal val udpPort: Int?, initialS
 
     @Suppress("UNUSED_PARAMETER")
     private fun reloadConfiguration(oldConfiguration: Configuration, newConfiguration: Configuration) {
-        logger.info("Loading new configuration into KryoServer...")
+        logger.info { "Loading new configuration into KryoServer..." }
         serverContext = newConfiguration.getAsServerContext()
         serverContext.resetMessageHandlers()
     }
@@ -78,7 +78,7 @@ class KryoServer(internal val tcpPort: Int, internal val udpPort: Int?, initialS
 
         override fun received(connection: Connection, receivedObject: Any) {
             val session = this@KryoServer.sessions[connection]
-            logger.trace("Server: Received object: $receivedObject")
+            logger.trace { "Server: Received object: $receivedObject" }
             if (session == null) {
                 val exceptionMessage = "Unknown connection object"
                 val responseException = InternalServerErrorException(exceptionMessage)

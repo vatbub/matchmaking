@@ -82,11 +82,11 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
                 break
             } catch (e: Exception) {
                 if (exceptionCount > 10) {
-                    logger.warn("Exception while trying to start the dummy server, exception count exceeded, rethrowing the exception", e)
+                    logger.warn(e) { "Exception while trying to start the dummy server, exception count exceeded, rethrowing the exception" }
                     throw e
                 }
 
-                logger.warn("Exception while trying to start the dummy server, trying again...", e)
+                logger.warn(e) { "Exception while trying to start the dummy server, trying again..." }
                 exceptionCount++
                 if (previousServer != null) {
                     previousServer.stop()

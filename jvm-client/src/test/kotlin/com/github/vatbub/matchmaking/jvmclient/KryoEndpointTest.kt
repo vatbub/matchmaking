@@ -53,23 +53,23 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
         else
             kryoServer.bind(configuration.tcpPort, udpPort)
         internalIsRunning = true
-        logger.info("Server bound")
+        logger.info { "Server bound" }
 
 
         kryoServer.addListener(object : Listener() {
             override fun connected(connection: Connection?) {
-                logger.info("Server: A client connected to me (${this@DummyKryoServer})")
+                logger.info { "Server: A client connected to me (${this@DummyKryoServer})" }
             }
 
             override fun disconnected(connection: Connection?) {
-                logger.info("Server: Someone disconnected from me")
+                logger.info { "Server: Someone disconnected from me" }
             }
 
             override fun received(connection: Connection?, receivedObject: Any?) {
                 synchronized(Lock) {
                     if (disposed) throw IllegalStateException("Server already disposed, instance thus cannot be used again")
                 }
-                logger.info("Dummy server: Received: $receivedObject")
+                logger.info { "Dummy server: Received: $receivedObject" }
                 if (receivedObject is FrameworkMessage.KeepAlive) return
                 receivedObject as Request
                 val response = dummyMessageGenerator(receivedObject)

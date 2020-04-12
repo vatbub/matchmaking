@@ -46,7 +46,7 @@ val defaultInet4Address = InetAddress.getByName("129.187.211.162") as Inet4Addre
 val defaultInet6Address = InetAddress.getByName("2001:4ca0:2fff:11:0:0:0:25") as Inet6Address
 
 fun Kryo.registerClasses() {
-    logger.debug("Matchmaking: Registering classes for KryoNet...")
+    logger.debug { "Matchmaking: Registering classes for KryoNet..." }
 
     // data
     val instantRegistration = this.register(Instant::class.java)!!

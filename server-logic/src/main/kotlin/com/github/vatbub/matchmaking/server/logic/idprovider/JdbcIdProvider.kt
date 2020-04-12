@@ -67,7 +67,7 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
     }
 
     override fun deleteId(id: String): Id? {
-        logger.trace("Deleting an id...")
+        logger.trace { "Deleting an id..." }
         val result = get(id)
         transaction(connectionPoolWrapper.exposedDatabase) {
             ConnectionIDs.deleteWhere {
@@ -81,7 +81,7 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
         var result: Id? = null
 
         transaction(connectionPoolWrapper.exposedDatabase) {
-            logger.debug("Getting the id info for a specified connection id...")
+            logger.debug { "Getting the id info for a specified connection id..." }
             val query = ConnectionIDs.select { ConnectionIDs.id eq id }
             result = (if (query.empty()) null else Id(id, query.first()[ConnectionIDs.passwordHash]))
         }
@@ -109,9 +109,9 @@ class JdbcIdProvider internal constructor(internal val connectionPoolWrapper: Co
     }
 
     override fun isAuthorized(id: Id): AuthorizationResult {
-        logger.debug("Checking authorization...")
+        logger.debug { "Checking authorization..." }
         val result = isAuthorizedImpl(id)
-        logger.debug("Authorization check result: $result")
+        logger.debug { "Authorization check result: $result" }
         return result
     }
 

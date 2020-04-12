@@ -44,7 +44,7 @@ open class MemoryIdProvider : ConnectionIdProvider {
     }
 
     override fun deleteId(id: String): Id? {
-        logger.trace("Deleting an id...")
+        logger.trace { "Deleting an id..." }
         return _connectionIdsInUse.remove(id)
     }
 
