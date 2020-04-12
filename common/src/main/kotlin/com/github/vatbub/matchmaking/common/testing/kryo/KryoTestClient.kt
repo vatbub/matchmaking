@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.common.testing.kryo
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.KryoCommon
+import com.github.vatbub.matchmaking.common.initializeMinLogRedirect
 import com.github.vatbub.matchmaking.common.registerClasses
 import java.net.InetAddress
 
@@ -31,6 +32,7 @@ class KryoTestClient(listener: Listener, host: InetAddress, tcpPort: Int = KryoC
     val client = Client()
 
     init {
+        initializeMinLogRedirect()
         client.kryo.registerClasses()
         client.start()
         client.addListener(listener)

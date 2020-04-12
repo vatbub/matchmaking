@@ -25,6 +25,7 @@ import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.fromJson
+import com.github.vatbub.matchmaking.common.initializeMinLogRedirect
 import com.github.vatbub.matchmaking.common.registerClasses
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestClient
 import com.github.vatbub.matchmaking.common.testing.kryo.KryoTestServer
@@ -33,6 +34,7 @@ import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.FileInputStream
@@ -55,6 +57,11 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         KotlinTestSuperclass<T>() {
     private var kryoServer: KryoTestServer? = null
     private var kryoClient: KryoTestClient? = null
+
+    @BeforeAll
+    fun redirectKryoLogs() {
+        initializeMinLogRedirect()
+    }
 
     @AfterEach
     fun stopKryo() {

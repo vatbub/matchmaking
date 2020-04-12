@@ -28,7 +28,11 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointConfiguration> {
-    val kryoServer = Server()
+    val kryoServer by lazy {
+        initializeMinLogRedirect()
+        Server()
+    }
+
     private var disposed = false
     override val isRunning: Boolean
         get() = internalIsRunning

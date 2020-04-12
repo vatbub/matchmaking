@@ -23,10 +23,7 @@ import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
-import com.github.vatbub.matchmaking.common.Request
-import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.logger
-import com.github.vatbub.matchmaking.common.registerClasses
+import com.github.vatbub.matchmaking.common.*
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.server.logic.IpAddressHelper
@@ -41,6 +38,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
     private val sessions = mutableMapOf<Connection, KryoSessionWrapper>()
 
     init {
+        initializeMinLogRedirect()
         serverContext = if (initialServerContext != null)
             initialServerContext
         else {

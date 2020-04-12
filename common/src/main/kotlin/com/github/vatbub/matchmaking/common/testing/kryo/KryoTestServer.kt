@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.common.testing.kryo
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.KryoCommon
+import com.github.vatbub.matchmaking.common.initializeMinLogRedirect
 import com.github.vatbub.matchmaking.common.registerClasses
 import java.net.InetAddress
 
@@ -30,6 +31,7 @@ class KryoTestServer(listener: Listener, val tcpPort: Int = KryoCommon.defaultTc
     val ipAddress = InetAddress.getLocalHost()!!
 
     init {
+        initializeMinLogRedirect()
         if (udpPort == null)
             server.bind(tcpPort)
         else

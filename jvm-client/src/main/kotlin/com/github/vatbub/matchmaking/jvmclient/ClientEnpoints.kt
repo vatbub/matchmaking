@@ -23,10 +23,7 @@ import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
-import com.github.vatbub.matchmaking.common.Request
-import com.github.vatbub.matchmaking.common.Response
-import com.github.vatbub.matchmaking.common.logger
-import com.github.vatbub.matchmaking.common.registerClasses
+import com.github.vatbub.matchmaking.common.*
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
 import org.awaitility.Awaitility.await
@@ -174,7 +171,10 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
     class KryoEndpoint(configuration: EndpointConfiguration.KryoEndpointConfiguration) : ClientEndpoint<EndpointConfiguration.KryoEndpointConfiguration>(configuration) {
         override val isConnected: Boolean
             get() = client.isConnected
-        private val client = Client()
+        private val client by lazy {
+            initializeMinLogRedirect()
+            Client()
+        }
         private val pendingResponses = mutableListOf<ResponseHandlerWrapper<*>>()
         private var newRoomDataHandlers = mutableMapOf<String, (DataRoom) -> Unit>()
         var disposed = false
