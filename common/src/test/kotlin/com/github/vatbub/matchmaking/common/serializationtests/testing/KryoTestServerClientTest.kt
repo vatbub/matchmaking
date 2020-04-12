@@ -51,19 +51,16 @@ class KryoTestServerClientTest {
         var clientDisconnectedCalled = false
         var clientReceivedObjectCount = 0
 
-        val serverListener = object : Listener() {
+        val serverListener = object : Listener {
             override fun connected(connection: Connection?) {
-                super.connected(connection)
                 serverConnectedCalled = true
             }
 
             override fun disconnected(connection: Connection?) {
-                super.disconnected(connection)
                 serverDisconnectedCalled = true
             }
 
             override fun received(connection: Connection?, receivedObject: Any?) {
-                super.received(connection, receivedObject)
                 serverReceivedObjectCount++
                 Assertions.assertEquals(objectToSend, receivedObject)
                 if (useUdp)
@@ -73,19 +70,16 @@ class KryoTestServerClientTest {
             }
         }
 
-        val clientListener = object : Listener() {
+        val clientListener = object : Listener {
             override fun connected(connection: Connection?) {
-                super.connected(connection)
                 clientConnectedCalled = true
             }
 
             override fun disconnected(connection: Connection?) {
-                super.disconnected(connection)
                 clientDisconnectedCalled = true
             }
 
             override fun received(connection: Connection?, receivedObject: Any?) {
-                super.received(connection, receivedObject)
                 clientReceivedObjectCount++
                 Assertions.assertEquals(objectToSend, receivedObject)
             }

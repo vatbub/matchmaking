@@ -56,7 +56,7 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
         logger.info { "Server bound" }
 
 
-        kryoServer.addListener(object : Listener() {
+        kryoServer.addListener(object : Listener {
             override fun connected(connection: Connection?) {
                 logger.info { "Server: A client connected to me (${this@DummyKryoServer})" }
             }

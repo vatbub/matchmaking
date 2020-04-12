@@ -92,7 +92,7 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
         val originalObject2 = newObjectUnderTest()
         var listener1Called = false
         var listener2Called = false
-        kryoServer = KryoTestServer(object : Listener() {
+        kryoServer = KryoTestServer(object : Listener {
             override fun received(connection: Connection?, receivedObject: Any?) {
                 listener1Called = true
                 Assertions.assertEquals(originalObject1, receivedObject)
@@ -100,7 +100,7 @@ abstract class SerializationTestSuperclass<T : Any>(private val clazz: Class<T>)
                 connection?.sendTCP(originalObject2)
             }
         })
-        kryoClient = KryoTestClient(kryoTestServer = kryoServer!!, listener = object : Listener() {
+        kryoClient = KryoTestClient(kryoTestServer = kryoServer!!, listener = object : Listener {
             override fun received(connection: Connection?, receivedObject: Any?) {
                 listener2Called = true
                 Assertions.assertEquals(originalObject2, receivedObject)

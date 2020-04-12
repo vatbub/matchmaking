@@ -182,7 +182,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
 
         private object Lock
 
-        private inner class KryoListener : Listener() {
+        private inner class KryoListener : Listener {
             override fun connected(connection: Connection?) {
                 logger.info { "Client: Connected to server" }
             }

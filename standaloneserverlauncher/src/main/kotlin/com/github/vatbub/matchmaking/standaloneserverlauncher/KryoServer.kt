@@ -66,7 +66,7 @@ class KryoServer(tcpPort: Int, udpPort: Int?, initialServerContext: ServerContex
         serverContext.resetMessageHandlers()
     }
 
-    inner class KryoListener : Listener() {
+    inner class KryoListener : Listener {
         override fun connected(connection: Connection) {
             this@KryoServer.sessions[connection] = KryoSessionWrapper(connection)
         }

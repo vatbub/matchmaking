@@ -113,7 +113,7 @@ open class KryoServerTest : KotlinTestSuperclassWithExceptionHandlerForMultithre
             get() = pendingResponses.isEmpty()
 
         init {
-            setServerAndClientUp(tcpPort = tcpPort, udpPort = udpPort, clientListener = object : Listener() {
+            setServerAndClientUp(tcpPort = tcpPort, udpPort = udpPort, clientListener = object : Listener {
                 override fun received(connection: Connection?, receivedObject: Any?) {
                     if (receivedObject == null) return
                     if (receivedObject is FrameworkMessage.KeepAlive) return
