@@ -201,7 +201,7 @@ class Client(
      * Creates a new room on the server with the given parameters.
      * @param userName The user name of this player.
      * @param whitelist If specified, only players with user names mentioned in this list are allowed to join this room. If unspecified, any user is allowed to join the room except for users mentioned in [blacklist].
-     * @param blacklist If specified, players with user names mentioned in this list are not alowed to join this room.
+     * @param blacklist If specified, players with user names mentioned in this list are not allowed to join this room.
      * @param minRoomSize The minimum number of players required to start a game.
      * @param maxRoomSize The maximum number of players in the room. The server will make sure that no more players join the room once [maxRoomSize] is reached.
      * @throws IllegalArgumentException If the room cannot be created for any reason.

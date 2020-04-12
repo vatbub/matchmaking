@@ -37,7 +37,7 @@ import com.github.vatbub.matchmaking.common.data.Room as DataRoom
  * This is what many games call a lobby.
  *
  * Once enough clients have joined the room (The size of [connectedUsers] is above or equal to [minRoomSize]), the host of the room can start the game using [Client.startGame].
- * The server will then set [gameStarted] to `true` and will not let any more client sjoin the room.
+ * The server will then set [gameStarted] to `true` and will not let any more clients join the room.
  */
 class Room(private val ownConnectionId: String, private val wrappedRoom: DataRoom) {
     /**

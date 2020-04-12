@@ -31,6 +31,10 @@ class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val ro
         ResponseImpl(connectionId, JoinOrCreateRoomResponse::class.qualifiedName!!, responseTo) {
     override fun copy() = JoinOrCreateRoomResponse(connectionId, result, roomId, responseTo)
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this(null, Result.Nothing, null)
 
     override fun equals(other: Any?): Boolean {

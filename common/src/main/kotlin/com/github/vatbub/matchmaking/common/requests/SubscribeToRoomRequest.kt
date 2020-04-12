@@ -25,6 +25,10 @@ class SubscribeToRoomRequest(connectionId: String, password: String, val roomId:
         Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!, requestId) {
     override fun copy() = SubscribeToRoomRequest(connectionId!!, password!!, roomId, requestId)
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this("", "", "")
 
     override fun equals(other: Any?): Boolean {

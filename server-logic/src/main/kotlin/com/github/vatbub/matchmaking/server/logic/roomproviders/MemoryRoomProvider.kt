@@ -113,7 +113,7 @@ open class MemoryRoomProvider : RoomProvider() {
         rooms.clear()
     }
 
-    override fun forEach(action: (room: Room) -> Unit) = rooms.forEach { _, room -> action(room) }
+    override fun forEach(action: (room: Room) -> Unit) = rooms.forEach { (_, room) -> action(room) }
 
     override fun forEachTransaction(action: (transaction: RoomTransaction) -> Unit) =
             forEach { room -> action(beginTransactionWithRoom(room.id)!!) }

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test
 class MemoryIdProviderTest : ConnectionIdProviderTest<MemoryIdProvider>() {
     override fun getCloneOf(instance: MemoryIdProvider): MemoryIdProvider {
         val result = MemoryIdProvider()
-        result._connectionIdsInUse.putAll(instance.connectionIdsInUse)
+        result.internalConnectionIdsInUse.putAll(instance.connectionIdsInUse)
         return result
     }
 

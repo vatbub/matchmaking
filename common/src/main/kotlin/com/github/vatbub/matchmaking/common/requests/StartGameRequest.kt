@@ -37,6 +37,10 @@ class StartGameRequest(connectionId: String, password: String, val roomId: Strin
         Request(connectionId, password, StartGameRequest::class.qualifiedName!!, requestId) {
     override fun copy() = StartGameRequest(connectionId!!, password!!, roomId, requestId)
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this("", "", "")
 
     override fun equals(other: Any?): Boolean {

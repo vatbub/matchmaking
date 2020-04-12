@@ -260,8 +260,8 @@ abstract class ObservableMutableListTestSuperclass<T> : KotlinTestSuperclass<Obs
         val list = listOf(getNewTestElement(), getNewTestElement(), getNewTestElement())
         val observableMutableList = ObservableMutableList(list)
         Assertions.assertEquals(list.size, observableMutableList.size)
-        for (i in 0 until list.size)
-            Assertions.assertEquals(list[i], observableMutableList[i])
+        list.indices.forEach { Assertions.assertEquals(list[it], observableMutableList[it]) }
+
 
         assertNoListenersSpecified(observableMutableList)
     }
@@ -279,8 +279,7 @@ abstract class ObservableMutableListTestSuperclass<T> : KotlinTestSuperclass<Obs
                 )
 
         Assertions.assertEquals(list.size, observableMutableList.size)
-        for (i in 0 until list.size)
-            Assertions.assertEquals(list[i], observableMutableList[i])
+        list.indices.forEach { Assertions.assertEquals(list[it], observableMutableList[it]) }
 
         Assertions.assertEquals(this::defaultOnAdd, observableMutableList.onAdd)
         Assertions.assertEquals(this::defaultOnRemove, observableMutableList.onRemove)

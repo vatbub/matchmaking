@@ -117,14 +117,14 @@ class ConfigurationTest : KotlinTestSuperclass<ConfigurationManager>() {
 
     @Test
     fun readNonExistentConfigFileTest(@TempDir tempDir: Path) {
-        val nonExistentFile = tempDir.resolve("nonExistentConfig.json").toFile()!!
+        val nonExistentFile = tempDir.resolve("nonExistentConfig.json").toFile()
         Assertions.assertFalse(nonExistentFile.exists())
         Assertions.assertNull(ConfigurationManager.readConfigurationFile(nonExistentFile))
     }
 
     @Test
     fun readDirectoryAsConfigFileTest(@TempDir tempDir: Path) {
-        val directory = tempDir.toFile()!!
+        val directory = tempDir.toFile()
         Assertions.assertTrue(directory.exists())
         Assertions.assertTrue(directory.isDirectory)
         Assertions.assertNull(ConfigurationManager.readConfigurationFile(directory))

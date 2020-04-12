@@ -8,7 +8,7 @@ This is a simple matchmaking server that can be used for any game.
 
 ## Motivation
 Developing an online multiplayer game is hard. Not only do you need to develop your game, you also need to think about 
-networking, create a communication protocol and develop server software. "Matchmaking" does all of the multiplayer-related 
+networking, create a communication protocol and develop server software. "Matchmaking" does all the multiplayer-related 
 aspects for you, all you need to do is to create your game. On the other hand, "Matchmaking" doesn't do anything else:
 It's not a game engine and gives you complete freedom in how you create your game.
 
@@ -50,7 +50,7 @@ You therefore need to build the server yourself as described below in the sectio
 java -jar matchmaking.standalone-server-launcher-1.0-SNAPSHOT-jar-with-dependencies.jar --PORT 8080
 ```
 
-Replace `8080` with the port that you want the server to listen on.
+Replace `8080` with the port you want the server to listen on.
 
 ### Running in a Servlet container
 You can use any Java Servlet container like Tomcat or Jetty to run the war file or deploy it to PaaS-providers like Heroku.
@@ -83,11 +83,11 @@ Once the build has finished, you will find the compiled artifacts at the followi
 ## How it works
 ### ... in general
 - Clients connect themselves to the server and tell the server that they wish to connect to a room.
-- If the client is the first to connect, a new room will be created and the client will have to wait for the room to become full.
-- Clients who connect afterwards will be assigned to the same room until the room is full and a game can begin.
-- Once the game has started, the server acts as a relay station. Clients send updates to the server and the server distributes the current state of the game to all clients. This technique circumvents the need for peer-to-peer connections between the players.
-- One client will become the so-called host of the game. This client verifies that all other clients play within the rules and tells the server if there is something off
-- If a client looses its connection to the server but manages to reconnect eventually, the server will recognize the client and the game can resume
+- If the client is the first to connect, a new room will be created, and the client will have to wait for the room to become full.
+- Clients who connect afterwards will be assigned to the same room until the room is full, and a game can begin.
+- Once the game has started, the server acts as a relay station. Clients send updates to the server, and the server distributes the current state of the game to all clients. This technique circumvents the need for peer-to-peer connections between the players.
+- One client will become the so-called host of the game. This client verifies that all other clients play within the rules and tells the server if there is something off.
+- If a client looses its connection to the server but manages to reconnect eventually, the server will recognize the client, and the game can resume.
 
 ### Java/Kotlin specifics
 Good news! We will be providing a client for you (once we finished development, obviously ;) ), so you can focus on your game. Again, it's not yet finished, so hang tight :)
@@ -150,13 +150,13 @@ The server will then assign a `connectionId` and a `password` to the client and 
 The client is expected to remember the `connectionId` and the `password` for later communication.
 
 ### Creating or joining a room
-Players who are playing together are grouped in rooms. There can be multiple rooms at the same time and each room is completely independent from other rooms. That means:
+Players who are playing together are grouped in rooms. There can be multiple rooms at the same time and each room is completely independent of other rooms. That means:
 
 - Different rooms can be in different stages in the game
 - Different rooms can have different game rules
 
 Additional things to keep in mind:
-- One Player (i. e. one `connectionId`) can only be in one room at a time
+- One Player (i.e. one `connectionId`) can only be in one room at a time
 
 To create or join a room, the client needs to send a `JoinOrCreateRoomRequest` which looks like so:
 ```json

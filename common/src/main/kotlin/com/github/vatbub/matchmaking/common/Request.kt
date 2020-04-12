@@ -24,6 +24,11 @@ package com.github.vatbub.matchmaking.common
  */
 open class Request(override val connectionId: String?, val password: String?, override val className: String, var requestId: String?) :
         ServerInteraction {
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    internal constructor() : this(null, null, "", null)
+
     @Suppress("UNCHECKED_CAST")
     override fun copy() = Request(connectionId, password, className, requestId)
 

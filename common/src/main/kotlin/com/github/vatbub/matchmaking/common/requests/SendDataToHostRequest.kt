@@ -47,7 +47,11 @@ class SendDataToHostRequest(
         Request(connectionId, password, SendDataToHostRequest::class.qualifiedName!!, requestId) {
     override fun copy() = SendDataToHostRequest(connectionId!!, password!!, roomId, dataToHost, requestId)
 
-    private constructor():this("", "", "", listOf())
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
+    private constructor() : this("", "", "", listOf())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

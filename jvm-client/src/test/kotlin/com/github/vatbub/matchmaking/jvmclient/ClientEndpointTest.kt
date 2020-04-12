@@ -41,7 +41,7 @@ interface DummyServer<T : EndpointConfiguration> {
     fun stop()
 }
 
-abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TEndpointConfiguration : EndpointConfiguration>() : KotlinTestSuperclassWithExceptionHandlerForMultithreading<T>() {
+abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TEndpointConfiguration : EndpointConfiguration> : KotlinTestSuperclassWithExceptionHandlerForMultithreading<T>() {
     abstract fun newObjectUnderTest(endpointConfiguration: TEndpointConfiguration): T
     abstract fun newDummyServer(): DummyServer<TEndpointConfiguration>
 

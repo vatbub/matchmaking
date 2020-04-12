@@ -49,7 +49,11 @@ class JoinOrCreateRoomRequest(
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
     override fun copy() = JoinOrCreateRoomRequest(connectionId!!, password!!, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize, requestId)
 
-    private constructor() : this("", "", Operation.JoinOrCreateRoom, "")
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
+    internal constructor() : this("", "", Operation.JoinOrCreateRoom, "")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

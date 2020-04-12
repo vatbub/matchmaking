@@ -34,5 +34,9 @@ class DisconnectRequest(connectionId: String, password: String, requestId: Strin
         Request(connectionId, password, DisconnectRequest::class.qualifiedName!!, requestId) {
     override fun copy() = DisconnectRequest(connectionId!!, password!!, requestId)
 
-    private constructor() : this("", "")
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
+    internal constructor() : this("", "")
 }

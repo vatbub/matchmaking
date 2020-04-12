@@ -47,6 +47,10 @@ class UpdateGameStateRequest(
         Request(connectionId, password, UpdateGameStateRequest::class.qualifiedName!!, requestId) {
     override fun copy() = UpdateGameStateRequest(connectionId!!, password!!, roomId, gameData, processedData, requestId)
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this("", "", "", GameData(""), listOf())
 
     override fun equals(other: Any?): Boolean {

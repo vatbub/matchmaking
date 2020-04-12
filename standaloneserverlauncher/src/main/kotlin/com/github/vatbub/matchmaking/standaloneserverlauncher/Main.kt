@@ -46,6 +46,7 @@ import java.nio.file.Files
 import javax.naming.CompositeName
 import javax.naming.StringRefAddr
 import javax.servlet.annotation.ServletSecurity
+import kotlin.system.exitProcess
 
 
 class Main {
@@ -61,7 +62,7 @@ class Main {
 
             if (commandLineParams.help) {
                 jCommander.usage()
-                System.exit(1)
+                exitProcess(1)
             }
 
             val tomcat = Tomcat()
@@ -74,7 +75,7 @@ class Main {
             if (port == null) {
                 logger.error { "Port not specified" }
                 jCommander.usage()
-                System.exit(1)
+                exitProcess(1)
                 return
             }
 
@@ -94,7 +95,7 @@ class Main {
 
             if (commandLineParams.attributes.isNotEmpty()) {
                 logger.debug { "Connector attributes" }
-                commandLineParams.attributes.forEach { key, value ->
+                commandLineParams.attributes.forEach { (key, value) ->
                     logger.debug { "property: $key - $value" }
                     nioConnector.setProperty(key, value)
                 }

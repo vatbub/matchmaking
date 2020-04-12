@@ -46,7 +46,6 @@ abstract class ServerInteractionSerializationTestSuperclass<T : ServerInteractio
     }
 
 
-
     @Test
     fun protocolVersionSerializationTest() {
         val originalObject = newObjectUnderTest()

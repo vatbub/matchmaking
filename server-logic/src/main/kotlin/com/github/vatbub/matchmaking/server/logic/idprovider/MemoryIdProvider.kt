@@ -29,29 +29,29 @@ import java.util.*
  */
 open class MemoryIdProvider : ConnectionIdProvider {
     override fun get(id: String): Id? {
-        return _connectionIdsInUse[id]
+        return internalConnectionIdsInUse[id]
     }
 
-    internal val _connectionIdsInUse = mutableMapOf<String, Id>()
+    internal val internalConnectionIdsInUse = mutableMapOf<String, Id>()
 
     val connectionIdsInUse: Map<String, Id>
         get() {
-            return Collections.unmodifiableMap(_connectionIdsInUse)
+            return Collections.unmodifiableMap(internalConnectionIdsInUse)
         }
 
     override fun saveNewId(id: Id) {
-        _connectionIdsInUse[id.connectionId!!] = id
+        internalConnectionIdsInUse[id.connectionId!!] = id
     }
 
     override fun deleteId(id: String): Id? {
         logger.trace { "Deleting an id..." }
-        return _connectionIdsInUse.remove(id)
+        return internalConnectionIdsInUse.remove(id)
     }
 
-    override fun containsId(id: String?) = _connectionIdsInUse.contains(id)
+    override fun containsId(id: String?) = internalConnectionIdsInUse.contains(id)
 
     override fun reset() {
-        _connectionIdsInUse.clear()
+        internalConnectionIdsInUse.clear()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -60,12 +60,12 @@ open class MemoryIdProvider : ConnectionIdProvider {
 
         other as MemoryIdProvider
 
-        if (_connectionIdsInUse != other._connectionIdsInUse) return false
+        if (internalConnectionIdsInUse != other.internalConnectionIdsInUse) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return _connectionIdsInUse.hashCode()
+        return internalConnectionIdsInUse.hashCode()
     }
 }

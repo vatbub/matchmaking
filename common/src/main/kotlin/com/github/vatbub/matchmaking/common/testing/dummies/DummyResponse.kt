@@ -23,6 +23,10 @@ import com.github.vatbub.matchmaking.common.InteractionConverter
 import com.github.vatbub.matchmaking.common.ResponseImpl
 
 class DummyResponse(connectionId: String?, responseTo: String? = null) : ResponseImpl(connectionId, DummyResponse::class.qualifiedName!!, responseTo) {
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     constructor() : this(null, null)
 
     override fun copy() = DummyResponse(connectionId, responseTo)

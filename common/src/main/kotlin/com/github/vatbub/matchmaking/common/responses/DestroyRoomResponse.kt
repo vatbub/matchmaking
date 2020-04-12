@@ -48,5 +48,9 @@ class DestroyRoomResponse(connectionId: String?, val roomDestroyed: Boolean, res
         return result
     }
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this(null, false)
 }

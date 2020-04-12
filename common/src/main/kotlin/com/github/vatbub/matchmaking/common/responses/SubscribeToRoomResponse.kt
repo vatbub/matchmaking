@@ -23,6 +23,11 @@ import com.github.vatbub.matchmaking.common.ResponseImpl
 
 class SubscribeToRoomResponse(connectionId: String?, responseTo: String? = null) :
         ResponseImpl(connectionId, SubscribeToRoomResponse::class.qualifiedName!!, responseTo) {
+
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this(null)
 
     override fun copy() = SubscribeToRoomResponse(connectionId, responseTo)

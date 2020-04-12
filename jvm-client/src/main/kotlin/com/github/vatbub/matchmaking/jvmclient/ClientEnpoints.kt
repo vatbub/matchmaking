@@ -214,6 +214,7 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
                     if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
                     this@KryoEndpoint.verifyResponseIsNotAnException(obj)
 
+                    // Server sent new room state without a prior request. This is only possible for socket connections.
                     if (obj is GetRoomDataResponse && obj.responseTo == null && obj.room != null && newRoomDataHandlers.containsKey(obj.room!!.id)) {
                         newRoomDataHandlers[obj.room!!.id]!!.invoke(obj.room!!)
                         return

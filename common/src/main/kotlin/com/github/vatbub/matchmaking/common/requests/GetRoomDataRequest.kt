@@ -34,7 +34,11 @@ class GetRoomDataRequest(connectionId: String, password: String, val roomId: Str
         Request(connectionId, password, GetRoomDataRequest::class.qualifiedName!!, requestId) {
     override fun copy() = GetRoomDataRequest(connectionId!!, password!!, roomId, requestId)
 
-    private constructor() : this("", "", "")
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
+    internal constructor() : this("", "", "")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

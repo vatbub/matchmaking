@@ -33,6 +33,10 @@ class DisconnectResponse(connectionId: String?, val disconnectedRooms: List<Room
         ResponseImpl(connectionId, DisconnectResponse::class.qualifiedName!!, responseTo) {
     override fun copy() = DisconnectResponse(connectionId, disconnectedRooms, destroyedRooms, responseTo)
 
+    /**
+     * Do not remove! Used by KryoNet.
+     */
+    @Suppress("unused")
     private constructor() : this(null, listOf(), listOf())
 
     override fun equals(other: Any?): Boolean {
