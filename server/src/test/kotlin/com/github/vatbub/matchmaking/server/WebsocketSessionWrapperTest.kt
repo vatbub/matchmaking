@@ -33,7 +33,7 @@ class WebsocketSessionWrapperTest {
         sessionWrapper.sendObjectSync(request)
         Assertions.assertEquals(1, session.mockBasicRemote.textData.size)
         val stringSent = session.mockBasicRemote.textData[0]!!
-        val deserializedRequest = InteractionConverter.deserializeRequest<DummyRequest>(stringSent)
+        val deserializedRequest = InteractionConverter.deserialize<DummyRequest>(stringSent)
         Assertions.assertEquals(request, deserializedRequest)
     }
 
@@ -45,7 +45,7 @@ class WebsocketSessionWrapperTest {
         sessionWrapper.sendObjectAsync(request)
         Assertions.assertEquals(1, session.mockBasicRemote.textData.size)
         val stringSent = session.mockBasicRemote.textData[0]!!
-        val deserializedRequest = InteractionConverter.deserializeRequest<DummyRequest>(stringSent)
+        val deserializedRequest = InteractionConverter.deserialize<DummyRequest>(stringSent)
         Assertions.assertEquals(request, deserializedRequest)
     }
 }

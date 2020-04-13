@@ -76,7 +76,7 @@ class ServerServlet(initialServerContext: ServerContext? = null) :
         val json = requestBodyBuilder.toString()
         logger.debug { "Received a HTTP POST request" }
         logger.trace { "Received the following request: $json" }
-        val concreteRequest = InteractionConverter.deserializeRequest<Request>(json)
+        val concreteRequest = InteractionConverter.deserialize<Request>(json)
         logger.debug { "Request parsed." }
 
         val responseInteraction = serverContext.messageDispatcher.dispatchOrCreateException(

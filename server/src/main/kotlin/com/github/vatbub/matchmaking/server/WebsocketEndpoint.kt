@@ -115,7 +115,7 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
     fun onTextMessage(session: Session, message: String) {
         logger.debug { "Received a text message through WebsocketEndpoint" }
         logger.trace { "Received the following text message through WebsocketEndpoint: $message" }
-        val request = InteractionConverter.deserializeRequest<Request>(message)
+        val request = InteractionConverter.deserialize<Request>(message)
         val responseInteraction =
                 serverContext.messageDispatcher.dispatchOrCreateException(
                         request,

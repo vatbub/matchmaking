@@ -19,7 +19,9 @@
  */
 package com.github.vatbub.matchmaking.server
 
-import com.github.vatbub.matchmaking.common.*
+import com.github.vatbub.matchmaking.common.InteractionConverter
+import com.github.vatbub.matchmaking.common.Response
+import com.github.vatbub.matchmaking.common.ServerInteraction
 import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.InternalServerErrorException
 import com.github.vatbub.matchmaking.common.responses.ServerInteractionException
@@ -98,17 +100,13 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     }
 
     private fun <T : Response> doRequest(request: ServerInteraction): T {
-        val json = doRequest(request.toJson())
-        val response = fromJson(json, ResponseImpl::class.java)
-        val clazz = Class.forName(response.className) as Class<T>
-        return fromJson(json, clazz)
+        val json = doRequest(InteractionConverter.serialize(request))
+        return InteractionConverter.deserialize(json)
     }
 
     private fun doRequestNoTypeParam(request: ServerInteraction): Response {
-        val json = doRequest(request.toJson())
-        val response = fromJson(json, ResponseImpl::class.java)
-        val clazz = Class.forName(response.className) as Class<Response>
-        return fromJson(json, clazz)
+        val json = doRequest(InteractionConverter.serialize(request))
+        return InteractionConverter.deserialize(json)
     }
 
     @Test

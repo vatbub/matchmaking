@@ -19,18 +19,24 @@
  */
 package com.github.vatbub.matchmaking.common
 
+import com.google.gson.JsonParser
+
 object InteractionConverter {
     fun serialize(serverInteraction: ServerInteraction): String = serverInteraction.toJson()
 
-    fun <T : Request> deserializeRequest(serializedRequest: String): T {
-        val abstractRequest = fromJson(serializedRequest, Request::class.java)
-        val requestClass = Class.forName(abstractRequest.className)
-        return fromJson<T>(serializedRequest, requestClass)
-    }
+    fun <T : ServerInteraction> deserialize(json: String): T {
+        val className: String
+        try {
+            val jsonTree = JsonParser.parseString(json)
+            className = jsonTree.asJsonObject["className"]?.asString
+                    ?: throw IllegalArgumentException("Illegal json string submitted: classname could not be found.")
+        } catch (e: IllegalStateException) {
+            throw IllegalArgumentException("Illegal json string submitted: Could not convert to JsonObject", e)
+        } catch (e: ClassCastException) {
+            throw IllegalArgumentException("Illegal json string submitted: className is not a string", e)
+        }
 
-    fun <T : ResponseImpl> deserializeResponse(serializedResponse: String): T {
-        val abstractResponse = fromJson(serializedResponse, ResponseImpl::class.java)
-        val responseClass = Class.forName(abstractResponse.className)
-        return fromJson<T>(serializedResponse, responseClass)
+        val clazz = Class.forName(className)
+        return fromJson<T>(json, clazz)
     }
 }

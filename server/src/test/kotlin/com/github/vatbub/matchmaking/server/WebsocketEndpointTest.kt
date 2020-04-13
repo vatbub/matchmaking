@@ -60,7 +60,7 @@ class WebsocketEndpointTest : KotlinTestSuperclass<WebsocketEndpoint>() {
     private fun sendRequest(request: Request): Response {
         val serializedRequest = InteractionConverter.serialize(request)
         val serializedResponse = sendRequest(serializedRequest)
-        return InteractionConverter.deserializeResponse(serializedResponse)
+        return InteractionConverter.deserialize(serializedResponse)
     }
 
     private fun sendRequest(request: String): String {

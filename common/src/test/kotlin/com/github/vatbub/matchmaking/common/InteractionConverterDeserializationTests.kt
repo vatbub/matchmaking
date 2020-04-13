@@ -26,14 +26,14 @@ import com.github.vatbub.matchmaking.testutils.TestUtils.defaultPassword
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class InteractionConverterDeserializationTestsTest {
+class InteractionConverterDeserializationTests {
     @Test
     fun requestCastTest() {
         val request = DummyRequest(defaultConnectionId, defaultPassword)
-        val serializedRequest = request.toJson()
+        val serializedRequest = InteractionConverter.serialize(request)
         var deserializedRequest = DummyRequest()
         Assertions.assertDoesNotThrow {
-            deserializedRequest = InteractionConverter.deserializeRequest(serializedRequest)
+            deserializedRequest = InteractionConverter.deserialize(serializedRequest)
         }
         Assertions.assertEquals(request, deserializedRequest)
     }
@@ -41,10 +41,10 @@ class InteractionConverterDeserializationTestsTest {
     @Test
     fun responseCastTest() {
         val response = DummyResponse(defaultConnectionId)
-        val serializedResponse = response.toJson()
+        val serializedResponse = InteractionConverter.serialize(response)
         var deserializedResponse = DummyResponse(null)
         Assertions.assertDoesNotThrow {
-            deserializedResponse = InteractionConverter.deserializeResponse(serializedResponse)
+            deserializedResponse = InteractionConverter.deserialize(serializedResponse)
         }
         Assertions.assertEquals(response, deserializedResponse)
     }
