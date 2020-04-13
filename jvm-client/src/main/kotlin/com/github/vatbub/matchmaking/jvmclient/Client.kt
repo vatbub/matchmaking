@@ -30,6 +30,10 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result.Nothing
+import com.github.vatbub.matchmaking.jvmclient.endpoints.ClientEndpoint
+import com.github.vatbub.matchmaking.jvmclient.endpoints.HttpPollingEndpoint
+import com.github.vatbub.matchmaking.jvmclient.endpoints.KryoEndpoint
+import com.github.vatbub.matchmaking.jvmclient.endpoints.WebsocketEndpoint
 import java.net.ConnectException
 import java.net.URL
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
@@ -157,9 +161,9 @@ class Client(
             try {
                 if (tempEndpoint != null) return@forEach
                 tempEndpoint = when (it) {
-                    is EndpointConfiguration.WebsocketEndpointConfig -> ClientEndpoint.WebsocketEndpoint(it)
-                    is EndpointConfiguration.HttpPollingEndpointConfig -> ClientEndpoint.HttpPollingEndpoint(it)
-                    is EndpointConfiguration.KryoEndpointConfiguration -> ClientEndpoint.KryoEndpoint(it)
+                    is EndpointConfiguration.WebsocketEndpointConfig -> WebsocketEndpoint(it)
+                    is EndpointConfiguration.HttpPollingEndpointConfig -> HttpPollingEndpoint(it)
+                    is EndpointConfiguration.KryoEndpointConfiguration -> KryoEndpoint(it)
                 }
                 tempEndpoint!!.connect()
                 return@forEach
