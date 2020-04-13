@@ -22,6 +22,32 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generateDocumentationSamples</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>DocumentationGenerator#generateDocumentationSamples</test>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>removeDocumentationSamples</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>DocumentationGenerator#revertDocumentationChanges</test>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -45,6 +71,11 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>minlog</artifactId>
             <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
