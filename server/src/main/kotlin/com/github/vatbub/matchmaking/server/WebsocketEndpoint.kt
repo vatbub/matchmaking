@@ -29,6 +29,7 @@ import com.github.vatbub.matchmaking.server.logic.configuration.ConfigurationMan
 import java.net.Inet4Address
 import java.net.Inet6Address
 import javax.websocket.*
+import javax.websocket.CloseReason.CloseCodes
 import javax.websocket.server.HandshakeRequest
 import javax.websocket.server.ServerEndpoint
 import javax.websocket.server.ServerEndpointConfig
@@ -130,9 +131,19 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
         logger.debug { "Response sent" }
     }
 
+    private fun generateCloseReasonLogMessage(closeReason: CloseReason): String =
+            "A websocket was closed. Close code: ${closeReason.closeCode}; Close phrase: ${closeReason.reasonPhrase}"
+
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
-        logger.info { "A websocket was closed" }
+        when (closeReason.closeCode) {
+            CloseCodes.PROTOCOL_ERROR, CloseCodes.CANNOT_ACCEPT, CloseCodes.NO_STATUS_CODE,
+            CloseCodes.CLOSED_ABNORMALLY, CloseCodes.NOT_CONSISTENT, CloseCodes.VIOLATED_POLICY,
+            CloseCodes.TOO_BIG, CloseCodes.NO_EXTENSION, CloseCodes.UNEXPECTED_CONDITION,
+            CloseCodes.SERVICE_RESTART, CloseCodes.TRY_AGAIN_LATER,
+            CloseCodes.TLS_HANDSHAKE_FAILURE -> logger.error { generateCloseReasonLogMessage(closeReason) }
+            else -> logger.info { generateCloseReasonLogMessage(closeReason) }
+        }
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
     }
