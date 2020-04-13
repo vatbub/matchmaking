@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-internal class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
+class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
     private var internalIsConnected = false
     override val isConnected: Boolean
         get() = internalIsConnected

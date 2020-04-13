@@ -24,6 +24,7 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.github.vatbub.matchmaking.common.*
+import com.github.vatbub.matchmaking.jvmclient.endpoints.KryoEndpoint
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -96,16 +97,16 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
     }
 }
 
-class KryoEndpointTest : ClientEndpointTest<ClientEndpoint.KryoEndpoint, EndpointConfiguration.KryoEndpointConfiguration>() {
+class KryoEndpointTest : ClientEndpointTest<KryoEndpoint, EndpointConfiguration.KryoEndpointConfiguration>() {
     override fun newDummyServer(): DummyServer<EndpointConfiguration.KryoEndpointConfiguration> = DummyKryoServer()
 
     override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration) =
-            ClientEndpoint.KryoEndpoint(endpointConfiguration)
+            KryoEndpoint(endpointConfiguration)
 
     override fun newObjectUnderTest() =
             newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost"))
 
-    override fun getCloneOf(instance: ClientEndpoint.KryoEndpoint): ClientEndpoint.KryoEndpoint =
+    override fun getCloneOf(instance: KryoEndpoint): KryoEndpoint =
         newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration(instance.configuration.host, instance.configuration.tcpPort, instance.configuration.udpPort))
 
     @Test

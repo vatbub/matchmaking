@@ -14,7 +14,7 @@ import com.github.vatbub.matchmaking.jvmclient.*
  *
  * @see Client
  */
-internal abstract class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
+abstract class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
     /**
      * Assigns a [Request.requestId] to the request and then forwards the request to the implementation.
      * @param request The request to be sent

@@ -5,6 +5,7 @@ import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.jvmclient.PollInterval.*
+import com.github.vatbub.matchmaking.jvmclient.endpoints.HttpPollingEndpoint
 import fi.iki.elonen.NanoHTTPD
 import org.junit.jupiter.api.Assertions
 import java.net.URL
@@ -46,16 +47,16 @@ private class DummyHttpServer : DummyServer<EndpointConfiguration.HttpPollingEnd
 
 }
 
-class HttpPollingEndpointTest : ClientEndpointTest<ClientEndpoint.HttpPollingEndpoint, EndpointConfiguration.HttpPollingEndpointConfig>() {
-    override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.HttpPollingEndpointConfig): ClientEndpoint.HttpPollingEndpoint =
-            ClientEndpoint.HttpPollingEndpoint(endpointConfiguration)
+class HttpPollingEndpointTest : ClientEndpointTest<HttpPollingEndpoint, EndpointConfiguration.HttpPollingEndpointConfig>() {
+    override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.HttpPollingEndpointConfig): HttpPollingEndpoint =
+            HttpPollingEndpoint(endpointConfiguration)
 
-    override fun newObjectUnderTest(): ClientEndpoint.HttpPollingEndpoint =
-            ClientEndpoint.HttpPollingEndpoint(EndpointConfiguration.HttpPollingEndpointConfig(URL("http://localhost:8080/")))
+    override fun newObjectUnderTest(): HttpPollingEndpoint =
+            HttpPollingEndpoint(EndpointConfiguration.HttpPollingEndpointConfig(URL("http://localhost:8080/")))
 
     override fun newDummyServer(): DummyServer<EndpointConfiguration.HttpPollingEndpointConfig> = DummyHttpServer()
 
-    override fun getCloneOf(instance: ClientEndpoint.HttpPollingEndpoint): ClientEndpoint.HttpPollingEndpoint =
+    override fun getCloneOf(instance: HttpPollingEndpoint): HttpPollingEndpoint =
             newObjectUnderTest(EndpointConfiguration.HttpPollingEndpointConfig(instance.configuration.hostUrl, instance.configuration.pollInterval))
 
     override fun notEqualsTest() {
