@@ -64,7 +64,7 @@ sealed class EndpointConfiguration {
      * Configuration for a http polling connection to a server
      * @param hostUrl The URL of the host to connect to without the `matchmaking` part at the end.
      */
-    data class HttpPollingEndpointConfig(private val hostUrl: URL, val pollInterval: PollInterval = PollInterval.Medium) : EndpointConfiguration() {
+    data class HttpPollingEndpointConfig(val hostUrl: URL, val pollInterval: PollInterval = PollInterval.Medium) : EndpointConfiguration() {
         private val suffix = "matchmaking"
 
         /**

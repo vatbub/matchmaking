@@ -105,9 +105,8 @@ class KryoEndpointTest : ClientEndpointTest<ClientEndpoint.KryoEndpoint, Endpoin
     override fun newObjectUnderTest() =
             newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost"))
 
-    override fun getCloneOf(instance: ClientEndpoint.KryoEndpoint): ClientEndpoint.KryoEndpoint {
-        return newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration(instance.configuration.host, instance.configuration.tcpPort, instance.configuration.udpPort))
-    }
+    override fun getCloneOf(instance: ClientEndpoint.KryoEndpoint): ClientEndpoint.KryoEndpoint =
+        newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration(instance.configuration.host, instance.configuration.tcpPort, instance.configuration.udpPort))
 
     @Test
     override fun notEqualsTest() {

@@ -23,6 +23,20 @@
             <artifactId>awaitility</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jsunsoft.http</groupId>
+            <artifactId>http-request</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.nanohttpd</groupId>
+            <artifactId>nanohttpd</artifactId>
+            <version>2.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.vatbub</groupId>
             <artifactId>matchmaking.test-utils</artifactId>
             <version>${project.version}</version>

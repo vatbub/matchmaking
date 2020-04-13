@@ -24,10 +24,14 @@ import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.github.vatbub.matchmaking.common.*
+import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
 import com.github.vatbub.matchmaking.common.requests.SubscribeToRoomRequest
 import com.github.vatbub.matchmaking.common.responses.*
+import com.jsunsoft.http.HttpRequestBuilder
+import org.apache.commons.io.IOUtils
 import org.awaitility.Awaitility.await
 import java.io.IOException
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import com.github.vatbub.matchmaking.common.data.Room as DataRoom
 
@@ -143,27 +147,73 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
     }
 
     class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
+        private var internalIsConnected = false
         override val isConnected: Boolean
-            get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+            get() = internalIsConnected
+        private val networkThreadPool by lazy { Executors.newCachedThreadPool() }
+        private val subscriptionExecutorService by lazy { Executors.newSingleThreadScheduledExecutor() }
 
         override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            networkThreadPool.submit {
+                val requestJson = InteractionConverter.serialize(request)
+                val httpRequest = HttpRequestBuilder.createPost(configuration.finalUrl.toURI(), String::class.java)
+                        .addDefaultHeader("Content-Type", "application/json; charset=UTF-8")
+                        .responseDeserializer { responseContext ->
+                            val charsetHeader = responseContext.httpResponse.getFirstHeader("charset")
+                            var encoding: String? = null
+                            if (charsetHeader != null) {
+                                val charsetParts = charsetHeader.value.split(";")
+                                charsetParts.forEach { charsetPart ->
+                                    if (charsetPart.startsWith("charset="))
+                                        encoding = charsetPart.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+                                }
+                            }
+
+                            if (encoding == null)
+                                encoding = "UTF-8"
+
+                            val responseString = IOUtils.toString(responseContext.content, encoding)
+                            responseString
+                        }.build()
+                val httpResponse = httpRequest.executeWithBody(requestJson)
+                val responseJson = if (httpResponse.hasContent())
+                    httpResponse.get()
+                else
+                    httpResponse.errorText
+
+                responseHandler(InteractionConverter.deserialize(responseJson))
+            }
         }
 
         override fun abortRequestsOfType(sampleRequest: Request) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            // No-op as requests are handled immediately after receiving them
         }
 
         override fun subscribeToRoom(connectionId: String, password: String, roomId: String, newRoomDataHandler: (DataRoom) -> Unit) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val command = Runnable {
+                sendRequest<GetRoomDataResponse>(GetRoomDataRequest(connectionId, password, roomId)) {
+                    val roomCopy = it.room
+                    if (roomCopy == null)
+                        logger.warn("Received a GetRoomDataResponse which did not include any room data!")
+                    else
+                        newRoomDataHandler(roomCopy)
+                }
+            }
+            subscriptionExecutorService.scheduleAtFixedRate(
+                    command,
+                    0,
+                    configuration.pollInterval.timeToSleepBetweenUpdatesInMilliSeconds.toLong(),
+                    TimeUnit.MILLISECONDS)
         }
 
         override fun connect() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            internalIsConnected = true
         }
 
         override fun terminateConnection() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            networkThreadPool.shutdown()
+            subscriptionExecutorService.shutdown()
+            internalIsConnected = false
         }
 
     }
@@ -185,10 +235,6 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
         private inner class KryoListener : Listener {
             override fun connected(connection: Connection?) {
                 logger.info { "Client: Connected to server" }
-            }
-
-            override fun idle(connection: Connection?) {
-                // logger.info("Client: Connection to server is idle")
             }
 
             override fun disconnected(connection: Connection?) {
@@ -215,8 +261,12 @@ sealed class ClientEndpoint<T : EndpointConfiguration>(internal val configuratio
                     this@KryoEndpoint.verifyResponseIsNotAnException(obj)
 
                     // Server sent new room state without a prior request. This is only possible for socket connections.
-                    if (obj is GetRoomDataResponse && obj.responseTo == null && obj.room != null && newRoomDataHandlers.containsKey(obj.room!!.id)) {
-                        newRoomDataHandlers[obj.room!!.id]!!.invoke(obj.room!!)
+                    if (obj is GetRoomDataResponse && obj.responseTo == null) {
+                        val roomCopy = obj.room
+                        if (roomCopy == null)
+                            logger.warn("Received a GetRoomDataResponse which did not include any room data!")
+                        else if (newRoomDataHandlers.containsKey(roomCopy.id))
+                            newRoomDataHandlers[roomCopy.id]!!.invoke(roomCopy)
                         return
                     }
 
