@@ -24,6 +24,7 @@ import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
+import com.github.vatbub.matchmaking.jvmclient.endpoints.ClientEndpoint
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclassWithExceptionHandlerForMultithreading
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.awaitility.Awaitility.await
