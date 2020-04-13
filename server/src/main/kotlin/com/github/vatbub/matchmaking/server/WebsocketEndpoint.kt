@@ -131,9 +131,6 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
         logger.debug { "Response sent" }
     }
 
-    private fun generateCloseReasonLogMessage(closeReason: CloseReason): String =
-            "A websocket was closed. Close code: ${closeReason.closeCode}; Close phrase: ${closeReason.reasonPhrase}"
-
     @OnClose
     fun onSessionClose(session: Session, closeReason: CloseReason) {
         when (closeReason.closeCode) {
@@ -141,8 +138,8 @@ class WebsocketEndpoint(initialServerContext: ServerContext? = null) {
             CloseCodes.CLOSED_ABNORMALLY, CloseCodes.NOT_CONSISTENT, CloseCodes.VIOLATED_POLICY,
             CloseCodes.TOO_BIG, CloseCodes.NO_EXTENSION, CloseCodes.UNEXPECTED_CONDITION,
             CloseCodes.SERVICE_RESTART, CloseCodes.TRY_AGAIN_LATER,
-            CloseCodes.TLS_HANDSHAKE_FAILURE -> logger.error { generateCloseReasonLogMessage(closeReason) }
-            else -> logger.info { generateCloseReasonLogMessage(closeReason) }
+            CloseCodes.TLS_HANDSHAKE_FAILURE -> logger.error (closeReason::generateLogMessage)
+            else -> logger.info (closeReason::generateLogMessage)
         }
         val sessionWrapperCopy = sessionWrapper ?: return
         serverContext.messageDispatcher.dispatchWebsocketSessionClosed(sessionWrapperCopy)
