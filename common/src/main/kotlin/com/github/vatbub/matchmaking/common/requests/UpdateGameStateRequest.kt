@@ -35,6 +35,11 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param gameData The game state to set. Important: This must be the complete game state (not a delta) as it overwrites the entire game state in the specified room.
  * @param processedData The data coming from [Room.dataToBeSentToTheHost] that was used to generate the new game state. The server will then remove this data from [Room.dataToBeSentToTheHost]
  * @see GetRoomDataResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class UpdateGameStateRequest(
         connectionId: String,

@@ -26,6 +26,11 @@ import com.github.vatbub.matchmaking.common.requests.GetConnectionIdRequest
  * Response to [GetConnectionIdRequest] which contains the connection id assigned by the server.
  * @param connectionId The assigned id. This id shall be used in all further requests.
  * @param password The assigned password. This password shall be used in all further requests to authenticate the client. Failure to do so will result in an [AuthorizationException]
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class GetConnectionIdResponse(connectionId: String, val password: String, responseTo: String? = null) :
         ResponseImpl(connectionId, GetConnectionIdResponse::class.qualifiedName!!, responseTo) {

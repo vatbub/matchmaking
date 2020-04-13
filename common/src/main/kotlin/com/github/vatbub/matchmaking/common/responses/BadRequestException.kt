@@ -23,6 +23,11 @@ package com.github.vatbub.matchmaking.common.responses
  * Returned by the server in case a bad request was sent which the server cannot handle for any reason.
  * @param message The error/exception message
  * @param connectionId The connection id of the requesting client
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class BadRequestException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
         ServerInteractionException(message, 400, connectionId, BadRequestException::class.qualifiedName!!, responseTo) {

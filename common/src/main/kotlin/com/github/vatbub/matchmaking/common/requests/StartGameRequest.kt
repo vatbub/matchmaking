@@ -32,6 +32,11 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to start the game in
  * @see GetRoomDataResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class StartGameRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
         Request(connectionId, password, StartGameRequest::class.qualifiedName!!, requestId) {

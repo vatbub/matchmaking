@@ -21,6 +21,12 @@ package com.github.vatbub.matchmaking.common.responses
 
 import com.github.vatbub.matchmaking.common.ResponseImpl
 
+/**
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
+ */
 class SubscribeToRoomResponse(connectionId: String?, responseTo: String? = null) :
         ResponseImpl(connectionId, SubscribeToRoomResponse::class.qualifiedName!!, responseTo) {
 

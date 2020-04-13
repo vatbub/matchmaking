@@ -31,6 +31,11 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to destroy
  * @see DestroyRoomResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class DestroyRoomRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
         Request(connectionId, password, DestroyRoomRequest::class.qualifiedName!!, requestId) {

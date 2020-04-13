@@ -21,6 +21,12 @@ package com.github.vatbub.matchmaking.common.requests
 
 import com.github.vatbub.matchmaking.common.Request
 
+/**
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
+ */
 class SubscribeToRoomRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
         Request(connectionId, password, SubscribeToRoomRequest::class.qualifiedName!!, requestId) {
     override fun copy() = SubscribeToRoomRequest(connectionId!!, password!!, roomId, requestId)

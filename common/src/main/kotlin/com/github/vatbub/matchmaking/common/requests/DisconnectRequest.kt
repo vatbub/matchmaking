@@ -29,6 +29,11 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @see DisconnectResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class DisconnectRequest(connectionId: String, password: String, requestId: String? = null) :
         Request(connectionId, password, DisconnectRequest::class.qualifiedName!!, requestId) {

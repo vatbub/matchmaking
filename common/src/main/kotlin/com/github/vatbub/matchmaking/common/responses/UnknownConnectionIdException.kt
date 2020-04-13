@@ -19,6 +19,12 @@
  */
 package com.github.vatbub.matchmaking.common.responses
 
+/**
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
+ */
 class UnknownConnectionIdException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
         ServerInteractionException(message, 404, connectionId, UnknownConnectionIdException::class.qualifiedName!!, responseTo) {
     override fun copy() = UnknownConnectionIdException(message, connectionId, responseTo)

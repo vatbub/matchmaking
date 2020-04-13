@@ -23,6 +23,11 @@ package com.github.vatbub.matchmaking.common.responses
  * Returned by the server in case a client sent a request he was not allowed to send.
  * @param connectionId The connection id of the requesting client
  * @param message The error/exception message
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class NotAllowedException(message: String? = null, connectionId: String? = null, responseTo: String? = null) :
         ServerInteractionException(message, 403, connectionId, NotAllowedException::class.qualifiedName!!, responseTo) {

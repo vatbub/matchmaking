@@ -27,6 +27,11 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  * communication and thus must be used in all further requests.
  *
  * @see GetConnectionIdResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class GetConnectionIdRequest(requestId: String? = null) : Request(null, null, GetConnectionIdRequest::class.qualifiedName!!, requestId) {
     override fun copy() = GetConnectionIdRequest(requestId)

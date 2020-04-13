@@ -36,6 +36,11 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * @param roomId The id of the room to send the data to
  * @param dataToHost The data to be sent to the host
  * @see GetRoomDataResponse
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
  */
 class SendDataToHostRequest(
         connectionId: String,
