@@ -49,14 +49,14 @@ class WebsocketEndpoint(configuration: EndpointConfiguration.WebsocketEndpointCo
             internalConnected = false
             when (val closeCode = WebsocketCloseCode.fromCode(code)) {
                 PROTOCOL_ERROR, CANNOT_ACCEPT, NOT_CONSISTENT, VIOLATED_POLICY, TOO_BIG, NO_EXTENSION -> {
-                    logger.error { closeCode.generateLogMessage(reason ?: "<null>", remote, false) }
+                    logger.error { closeCode.generateLogMessage(reason, remote, false) }
                     return
                 }
                 NO_STATUS_CODE, CLOSED_ABNORMALLY, UNEXPECTED_CONDITION, SERVICE_RESTART,
                 TRY_AGAIN_LATER, TLS_HANDSHAKE_FAILURE ->
-                    logger.error { closeCode.generateLogMessage(reason ?: "<null>", remote, true) }
+                    logger.error { closeCode.generateLogMessage(reason, remote, true) }
                 else ->
-                    logger.info { closeCode.generateLogMessage(reason ?: "<null>", remote, false) }
+                    logger.info { closeCode.generateLogMessage(reason, remote, false) }
             }
             reconnect()
         }
