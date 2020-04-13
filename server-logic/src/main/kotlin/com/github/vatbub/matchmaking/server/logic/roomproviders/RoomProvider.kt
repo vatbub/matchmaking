@@ -164,42 +164,23 @@ abstract class RoomProvider {
                     }
 
                     // check the supplied user list
-                    if (whitelist != null) {
-                        for (user in roomTransaction.room.connectedUsers) {
-                            if (!whitelist.contains(user.userName)) {
-                                roomTransaction.abort()
-                                return
-                            }
-                        }
+                    if (whitelist != null && roomTransaction.room.connectedUsers.any { !whitelist.contains(it.userName) }) {
+                        roomTransaction.abort()
+                        return
                     }
-                    if (blacklist != null) {
-                        for (user in roomTransaction.room.connectedUsers) {
-                            if (blacklist.contains(user.userName)) {
-                                roomTransaction.abort()
-                                return
-                            }
-                        }
+                    if (blacklist != null && roomTransaction.room.connectedUsers.any { blacklist.contains(it.userName) }) {
+                        roomTransaction.abort()
+                        return
                     }
 
                     // check the room's user list
-                    val configuredWhitelist = roomTransaction.room.whitelist
-                    val configuredBlacklist = roomTransaction.room.blacklist
-
-                    if (configuredWhitelist != null) {
-                        for (user in configuredWhitelist) {
-                            if (!configuredWhitelist.contains(userName)) {
-                                roomTransaction.abort()
-                                return
-                            }
-                        }
+                    if (roomTransaction.room.whitelist?.contains(userName) == false) {
+                        roomTransaction.abort()
+                        return
                     }
-                    if (configuredBlacklist != null) {
-                        for (user in configuredBlacklist) {
-                            if (configuredBlacklist.contains(userName)) {
-                                roomTransaction.abort()
-                                return
-                            }
-                        }
+                    if (roomTransaction.room.blacklist?.contains(userName) == true) {
+                        roomTransaction.abort()
+                        return
                     }
 
                     result = roomTransaction
