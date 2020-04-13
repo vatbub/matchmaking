@@ -24,13 +24,14 @@ import com.github.vatbub.matchmaking.common.requests.JoinOrCreateRoomRequest
 
 /**
  * Response to [JoinOrCreateRoomRequest].
- * @param result Information about what operation was performed on the server
- * @param roomId The id of the room that was created or that the user was assigned to.
  *
- * # JSON example
+ *  # JSON example
  * ```json
  * {jsonSample}
  * ```
+ *
+ * @param result Information about what operation was performed on the server
+ * @param roomId The id of the room that was created or that the user was assigned to.
  */
 class JoinOrCreateRoomResponse(connectionId: String?, val result: Result, val roomId: String?, responseTo: String? = null) :
         ResponseImpl(connectionId, JoinOrCreateRoomResponse::class.qualifiedName!!, responseTo) {

@@ -31,16 +31,17 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
  * This queue is then distributed to all other clients in the specified room, including the host.
  * The host will then process the data and update [Room.gameState] accordingly, but other clients
  * might use the data to extrapolate changes in [Room.gameState]
- * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
- * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
- * @param roomId The id of the room to send the data to
- * @param dataToHost The data to be sent to the host
- * @see GetRoomDataResponse
  *
  * # JSON example
  * ```json
  * {jsonSample}
  * ```
+ *
+ * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
+ * @param roomId The id of the room to send the data to
+ * @param dataToHost The data to be sent to the host
+ * @see GetRoomDataResponse
  */
 class SendDataToHostRequest(
         connectionId: String,

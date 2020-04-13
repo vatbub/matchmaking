@@ -26,12 +26,12 @@ import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
  * Requests a connection id from the server. This id serves for the purpose to recognize the client in further
  * communication and thus must be used in all further requests.
  *
- * @see GetConnectionIdResponse
- *
  * # JSON example
  * ```json
  * {jsonSample}
  * ```
+ *
+ * @see GetConnectionIdResponse
  */
 class GetConnectionIdRequest(requestId: String? = null) : Request(null, null, GetConnectionIdRequest::class.qualifiedName!!, requestId) {
     override fun copy() = GetConnectionIdRequest(requestId)

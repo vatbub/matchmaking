@@ -25,15 +25,16 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 
 /**
  * This request requests the current data of the specified room
- * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
- * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
- * @param roomId The id of the room to get the data of
- * @see GetRoomDataResponse
  *
  * # JSON example
  * ```json
  * {jsonSample}
  * ```
+ *
+ * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
+ * @param roomId The id of the room to get the data of
+ * @see GetRoomDataResponse
  */
 class GetRoomDataRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
         Request(connectionId, password, GetRoomDataRequest::class.qualifiedName!!, requestId) {

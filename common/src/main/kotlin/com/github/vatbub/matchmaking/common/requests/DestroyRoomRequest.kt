@@ -27,15 +27,16 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
 /**
  * This request must be sent by the game host which causes the specified room to be destroyed.
  * Important: Only the game host may send this request. If the sender is not the host in the specified room, a [NotAllowedException] is returned
- * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
- * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
- * @param roomId The id of the room to destroy
- * @see DestroyRoomResponse
  *
  * # JSON example
  * ```json
  * {jsonSample}
  * ```
+ *
+ * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
+ * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
+ * @param roomId The id of the room to destroy
+ * @see DestroyRoomResponse
  */
 class DestroyRoomRequest(connectionId: String, password: String, val roomId: String, requestId: String? = null) :
         Request(connectionId, password, DestroyRoomRequest::class.qualifiedName!!, requestId) {

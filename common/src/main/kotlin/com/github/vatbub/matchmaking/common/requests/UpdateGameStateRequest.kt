@@ -29,17 +29,18 @@ import com.github.vatbub.matchmaking.common.responses.NotAllowedException
 /**
  * This request updates [Room.gameState]
  * Important: Only the game host may send this request. If the sender is not the host in the specified room, a [NotAllowedException] is returned
+ *
+ * # JSON example
+ * ```json
+ * {jsonSample}
+ * ```
+ *
  * @param connectionId The requesting client's connection id as assigned by [GetConnectionIdResponse]
  * @param password The requesting client's password as assigned by [GetConnectionIdResponse]
  * @param roomId The id of the room to save the game state to
  * @param gameData The game state to set. Important: This must be the complete game state (not a delta) as it overwrites the entire game state in the specified room.
  * @param processedData The data coming from [Room.dataToBeSentToTheHost] that was used to generate the new game state. The server will then remove this data from [Room.dataToBeSentToTheHost]
  * @see GetRoomDataResponse
- *
- * # JSON example
- * ```json
- * {jsonSample}
- * ```
  */
 class UpdateGameStateRequest(
         connectionId: String,

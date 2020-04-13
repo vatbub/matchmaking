@@ -24,11 +24,6 @@ import com.github.vatbub.matchmaking.common.ResponseImpl
 /**
  * Superclass for exceptions that can be sent over the network
  * @param message The error/exception message
- *
- * # JSON example
- * ```json
- * {jsonSample}
- * ```
  */
 abstract class ServerInteractionException(
         val message: String?,
