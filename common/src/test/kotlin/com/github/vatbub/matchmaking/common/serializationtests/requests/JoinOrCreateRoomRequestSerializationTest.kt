@@ -40,56 +40,63 @@ class JoinOrCreateRoomRequestSerializationTest :
     @Test
     override fun notEqualsTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, otherOperation(request1.operation), request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, otherOperation(request1.operation), request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun userNameNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, getRandomHexString(request1.userName), request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, getRandomHexString(request1.userName), request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun whitelistNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, listOf("khgvcjhg"), request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, listOf("khgvcjhg"), request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun blacklistNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun whitelistHashCodeNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, listOf("khgvcjhg"), request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, listOf("khgvcjhg"), request1.blacklist, request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1.hashCode(), request2.hashCode())
     }
 
     @Test
     fun blacklistHashCodeNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.blacklist, listOf("khgvcjhg"), request1.minRoomSize, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1.hashCode(), request2.hashCode())
     }
 
     @Test
     fun minRoomSizeNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize + 1, request1.maxRoomSize, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize + 1, request1.maxRoomSize, request1.roomId, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 
     @Test
     fun maxRoomSizeNotEqualTest() {
         val request1 = newObjectUnderTest()
-        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize + 1, request1.requestId)
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize + 1, request1.roomId, request1.requestId)
+        Assertions.assertNotEquals(request1, request2)
+    }
+
+    @Test
+    fun requestedRoomIdNotEqualTest() {
+        val request1 = newObjectUnderTest()
+        val request2 = JoinOrCreateRoomRequest(request1.connectionId!!, request1.password!!, request1.operation, request1.userName, request1.whitelist, request1.blacklist, request1.minRoomSize, request1.maxRoomSize, getRandomHexString(request1.roomId), request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
 

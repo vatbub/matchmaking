@@ -56,7 +56,7 @@ class JoinOrCreateRoomRequest(
         val roomId: String? = null,
         requestId: String? = null
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
-    override fun copy() = JoinOrCreateRoomRequest(connectionId!!, password!!, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize, requestId)
+    override fun copy() = JoinOrCreateRoomRequest(connectionId!!, password!!, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize, roomId, requestId)
 
     /**
      * Do not remove! Used by KryoNet.
@@ -77,6 +77,7 @@ class JoinOrCreateRoomRequest(
         if (blacklist != other.blacklist) return false
         if (minRoomSize != other.minRoomSize) return false
         if (maxRoomSize != other.maxRoomSize) return false
+        if (roomId != other.roomId) return false
 
         return true
     }
@@ -89,6 +90,7 @@ class JoinOrCreateRoomRequest(
         result = 31 * result + (blacklist?.hashCode() ?: 0)
         result = 31 * result + minRoomSize
         result = 31 * result + maxRoomSize
+        result = 31 * result + (roomId?.hashCode() ?: 0)
         return result
     }
 }
