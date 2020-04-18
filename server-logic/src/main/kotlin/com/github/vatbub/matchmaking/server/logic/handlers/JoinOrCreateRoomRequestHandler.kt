@@ -27,6 +27,8 @@ import com.github.vatbub.matchmaking.common.requests.Operation
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 import com.github.vatbub.matchmaking.common.responses.Result
 import com.github.vatbub.matchmaking.server.logic.roomproviders.RoomProvider
+import com.github.vatbub.matchmaking.server.logic.roomproviders.canUserJoinOrAbort
+import com.github.vatbub.matchmaking.server.logic.roomproviders.data.RoomTransaction
 import java.net.Inet4Address
 import java.net.Inet6Address
 
@@ -44,13 +46,25 @@ class JoinOrCreateRoomRequestHandler(roomProvider: RoomProvider) : RequestHandle
         val user = User(connectionId, request.userName, sourceIp, sourceIpv6)
 
         if (request.operation == Operation.JoinRoom || request.operation == Operation.JoinOrCreateRoom) {
-            val applicableRoomTransaction = roomProvider.hasApplicableRoom(
-                    request.userName,
-                    request.whitelist,
-                    request.blacklist,
-                    request.minRoomSize,
-                    request.maxRoomSize
-            )
+            val requestedRoomId = request.roomId
+            if (requestedRoomId != null && request.operation != Operation.JoinRoom)
+                throw IllegalArgumentException("If roomId is specified, operation must be Operation.JoinRoom")
+
+            val applicableRoomTransaction: RoomTransaction? = if (requestedRoomId != null) {
+                val transaction = roomProvider.beginTransactionWithRoom(requestedRoomId)
+                        ?: throw IllegalArgumentException("No room with id $requestedRoomId found!")
+                if (!transaction.canUserJoinOrAbort(request.userName, request.whitelist, request.blacklist, request.minRoomSize, request.maxRoomSize))
+                    throw IllegalArgumentException("Cannot join room with id $requestedRoomId. The user was either not on the whitelist of that room or was on the blacklist, or the room was full, or the game has already been started in that room.")
+                transaction
+            } else {
+                roomProvider.hasApplicableRoom(
+                        request.userName,
+                        request.whitelist,
+                        request.blacklist,
+                        request.minRoomSize,
+                        request.maxRoomSize
+                )
+            }
             if (applicableRoomTransaction != null) {
                 applicableRoomTransaction.room.connectedUsers.add(user)
                 val applicableRoomId = applicableRoomTransaction.room.id

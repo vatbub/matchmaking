@@ -116,6 +116,7 @@ class Client(
      */
     var connectionId: String? = null
         private set
+
     /**
      * The password for this client or `null` if not connected
      */
@@ -196,10 +197,11 @@ class Client(
      * @param blacklist If specified, rooms are not considered where any of the mentioned user names has joined.
      * @param minRoomSize The minimal number of connected clients required to start a game.
      * @param maxRoomSize The maximum number of connected clients (including this client).
+     * @param requestedRoomId Specify this parameter to join the specific room with this id.
      * @throws IllegalArgumentException If the room cannot be joined, e.g. because no room is found which matches the specified criteria or for any other reason.
      */
-    fun joinRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(JoinRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+    fun joinRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2, requestedRoomId: String? = null, onRoomJoined: ((roomId: String) -> Unit)? = null) =
+            joinOrCreateRoom(JoinRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize, requestedRoomId, onRoomJoined)
 
     /**
      * Creates a new room on the server with the given parameters.
@@ -210,20 +212,22 @@ class Client(
      * @param maxRoomSize The maximum number of players in the room. The server will make sure that no more players join the room once [maxRoomSize] is reached.
      * @throws IllegalArgumentException If the room cannot be created for any reason.
      */
-    fun createRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(CreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+    fun createRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2, onRoomJoined: ((roomId: String) -> Unit)? = null) =
+            joinOrCreateRoom(CreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize, null, onRoomJoined)
 
     /**
      * Tries to join a room which matches the given criteria. If no matching room can be found, a room with the specified parameters is created.
      * @see [joinRoom] and [createRoom] for more documentation.
      */
-    fun joinOrCreateRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) =
-            joinOrCreateRoom(JoinOrCreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize)
+    fun joinOrCreateRoom(userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2, onRoomJoined: ((roomId: String) -> Unit)? = null) =
+            joinOrCreateRoom(JoinOrCreateRoom, userName, whitelist, blacklist, minRoomSize, maxRoomSize, null, onRoomJoined)
 
-    private fun joinOrCreateRoom(operation: Operation, userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2) {
+    private fun joinOrCreateRoom(operation: Operation, userName: String, whitelist: List<String>? = null, blacklist: List<String>? = null, minRoomSize: Int = 1, maxRoomSize: Int = 2, requestedRoomId: String? = null, onRoomJoined: ((roomId: String) -> Unit)?) {
         if (roomConnected) return
         synchronized(this) {
             if (roomConnected) return
+            if (requestedRoomId != null && operation != JoinRoom)
+                throw IllegalArgumentException("To request a specific room id, operation must be set to Operation.JoinRoom.")
             endpoint.sendRequest<JoinOrCreateRoomResponse>(JoinOrCreateRoomRequest(safeConnectionId, safePassword, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize)) {
                 when (it.result) {
                     Nothing -> throw when (operation) {
@@ -236,6 +240,7 @@ class Client(
                         currentRoomId = it.roomId
                                 ?: throw IllegalArgumentException("Server sent an illegal response: roomId not specified")
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
+                        onRoomJoined?.invoke(safeCurrentRoomId)
                     }
                 }
             }

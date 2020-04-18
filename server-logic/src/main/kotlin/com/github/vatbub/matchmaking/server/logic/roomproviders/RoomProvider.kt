@@ -138,53 +138,10 @@ abstract class RoomProvider {
         logger.trace { "hasApplicableRoom parameters: userName = $userName, whitelist = $whitelist, blacklist = $blacklist, minRoomSize = $minRoomSize, maxRoomSize = $maxRoomSize" }
         var result: RoomTransaction? = null
 
-        beginTransactionsForRoomsWithFilter({ room -> !room.gameStarted && result == null },
-                fun(roomTransaction: RoomTransaction) {
-                    /*
-                     * We have to check again even though we have the filter in place
-                     * because room.gameStarted might have changed between the call to
-                     * the filter and the beginning of the transaction (multithreading magic :/ )
-                     */
-                    if (roomTransaction.room.gameStarted) {
-                        roomTransaction.abort()
-                        return
-                    }
-
-                    if ((roomTransaction.room.connectedUsers.size + 1) > roomTransaction.room.maxRoomSize) {
-                        roomTransaction.abort()
-                        return
-                    }
-                    if (roomTransaction.room.minRoomSize < minRoomSize) {
-                        roomTransaction.abort()
-                        return
-                    }
-                    if (roomTransaction.room.maxRoomSize > maxRoomSize) {
-                        roomTransaction.abort()
-                        return
-                    }
-
-                    // check the supplied user list
-                    if (whitelist != null && roomTransaction.room.connectedUsers.any { !whitelist.contains(it.userName) }) {
-                        roomTransaction.abort()
-                        return
-                    }
-                    if (blacklist != null && roomTransaction.room.connectedUsers.any { blacklist.contains(it.userName) }) {
-                        roomTransaction.abort()
-                        return
-                    }
-
-                    // check the room's user list
-                    if (roomTransaction.room.whitelist?.contains(userName) == false) {
-                        roomTransaction.abort()
-                        return
-                    }
-                    if (roomTransaction.room.blacklist?.contains(userName) == true) {
-                        roomTransaction.abort()
-                        return
-                    }
-
-                    result = roomTransaction
-                })
+        beginTransactionsForRoomsWithFilter({ room -> !room.gameStarted && result == null }, { roomTransaction ->
+            if (roomTransaction.canUserJoinOrAbort(userName, whitelist, blacklist, minRoomSize, maxRoomSize))
+                result = roomTransaction
+        })
 
         logger.trace { "hasApplicableRoom result: $result" }
         return result

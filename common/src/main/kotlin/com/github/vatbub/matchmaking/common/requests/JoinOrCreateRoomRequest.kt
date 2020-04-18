@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.common.requests
 
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.data.Room
+import com.github.vatbub.matchmaking.common.responses.BadRequestException
 import com.github.vatbub.matchmaking.common.responses.GetConnectionIdResponse
 import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
 
@@ -40,6 +41,7 @@ import com.github.vatbub.matchmaking.common.responses.JoinOrCreateRoomResponse
  * @param blacklist If null ignored, otherwise the users mentioned in this list will not be allowed to join this room
  * @param minRoomSize The minimum amount of players required for a game. Important: It is up to the game host to verify whether the current amount of connected users lies within the boundaries. If so, the host must start the game by sending a [StartGameRequest]
  * @param maxRoomSize The maximum amount of players allowed in the room. The server will not assign more than this number of people to this room.
+ * @param roomId The id of the room to join. If specified, all other parameters will be ignored. Only valid if [operation]` == `[Operation.JoinRoom], a [BadRequestException] if that condition is not fulfilled.
  * @see JoinOrCreateRoomResponse
  */
 class JoinOrCreateRoomRequest(
@@ -51,6 +53,7 @@ class JoinOrCreateRoomRequest(
         val blacklist: List<String>? = null,
         val minRoomSize: Int = 1,
         val maxRoomSize: Int = 2,
+        val roomId: String? = null,
         requestId: String? = null
 ) : Request(connectionId, password, JoinOrCreateRoomRequest::class.qualifiedName!!, requestId) {
     override fun copy() = JoinOrCreateRoomRequest(connectionId!!, password!!, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize, requestId)
