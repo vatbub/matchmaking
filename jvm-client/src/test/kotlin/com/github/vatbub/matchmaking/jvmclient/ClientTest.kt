@@ -39,8 +39,8 @@ class ClientTest {
                 { println("[Client 2] Game started") },
                 { _, _ -> println("[Client 2] New data to be sent to host.") })
 
-        client1.requestConnectionId()
-        client2.requestConnectionId()
+        client1.requestConnectionId {}
+        client2.requestConnectionId {}
 
         await().atMost(20, TimeUnit.SECONDS).until { client1.connected }
         await().atMost(20, TimeUnit.SECONDS).until { client2.connected }
