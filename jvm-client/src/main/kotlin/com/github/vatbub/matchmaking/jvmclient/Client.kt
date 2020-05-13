@@ -179,13 +179,14 @@ class Client(
     /**
      * Requests a connection id from the server and stores it in [connectionId] and [password].
      */
-    fun requestConnectionId() {
+    fun requestConnectionId(onConnectionIdReceived: (connectionId: String) -> Unit) {
         if (connected) return
         synchronized(this) {
             if (connected) return
             endpoint.sendRequest<GetConnectionIdResponse>(GetConnectionIdRequest()) {
                 connectionId = it.connectionId
                 password = it.password
+                onConnectionIdReceived(safeConnectionId)
             }
         }
     }
