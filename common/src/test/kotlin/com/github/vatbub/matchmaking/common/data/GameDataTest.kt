@@ -223,7 +223,7 @@ class GameDataTest : KotlinTestSuperclass<GameData>() {
     @Test
     fun creationTimestampNotEqualTest() {
         val instance1 = GameData(TestUtils.defaultConnectionId)
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         val instance2 = GameData(instance1.createdByConnectionId)
         Assertions.assertNotEquals(instance1, instance2)
     }
