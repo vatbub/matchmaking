@@ -6,14 +6,11 @@ addons:
   sonarcloud:
     organization: "vatbub-github"
 jdk:
-  - openjdk8
+  - openjdk14
 cache:
   directories:
   - "$HOME/.m2"
 install:
-- wget https://s3.eu-central-1.amazonaws.com/vatbubjdk/jdk-8u191-linux-x64.tar.gz -nv
-- tar -xf jdk-8u191-linux-x64.tar.gz
-- export JAVA_HOME=/home/travis/build/vatbub/matchmaking/jdk1.8.0_191/
 - curl https://cli-assets.heroku.com/install.sh | sh
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -DtrimStackTrace=false --settings travisMavenSettings.xml
