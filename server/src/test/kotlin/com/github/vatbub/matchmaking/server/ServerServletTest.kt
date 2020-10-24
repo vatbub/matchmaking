@@ -30,8 +30,9 @@ import com.github.vatbub.matchmaking.server.logic.ServerContext
 import com.github.vatbub.matchmaking.server.logic.configuration.*
 import com.github.vatbub.matchmaking.server.logic.testing.dummies.DynamicRequestHandler
 import com.github.vatbub.matchmaking.testutils.KotlinTestSuperclass
-import com.jsunsoft.http.HttpRequestBuilder
-import org.apache.commons.io.IOUtils
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -54,6 +55,7 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
 
     private val connectionId = (4567876543).toString(16)
     private val password = (5638290234).toString(16)
+    private val httpClient = OkHttpClient()
 
     @BeforeEach
     fun resetServer() {
@@ -68,35 +70,18 @@ class ServerServletTest : KotlinTestSuperclass<ServerServlet>() {
     private fun doRequest(json: String): String {
         println("Sending the following json:")
         println(json)
-        val httpRequest = HttpRequestBuilder.createPost(
-                URL(URL("http", "localhost", tomcatPort, ""), apiSuffix).toURI(),
-                String::class.java
-        ).addDefaultHeader("Content-Type", "application/json; charset=UTF-8")
-                .responseDeserializer { responseContext ->
-                    val contentTypeHeader = responseContext.httpResponse.getFirstHeader("charset")
-                    var encoding: String? = null
-                    if (contentTypeHeader != null) {
-                        val contentTypeParts = contentTypeHeader.value.split(";")
-                        for (contentTypePart in contentTypeParts)
-                            if (contentTypePart.startsWith("charset="))
-                                encoding =
-                                        contentTypePart.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-                    }
-
-                    if (encoding == null)
-                        encoding = "UTF-8"
-
-                    val responseString = IOUtils.toString(responseContext.content, encoding)
-                    responseString
-                }.build()
-        val response = httpRequest.executeWithBody(json)
-        val responseJson = if (response.hasContent())
-            response.get()
-        else
-            response.errorText
-
-        println("Received the following json:\n$responseJson")
-        return responseJson
+        val requestBody = json.toRequestBody("application/json; charset=UTF-8".toMediaType())
+        val httpRequest = okhttp3.Request.Builder()
+                .url(URL(URL("http", "localhost", tomcatPort, ""), apiSuffix))
+                .post(requestBody)
+                .build()
+        httpClient.newCall(httpRequest).execute().use { response ->
+            return response.body?.use { body ->
+                val responseJson = body.string()
+                println("Received the following json:\n$responseJson")
+                responseJson
+            } ?: ""
+        }
     }
 
     private fun <T : Response> doRequest(request: ServerInteraction): T {

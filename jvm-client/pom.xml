@@ -26,13 +26,14 @@
             <artifactId>awaitility</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jsunsoft.http</groupId>
-            <artifactId>http-request</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <!--- TODO: Replace with okHttp mock server -->
         <dependency>
             <groupId>org.nanohttpd</groupId>
             <artifactId>nanohttpd</artifactId>

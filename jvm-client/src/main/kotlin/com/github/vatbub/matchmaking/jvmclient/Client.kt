@@ -186,7 +186,7 @@ class Client(
             endpoint.sendRequest<GetConnectionIdResponse>(GetConnectionIdRequest()) {
                 connectionId = it.connectionId
                 password = it.password
-                onConnectionIdReceived(safeConnectionId)
+                onConnectionIdReceived(it.connectionId!!)
             }
         }
     }

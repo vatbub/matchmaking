@@ -61,8 +61,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jsunsoft.http</groupId>
-            <artifactId>http-request</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

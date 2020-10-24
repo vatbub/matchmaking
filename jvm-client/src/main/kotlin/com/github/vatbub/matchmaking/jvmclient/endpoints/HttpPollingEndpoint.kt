@@ -27,12 +27,13 @@ import com.github.vatbub.matchmaking.common.logger
 import com.github.vatbub.matchmaking.common.requests.GetRoomDataRequest
 import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.jvmclient.EndpointConfiguration
-import com.jsunsoft.http.HttpRequestBuilder
-import org.apache.commons.io.IOUtils
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
+    private val httpClient = OkHttpClient()
     private var internalIsConnected = false
     override val isConnected: Boolean
         get() = internalIsConnected
@@ -41,33 +42,17 @@ class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpoi
 
     override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
         networkThreadPool.submit {
-            val requestJson = InteractionConverter.serialize(request)
-            val httpRequest = HttpRequestBuilder.createPost(configuration.finalUrl.toURI(), String::class.java)
-                    .addDefaultHeader("Content-Type", "application/json; charset=UTF-8")
-                    .responseDeserializer { responseContext ->
-                        val charsetHeader = responseContext.httpResponse.getFirstHeader("charset")
-                        var encoding: String? = null
-                        if (charsetHeader != null) {
-                            val charsetParts = charsetHeader.value.split(";")
-                            charsetParts.forEach { charsetPart ->
-                                if (charsetPart.startsWith("charset="))
-                                    encoding = charsetPart.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-                            }
-                        }
-
-                        if (encoding == null)
-                            encoding = "UTF-8"
-
-                        val responseString = IOUtils.toString(responseContext.content, encoding)
-                        responseString
-                    }.build()
-            val httpResponse = httpRequest.executeWithBody(requestJson)
-            val responseJson = if (httpResponse.hasContent())
-                httpResponse.get()
-            else
-                httpResponse.errorText
-
-            responseHandler(InteractionConverter.deserialize(responseJson))
+            val requestBody = InteractionConverter.serialize(request).toRequestBody()
+            val httpRequest = okhttp3.Request.Builder()
+                    .url(configuration.finalUrl)
+                    .post(requestBody)
+                    .build()
+            httpClient.newCall(httpRequest).execute().use { response ->
+                response.body?.use { body ->
+                    val responseJson = body.string()
+                    responseHandler(InteractionConverter.deserialize(responseJson))
+                }
+            }
         }
     }
 

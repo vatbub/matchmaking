@@ -142,9 +142,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.jsunsoft.http</groupId>
-                <artifactId>http-request</artifactId>
-                <version>1.0.4</version>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>4.6.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
