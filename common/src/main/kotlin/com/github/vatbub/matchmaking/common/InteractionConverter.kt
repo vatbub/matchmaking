@@ -20,6 +20,7 @@
 package com.github.vatbub.matchmaking.common
 
 import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
 
 object InteractionConverter {
     fun serialize(serverInteraction: ServerInteraction): String = serverInteraction.toJson()
@@ -30,9 +31,9 @@ object InteractionConverter {
             val jsonTree = JsonParser.parseString(json)
             className = jsonTree.asJsonObject["className"]?.asString
                     ?: throw IllegalArgumentException("Illegal json string submitted: classname could not be found.")
-        } catch (e: IllegalStateException) {
+        } catch (e: JsonSyntaxException) {
             throw IllegalArgumentException("Illegal json string submitted: Could not convert to JsonObject", e)
-        } catch (e: ClassCastException) {
+        } catch (e: UnsupportedOperationException) {
             throw IllegalArgumentException("Illegal json string submitted: className is not a string", e)
         }
 

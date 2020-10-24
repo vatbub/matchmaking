@@ -48,4 +48,26 @@ class InteractionConverterDeserializationTests {
         }
         Assertions.assertEquals(response, deserializedResponse)
     }
+
+    @Test
+    fun illegalJsonTest() {
+        val illegalJson = "{ljhbljhbkh"
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            InteractionConverter.deserialize<DummyResponse>(illegalJson)
+        }
+    }
+
+    @Test
+    fun classNameNotAStringTest() {
+        val json = "{\"protocolVersion\":\"2.0\"," +
+                "\"httpStatusCode\":200," +
+                "\"connectionId\":\"7e189535\"," +
+                "\"className\":{" +
+                "\"dummyValue\":200" +
+                "}" +
+                "}"
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            InteractionConverter.deserialize<DummyResponse>(json)
+        }
+    }
 }

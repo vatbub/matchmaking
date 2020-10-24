@@ -25,6 +25,7 @@ import com.github.vatbub.matchmaking.common.responses.Result.*
 import com.github.vatbub.matchmaking.common.responses.Result.Nothing
 import com.github.vatbub.matchmaking.testutils.TestUtils
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class JoinOrCreateRoomResponseSerializationTest :
@@ -51,6 +52,21 @@ class JoinOrCreateRoomResponseSerializationTest :
         val response1 = newObjectUnderTest()
         val response2 = JoinOrCreateRoomResponse(response1.connectionId, response1.result, TestUtils.getRandomHexString(response1.roomId), response1.responseTo)
         Assertions.assertNotEquals(response1.hashCode(), response2.hashCode())
+    }
+
+    @Test
+    fun toInfixStringPastTenseRoomCreatedTest() {
+        assertEquals("created", RoomCreated.toInfixStringPastTense())
+    }
+
+    @Test
+    fun toInfixStringPastTenseRoomJoinedTest() {
+        assertEquals("joined", RoomJoined.toInfixStringPastTense())
+    }
+
+    @Test
+    fun toInfixStringPastTenseNothingHappenedTest() {
+        assertEquals("nothing", Nothing.toInfixStringPastTense())
     }
 
     private fun otherResult(resultValue: Result) = when (resultValue) {
