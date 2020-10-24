@@ -203,6 +203,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>*.war*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
