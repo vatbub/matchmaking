@@ -21,6 +21,7 @@ package com.github.vatbub.matchmaking.common.data
 
 import com.github.vatbub.matchmaking.common.data.GameData.Companion.MatchesPrimitiveClassResult.*
 import com.github.vatbub.matchmaking.common.toJson
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -43,6 +44,7 @@ import java.time.ZoneOffset
  */
 class GameData(val createdByConnectionId: String, val contents: MutableMap<String, Any>) {
     constructor(createdByConnectionId: String) : this(createdByConnectionId, mutableMapOf())
+
     @Deprecated("For internal use only", ReplaceWith("GameData(createdByConnectionId)"), DeprecationLevel.HIDDEN)
     constructor() : this("")
 
@@ -147,7 +149,8 @@ class GameData(val createdByConnectionId: String, val contents: MutableMap<Strin
 
         if (createdByConnectionId != other.createdByConnectionId) return false
         if (contents != other.contents) return false
-        if (createdAtUtc != other.createdAtUtc) return false
+        val creationTimeDifference = Duration.between(createdAtUtc, other.createdAtUtc)
+        if (creationTimeDifference.abs().toMillis() > 1000) return false
 
         return true
     }
