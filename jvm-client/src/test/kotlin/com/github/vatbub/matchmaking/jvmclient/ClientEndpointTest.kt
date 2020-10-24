@@ -22,6 +22,7 @@ package com.github.vatbub.matchmaking.jvmclient
 import com.github.vatbub.matchmaking.common.Request
 import com.github.vatbub.matchmaking.common.Response
 import com.github.vatbub.matchmaking.common.logger
+import com.github.vatbub.matchmaking.common.responses.*
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyRequest
 import com.github.vatbub.matchmaking.common.testing.dummies.DummyResponse
 import com.github.vatbub.matchmaking.jvmclient.endpoints.ClientEndpoint
@@ -43,13 +44,22 @@ interface DummyServer<T : EndpointConfiguration> {
 }
 
 abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TEndpointConfiguration : EndpointConfiguration> : KotlinTestSuperclassWithExceptionHandlerForMultithreading<T>() {
-    abstract fun newObjectUnderTest(endpointConfiguration: TEndpointConfiguration): T
+    abstract fun newObjectUnderTest(onException: (e: Throwable) -> Unit): T
+    override fun newObjectUnderTest(): T = newObjectUnderTest(this::exceptionHandler)
+
+    abstract fun newObjectUnderTest(endpointConfiguration: TEndpointConfiguration, onException: (e: Throwable) -> Unit): T
     abstract fun newDummyServer(): DummyServer<TEndpointConfiguration>
 
     var dummyServer: DummyServer<TEndpointConfiguration>? = null
         private set
     var endpointUnderTest: T? = null
         private set
+
+    private var onException: ((e: Throwable) -> Unit)? = null
+
+    private fun exceptionHandler(e: Throwable) {
+        onException?.invoke(e)
+    }
 
     @BeforeEach
     private fun prepare() {
@@ -107,7 +117,7 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
             previousEndpoint.terminateConnection()
             await().atMost(5, TimeUnit.SECONDS).until { !previousEndpoint.isConnected }
         }
-        endpointUnderTest = newObjectUnderTest(server.endpointConfiguration)
+        endpointUnderTest = newObjectUnderTest(server.endpointConfiguration, this::exceptionHandler)
     }
 
     @Test
@@ -141,6 +151,39 @@ abstract class ClientEndpointTest<T : ClientEndpoint<TEndpointConfiguration>, TE
         await().atMost(5L, TimeUnit.SECONDS).until { lastResponse != null }
         await().atMost(5L, TimeUnit.SECONDS).until { responseHandlerCalled }
         Assertions.assertNotNull(request.requestId)
+    }
+
+    @Test
+    fun verifyResponseIsNotAnExceptionTest() {
+        val dummyServer = this.dummyServer!!
+        val endpointUnderTest = this.endpointUnderTest!!
+
+        val exceptions = mapOf(
+                AuthorizationException() to AuthorizationExceptionWrapper::class.java,
+                BadRequestException() to BadRequestExceptionWrapper::class.java,
+                InternalServerErrorException() to InternalServerErrorExceptionWrapper::class.java,
+                NotAllowedException() to NotAllowedExceptionWrapper::class.java,
+                UnknownConnectionIdException() to UnknownConnectionIdExceptionWrapper::class.java
+        )
+
+        endpointUnderTest.connect()
+        await().atMost(5, TimeUnit.SECONDS).until { endpointUnderTest.isConnected }
+
+        exceptions.forEach { (serverInteractionException, expectedExceptionType) ->
+            var exceptionHandlerCalled = false
+            val request = DummyRequest(TestUtils.defaultConnectionId, TestUtils.defaultPassword, null)
+
+            dummyServer.dummyMessageGenerator = {
+                serverInteractionException
+            }
+            onException = {
+                Assertions.assertThrows(expectedExceptionType) { throw it }
+                exceptionHandlerCalled = true
+            }
+
+            endpointUnderTest.sendRequest<DummyResponse>(request) { }
+            await().atMost(5L, TimeUnit.SECONDS).until { exceptionHandlerCalled }
+        }
     }
 
     @Test

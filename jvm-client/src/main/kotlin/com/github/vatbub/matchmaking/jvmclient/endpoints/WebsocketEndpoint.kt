@@ -26,7 +26,10 @@ import com.github.vatbub.matchmaking.jvmclient.EndpointConfiguration
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 
-class WebsocketEndpoint(configuration: EndpointConfiguration.WebsocketEndpointConfig) : SocketClientEndpoint<EndpointConfiguration.WebsocketEndpointConfig>(configuration) {
+class WebsocketEndpoint(
+        configuration: EndpointConfiguration.WebsocketEndpointConfig,
+        onExceptionHappened: (e: Throwable) -> Unit
+) : SocketClientEndpoint<EndpointConfiguration.WebsocketEndpointConfig>(configuration, onExceptionHappened) {
     private var internalConnected = false
 
     private var client = object : WebSocketClient(configuration.finalUrl.toURI()) {

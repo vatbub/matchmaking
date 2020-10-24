@@ -67,27 +67,32 @@ private class DummyHttpServer : DummyServer<EndpointConfiguration.HttpPollingEnd
 }
 
 class HttpPollingEndpointTest : ClientEndpointTest<HttpPollingEndpoint, EndpointConfiguration.HttpPollingEndpointConfig>() {
-    override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.HttpPollingEndpointConfig): HttpPollingEndpoint =
-            HttpPollingEndpoint(endpointConfiguration)
+    override fun newObjectUnderTest(
+            endpointConfiguration: EndpointConfiguration.HttpPollingEndpointConfig,
+            onException: (Throwable) -> Unit
+    ): HttpPollingEndpoint =
+            HttpPollingEndpoint(endpointConfiguration, onException)
 
-    override fun newObjectUnderTest(): HttpPollingEndpoint =
-            HttpPollingEndpoint(EndpointConfiguration.HttpPollingEndpointConfig(URL("http://localhost:8080/")))
+    override fun newObjectUnderTest(onException: (Throwable) -> Unit): HttpPollingEndpoint =
+            HttpPollingEndpoint(EndpointConfiguration.HttpPollingEndpointConfig(URL("http://localhost:8080/"))) {
+                throw it
+            }
 
     override fun newDummyServer(): DummyServer<EndpointConfiguration.HttpPollingEndpointConfig> = DummyHttpServer()
 
     override fun getCloneOf(instance: HttpPollingEndpoint): HttpPollingEndpoint =
-            newObjectUnderTest(EndpointConfiguration.HttpPollingEndpointConfig(instance.configuration.hostUrl, instance.configuration.pollInterval))
+            newObjectUnderTest(EndpointConfiguration.HttpPollingEndpointConfig(instance.configuration.hostUrl, instance.configuration.pollInterval), instance.onExceptionHappened)
 
     override fun notEqualsTest() {
         val firstInstance = newObjectUnderTest()
-        val secondPollInterval = when (firstInstance.configuration.pollInterval){
+        val secondPollInterval = when (firstInstance.configuration.pollInterval) {
             Fast -> ExtremelySlow
             Medium -> Fast
             Slow -> Medium
             VerySlow -> Slow
             ExtremelySlow -> VerySlow
         }
-        val secondInstance = newObjectUnderTest(EndpointConfiguration.HttpPollingEndpointConfig(URL(firstInstance.configuration.hostUrl, "testPath"), secondPollInterval))
+        val secondInstance = newObjectUnderTest(EndpointConfiguration.HttpPollingEndpointConfig(URL(firstInstance.configuration.hostUrl, "testPath"), secondPollInterval), firstInstance.onExceptionHappened)
         Assertions.assertNotEquals(firstInstance, secondInstance)
     }
 }

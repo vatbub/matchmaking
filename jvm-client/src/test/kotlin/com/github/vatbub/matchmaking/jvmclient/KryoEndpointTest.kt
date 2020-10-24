@@ -100,17 +100,18 @@ private class DummyKryoServer : DummyServer<EndpointConfiguration.KryoEndpointCo
 class KryoEndpointTest : ClientEndpointTest<KryoEndpoint, EndpointConfiguration.KryoEndpointConfiguration>() {
     override fun newDummyServer(): DummyServer<EndpointConfiguration.KryoEndpointConfiguration> = DummyKryoServer()
 
-    override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration) =
-            KryoEndpoint(endpointConfiguration)
+    override fun newObjectUnderTest(endpointConfiguration: EndpointConfiguration.KryoEndpointConfiguration, onException: (Throwable) -> Unit) =
+            KryoEndpoint(endpointConfiguration, onException)
 
-    override fun newObjectUnderTest() =
-            newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost"))
+    override fun newObjectUnderTest(onException: (Throwable) -> Unit) =
+            newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost"), onException)
 
     override fun getCloneOf(instance: KryoEndpoint): KryoEndpoint =
-        newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration(instance.configuration.host, instance.configuration.tcpPort, instance.configuration.udpPort))
+            newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration(instance.configuration.host, instance.configuration.tcpPort, instance.configuration.udpPort), instance.onExceptionHappened)
 
     @Test
     override fun notEqualsTest() {
-        Assertions.assertNotEquals(newObjectUnderTest(), newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost", KryoCommon.defaultTcpPort + 1, KryoCommon.defaultTcpPort + 2, 5003)))
+        val firstInstance = newObjectUnderTest()
+        Assertions.assertNotEquals(firstInstance, newObjectUnderTest(EndpointConfiguration.KryoEndpointConfiguration("localhost", KryoCommon.defaultTcpPort + 1, KryoCommon.defaultTcpPort + 2, 5003), firstInstance.onExceptionHappened))
     }
 }

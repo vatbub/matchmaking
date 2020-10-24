@@ -28,15 +28,19 @@ import com.github.vatbub.matchmaking.common.responses.GetRoomDataResponse
 import com.github.vatbub.matchmaking.common.responses.SubscribeToRoomResponse
 import com.github.vatbub.matchmaking.jvmclient.EndpointConfiguration
 
-abstract class SocketClientEndpoint<T : EndpointConfiguration>(configuration: T) : ClientEndpoint<T>(configuration) {
+abstract class SocketClientEndpoint<T : EndpointConfiguration>(
+        configuration: T,
+        onExceptionHappened: (e: Throwable) -> Unit
+) : ClientEndpoint<T>(configuration, onExceptionHappened) {
     internal val pendingResponses = mutableListOf<ResponseHandlerWrapper<*>>()
     internal val newRoomDataHandlers = mutableMapOf<String, (Room) -> Unit>()
     var disposed = false
         internal set
+
     internal object Lock
 
-    internal fun processResponse(response:Response){
-        this.verifyResponseIsNotAnException(response)
+    internal fun processResponse(response: Response) {
+        verifyResponseIsNotAnException(response)
 
         // Server sent new room state without a prior request. This is only possible for socket connections.
         if (response is GetRoomDataResponse && response.responseTo == null) {
@@ -59,13 +63,13 @@ abstract class SocketClientEndpoint<T : EndpointConfiguration>(configuration: T)
 
     override fun <T : Response> sendRequestImpl(request: Request, responseHandler: (T) -> Unit) {
         synchronized(Lock) {
-            if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before sending more requests")
+            if (disposed) IllegalStateException("Client already terminated, please reinstantiate the client before sending more requests").reportExceptionAndThrow()
             pendingResponses.add(ResponseHandlerWrapper(request, responseHandler))
             socketSendRequestImpl(request)
         }
     }
 
-    abstract fun socketSendRequestImpl(request:Request)
+    abstract fun socketSendRequestImpl(request: Request)
 
     override fun abortRequestsOfType(sampleRequest: Request) {
         synchronized(Lock) {
@@ -79,7 +83,7 @@ abstract class SocketClientEndpoint<T : EndpointConfiguration>(configuration: T)
     }
 
     override fun connect() {
-        if (disposed) throw IllegalStateException("Client already terminated, please reinstantiate the client before connecting again")
+        if (disposed) IllegalStateException("Client already terminated, please reinstantiate the client before connecting again").reportExceptionAndThrow()
     }
 
     override fun terminateConnection() {

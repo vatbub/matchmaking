@@ -33,7 +33,15 @@ import com.github.vatbub.matchmaking.jvmclient.*
  *
  * @see Client
  */
-abstract class ClientEndpoint<T : EndpointConfiguration>(internal val configuration: T) {
+abstract class ClientEndpoint<T : EndpointConfiguration>(
+        internal val configuration: T,
+        internal val onExceptionHappened: (e: Throwable) -> Unit
+) {
+    internal fun Throwable.reportExceptionAndThrow(): Nothing {
+        onExceptionHappened(this)
+        throw this
+    }
+
     /**
      * Assigns a [Request.requestId] to the request and then forwards the request to the implementation.
      * @param request The request to be sent
@@ -85,17 +93,19 @@ abstract class ClientEndpoint<T : EndpointConfiguration>(internal val configurat
     abstract val isConnected: Boolean
 
     /**
-     * If the specified [response] is a subclass of [ServerInteractionException], the corresponding exception will be thrown.
+     * If the specified [response] is a subclass of [ServerInteractionException], the corresponding exception will be
+     * reported to the user and thrown.
      * No-op otherwise.
      */
     internal fun verifyResponseIsNotAnException(response: Response) {
         when (response) {
-            is AuthorizationException -> throw AuthorizationExceptionWrapper(response)
-            is BadRequestException -> throw BadRequestExceptionWrapper(response)
-            is InternalServerErrorException -> throw InternalServerErrorExceptionWrapper(response)
-            is NotAllowedException -> throw NotAllowedExceptionWrapper(response)
-            is UnknownConnectionIdException -> throw UnknownConnectionIdExceptionWrapper(response)
-        }
+            is AuthorizationException -> AuthorizationExceptionWrapper(response)
+            is BadRequestException -> BadRequestExceptionWrapper(response)
+            is InternalServerErrorException -> InternalServerErrorExceptionWrapper(response)
+            is NotAllowedException -> NotAllowedExceptionWrapper(response)
+            is UnknownConnectionIdException -> UnknownConnectionIdExceptionWrapper(response)
+            else -> null
+        }?.reportExceptionAndThrow()
     }
 
     override fun equals(other: Any?): Boolean {

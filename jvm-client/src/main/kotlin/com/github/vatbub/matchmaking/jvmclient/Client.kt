@@ -109,7 +109,8 @@ class Client(
         private val onConnectedUsersChange: (oldValue: List<User>?, newValue: List<User>) -> Unit,
         private val onGameStateChange: (oldValue: GameData?, newValue: GameData) -> Unit,
         private val onGameStarted: () -> Unit,
-        private val onDataToBeSentToHostChange: (oldValue: List<GameData>?, newValue: List<GameData>) -> Unit
+        private val onDataToBeSentToHostChange: (oldValue: List<GameData>?, newValue: List<GameData>) -> Unit,
+        private val onExceptionHappened: (exception: Throwable) -> Unit
 ) {
     /**
      * The connection id for this client or `null` if not connected
@@ -124,14 +125,14 @@ class Client(
         private set
     private val safeConnectionId: String
         get() = connectionId
-                ?: throw IllegalStateException("ConnectionId unknown, use requestConnectionId() to request a new connection id and password from the server")
+                ?: IllegalStateException("ConnectionId unknown, use requestConnectionId() to request a new connection id and password from the server").reportExceptionAndThrow()
     private val safePassword: String
         get() = password
-                ?: throw IllegalStateException("Password unknown, use requestConnectionId() to request a new connection id and password from the server")
+                ?: IllegalStateException("Password unknown, use requestConnectionId() to request a new connection id and password from the server").reportExceptionAndThrow()
     private var currentRoomId: String? = null
     private val safeCurrentRoomId: String
         get() = currentRoomId
-                ?: throw IllegalStateException("CurrentRoomId unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
+                ?: IllegalStateException("CurrentRoomId unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room").reportExceptionAndThrow()
 
     /**
      * The [Room] which this client is currently connected to or `null` if not connected or if no room was joined yet.
@@ -140,7 +141,7 @@ class Client(
         private set
     private val safeCurrentRoom: Room
         get() = currentRoom
-                ?: throw IllegalStateException("CurrentRoom unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room")
+                ?: IllegalStateException("CurrentRoom unknown, use joinRoom(...) or joinOrCreateRoom(...) to join a room").reportExceptionAndThrow()
 
     /**
      * `true` if connected to a server, `false` otherwise
@@ -162,9 +163,9 @@ class Client(
             try {
                 if (tempEndpoint != null) return@forEach
                 tempEndpoint = when (it) {
-                    is EndpointConfiguration.WebsocketEndpointConfig -> WebsocketEndpoint(it)
-                    is EndpointConfiguration.HttpPollingEndpointConfig -> HttpPollingEndpoint(it)
-                    is EndpointConfiguration.KryoEndpointConfiguration -> KryoEndpoint(it)
+                    is EndpointConfiguration.WebsocketEndpointConfig -> WebsocketEndpoint(it, onExceptionHappened)
+                    is EndpointConfiguration.HttpPollingEndpointConfig -> HttpPollingEndpoint(it, onExceptionHappened)
+                    is EndpointConfiguration.KryoEndpointConfiguration -> KryoEndpoint(it, onExceptionHappened)
                 }
                 tempEndpoint!!.connect()
                 return@forEach
@@ -173,7 +174,12 @@ class Client(
             }
         }
         endpoint = tempEndpoint
-                ?: throw ConnectException("Unable to connect using any of the specified configurations. See the log for more details.")
+                ?: ConnectException("Unable to connect using any of the specified configurations. See the log for more details.").reportExceptionAndThrow()
+    }
+
+    private fun Throwable.reportExceptionAndThrow(): kotlin.Nothing {
+        onExceptionHappened(this)
+        throw this
     }
 
     /**
@@ -228,18 +234,18 @@ class Client(
         synchronized(this) {
             if (roomConnected) return
             if (requestedRoomId != null && operation != JoinRoom)
-                throw IllegalArgumentException("To request a specific room id, operation must be set to Operation.JoinRoom.")
+                IllegalArgumentException("To request a specific room id, operation must be set to Operation.JoinRoom.").reportExceptionAndThrow()
             endpoint.sendRequest<JoinOrCreateRoomResponse>(JoinOrCreateRoomRequest(safeConnectionId, safePassword, operation, userName, whitelist, blacklist, minRoomSize, maxRoomSize)) {
                 when (it.result) {
-                    Nothing -> throw when (operation) {
+                    Nothing -> when (operation) {
                         JoinRoom -> IllegalArgumentException("Unable to join the specified room. This is probably because no room with the specified id exists.")
                         CreateRoom -> IllegalArgumentException("Unable to create a new room for an unknown reason")
                         JoinOrCreateRoom -> IllegalArgumentException("Unable to join or create a new room for an unknown reason")
-                    }
+                    }.reportExceptionAndThrow()
                     else -> {
                         logger.debug { "Room ${it.result.toInfixStringPastTense()}: ${it.roomId}" }
                         currentRoomId = it.roomId
-                                ?: throw IllegalArgumentException("Server sent an illegal response: roomId not specified")
+                                ?: IllegalArgumentException("Server sent an illegal response: roomId not specified").reportExceptionAndThrow()
                         endpoint.subscribeToRoom(safeConnectionId, safePassword, safeCurrentRoomId, this::newRoomDataHandler)
                         onRoomJoined?.invoke(safeCurrentRoomId)
                     }
@@ -287,9 +293,9 @@ class Client(
 
     private fun verifyIsHost() {
         val currentRoomCopy = currentRoom
-                ?: throw IllegalStateException("Room data not yet retrieved, please wait with calling this method until currentRoom != null")
+                ?: IllegalStateException("Room data not yet retrieved, please wait with calling this method until currentRoom != null").reportExceptionAndThrow()
         if (!currentRoomCopy.amITheHost)
-            throw IllegalStateException("You are not the host of the room, only the host is allowed to perform this action!")
+            IllegalStateException("You are not the host of the room, only the host is allowed to perform this action!").reportExceptionAndThrow()
     }
 
     /**
@@ -331,7 +337,7 @@ class Client(
 
     private fun processGetGameDataResponse(getGameDataResponse: GetRoomDataResponse) {
         val room = getGameDataResponse.room
-                ?: throw IllegalArgumentException("Room unknown to server, try reconnecting")
+                ?: IllegalArgumentException("Room unknown to server, try reconnecting").reportExceptionAndThrow()
         newRoomDataHandler(room)
     }
 

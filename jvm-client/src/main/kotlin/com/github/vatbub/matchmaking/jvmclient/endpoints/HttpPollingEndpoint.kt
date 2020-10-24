@@ -32,7 +32,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpointConfig) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration) {
+class HttpPollingEndpoint(
+        configuration: EndpointConfiguration.HttpPollingEndpointConfig,
+        onExceptionHappened: (e: Throwable) -> Unit
+) : ClientEndpoint<EndpointConfiguration.HttpPollingEndpointConfig>(configuration, onExceptionHappened) {
     private val httpClient = OkHttpClient()
     private var internalIsConnected = false
     override val isConnected: Boolean
@@ -50,7 +53,9 @@ class HttpPollingEndpoint(configuration: EndpointConfiguration.HttpPollingEndpoi
             httpClient.newCall(httpRequest).execute().use { response ->
                 response.body?.use { body ->
                     val responseJson = body.string()
-                    responseHandler(InteractionConverter.deserialize(responseJson))
+                    val deserializedResponse = InteractionConverter.deserialize<T>(responseJson)
+                    verifyResponseIsNotAnException(deserializedResponse)
+                    responseHandler(deserializedResponse)
                 }
             }
         }

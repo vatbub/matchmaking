@@ -32,12 +32,14 @@ class ClientTest {
                 { _, _ -> println("[Client 1] Connected users changed") },
                 { _, newValue -> println("[Client 1] New game state:\n$newValue") },
                 { println("[Client 1] Game started") },
-                { _, _ -> println("[Client 1] New data to be sent to host.") })
+                { _, _ -> println("[Client 1] New data to be sent to host.") },
+                { throw it })
         val client2 = Client(listOf(EndpointConfiguration.KryoEndpointConfiguration("localhost")),
                 { _, _ -> println("[Client 2] Connected users changed") },
                 { _, newValue -> println("[Client 2] New game state:\n$newValue") },
                 { println("[Client 2] Game started") },
-                { _, _ -> println("[Client 2] New data to be sent to host.") })
+                { _, _ -> println("[Client 2] New data to be sent to host.") },
+                { throw it })
 
         client1.requestConnectionId {}
         client2.requestConnectionId {}

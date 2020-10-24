@@ -29,7 +29,10 @@ import org.awaitility.Awaitility
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class KryoEndpoint(configuration: EndpointConfiguration.KryoEndpointConfiguration) : SocketClientEndpoint<EndpointConfiguration.KryoEndpointConfiguration>(configuration) {
+class KryoEndpoint(
+        configuration: EndpointConfiguration.KryoEndpointConfiguration,
+        onExceptionHappened: (e: Throwable) -> Unit
+) : SocketClientEndpoint<EndpointConfiguration.KryoEndpointConfiguration>(configuration, onExceptionHappened) {
     override val isConnected: Boolean
         get() = client.isConnected
     private val client by lazy {
@@ -62,7 +65,7 @@ class KryoEndpoint(configuration: EndpointConfiguration.KryoEndpointConfiguratio
             synchronized(Lock) {
                 logger.info { "Client: Received: $obj" }
                 if (obj is FrameworkMessage.KeepAlive) return
-                if (obj !is Response) throw IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}")
+                if (obj !is Response) IllegalArgumentException("Received an object of illegal type: ${obj.javaClass.name}").reportExceptionAndThrow()
                 processResponse(obj)
             }
         }
