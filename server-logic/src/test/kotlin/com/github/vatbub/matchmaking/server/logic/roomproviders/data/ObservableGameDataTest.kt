@@ -214,7 +214,7 @@ class ObservableGameDataTest : KotlinTestSuperclass<ObservableGameData>() {
     @Test
     override fun notEqualsTest() {
         val object1 = newObjectUnderTest()
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         val object2 = newObjectUnderTest()
         Assertions.assertNotEquals(object1, object2)
     }

@@ -40,7 +40,7 @@ class UpdateGameStateRequestSerializationTest :
     @Test
     fun gameDataNotEqualsTest() {
         val request1 = newObjectUnderTest()
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         val request2 = UpdateGameStateRequest(request1.connectionId!!, request1.password!!, request1.roomId, GameData(request1.connectionId!!), request1.processedData, request1.requestId)
         Assertions.assertNotEquals(request1, request2)
     }
