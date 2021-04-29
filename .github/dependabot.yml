@@ -1,0 +1,84 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-core
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-jasper
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-websocket
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat:tomcat-jasper
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat:tomcat-jasper-el
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat:tomcat-jsp-api
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.apache.tomcat:tomcat-websocket
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: org.jetbrains.exposed:exposed
+    versions:
+    - 0.17.12
+    - 0.17.8
+    - 0.17.9
+  - dependency-name: org.pitest:pitest-maven
+    versions:
+    - 1.6.2
+    - 1.6.3
+    - 1.6.4
+  - dependency-name: org.apache.tomcat:tomcat-websocket
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat:tomcat-jsp-api
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat:tomcat-jasper-el
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat:tomcat-jasper
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-jasper
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-websocket
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-core
+    versions:
+    - 10.0.0
+    - 10.0.2
+    - 10.0.4
+  - dependency-name: org.postgresql:postgresql
+    versions:
+    - 42.2.19
+  - dependency-name: io.github.microutils:kotlin-logging-jvm
+    versions:
+    - 2.0.4
+  - dependency-name: com.squareup.okhttp3:okhttp
+    versions:
+    - 4.9.0
